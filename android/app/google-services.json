@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "482921557313",
+    "project_id": "ruprup-41858",
+    "storage_bucket": "ruprup-41858.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:482921557313:android:01f4b094ebf192c07385c0",
+        "android_client_info": {
+          "package_name": "com.example.ruprup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJT8Wxw0EIj3nYUWUHe_AHgmNQn5wlCMY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
