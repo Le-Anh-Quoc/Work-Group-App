@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/screens/HomeScreen.dart';
-import 'package:ruprup/screens/LoginScreen.dart';
-import 'package:ruprup/screens/VerificationScreen.dart';
+import 'package:ruprup/screens/MainScreen.dart';
+import 'package:ruprup/screens/authentication/LoginScreen.dart';
+import 'package:ruprup/screens/authentication/VerificationScreen.dart';
 
 class Wrapper extends StatelessWidget {
   const Wrapper({super.key});
@@ -26,7 +26,7 @@ class Wrapper extends StatelessWidget {
                   return const LoginScreen();
                 } else {
                   if (snapshot.data?.emailVerified == true) {
-                    return HomeScreen();
+                    return MainScreen(selectedIndex: 0);
                   }
                   return const VerificationScreen();
                 }
