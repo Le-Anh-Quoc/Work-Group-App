@@ -50,6 +50,8 @@ dependencies:
   validators: ^3.0.0
   flutter_chat_ui: ^1.6.15
   flutter_chat_types: ^3.6.2
+  fl_chart: ^0.69.0
+  percent_indicator: ^4.2.3
 
 dev_dependencies:
   flutter_test:
