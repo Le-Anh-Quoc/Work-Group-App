@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/friend_service.dart';
 import 'package:ruprup/services/notification_service.dart';
 
@@ -60,6 +61,21 @@ class UserService {
     }
   }
 
+  Future<String> getFullNameByUid(String uid) async {
+    try {
+      DocumentSnapshot snapshot =
+          await _firestore.collection('users').doc(uid).get();
+      if (snapshot.exists) {
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        return data['fullname'] as String? ??
+            'Người dùng'; // Trả về 'Người dùng' nếu fullname là null
+      }
+    } catch (e) {
+      print('Error getting full name: $e');
+    }
+    return 'Người dùng'; // Trả về giá trị mặc định nếu có lỗi
+  }
+
   // người dùng hiện tại gửi yêu cầu kết bạn tới người dùng khác
   Future<bool> sendFriendRequest(
       String currentUserId, String targetUserId) async {
@@ -94,6 +110,7 @@ class UserService {
     try {
       FriendService friend = FriendService();
       NotificationService notification = NotificationService();
+      ChatService chatService = ChatService();
 
       // 1. Cập nhật trạng thái chấp nhận kết bạn
       await friend.updateAcceptFriendRequestStatus(currentUserId, friendUserId);
@@ -101,7 +118,11 @@ class UserService {
       // 2. Cập nhật danh sách bạn bè
       await friend.updateFriendLists(currentUserId, friendUserId);
 
-      // 3. Gửi thông báo tới tài khoản đã gửi lời mời
+      // 3. Tạo đoạn chat 1vs1
+      List<String> userIds = [currentUserId, friendUserId];
+      await chatService.createChat(userIds);
+
+      // 4. Gửi thông báo tới tài khoản đã gửi lời mời
       await notification.sendNotificationToRequester(
           friendUserId, currentUserId);
 
@@ -123,5 +144,51 @@ class UserService {
     } catch (e) {
       print("Error accepting friend request: $e");
     }
+  }
+
+  Future<List<Map<String, dynamic>>> searchUsers(String keyword) async {
+    keyword = keyword.toLowerCase();
+
+    // Tham chiếu tới collection "User"
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+    // Tìm kiếm các người dùng có 'email' hoặc 'fullname' chứa từ khóa
+    QuerySnapshot emailQuery = await users
+        .where('email', isGreaterThanOrEqualTo: keyword)
+        .where('email', isLessThan: keyword + '\uf8ff')
+        .get();
+
+    QuerySnapshot nameQuery = await users
+        .where('fullname', isGreaterThanOrEqualTo: keyword)
+        .where('fullname', isLessThan: keyword + '\uf8ff')
+        .get();
+
+    // Hợp nhất kết quả từ email và fullname
+    Set<Map<String, dynamic>> resultsSet = {};
+    Set<String> uniqueEmails = {}; // Set để theo dõi email đã được thêm vào
+
+    // Thêm kết quả từ emailQuery
+    for (var doc in emailQuery.docs) {
+      var data = doc.data() as Map<String, dynamic>;
+      String email = data['email']; // Lấy email
+      // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
+      if (!uniqueEmails.contains(email)) {
+        resultsSet.add(data);
+        uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
+      }
+    }
+
+    // Thêm kết quả từ nameQuery
+    for (var doc in nameQuery.docs) {
+      var data = doc.data() as Map<String, dynamic>;
+      String email = data['email']; // Lấy email
+      // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
+      if (!uniqueEmails.contains(email)) {
+        resultsSet.add(data);
+        uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
+      }
+    }
+
+    return resultsSet.toList();
   }
 }

@@ -21,8 +21,8 @@ class NotificationService {
           .collection('notifications')
           .where('recipientId',
               isEqualTo: currentUserId) // Lọc theo recipientId
-          .orderBy('timestamp',
-              descending: true) // Sắp xếp theo thời gian giảm dần
+          // .orderBy('timestamp',
+          //     descending: true) // Sắp xếp theo thời gian giảm dần
           .get();
 
       print(

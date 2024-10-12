@@ -2,13 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/screens/LoginScreen.dart';
+import 'package:ruprup/models/user.dart';
+import 'package:ruprup/screens/authentication/LoginScreen.dart';
 
 class AuthService {
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
 
   // đăng nhập
   Future<User?> logIn(String email, String password) async {
@@ -32,20 +31,20 @@ class AuthService {
     }
   }
 
-
 // đăng xuất
   Future logOut(BuildContext context) async {
     //FirebaseAuth _auth = FirebaseAuth.instance;
     try {
       await _auth.signOut().then((value) {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (Route<dynamic> route) => false,
+        );
       });
     } catch (e) {
       print("error");
     }
   }
-
 
   // gửi email xác thực về email của người dùng
   Future<void> sendEmailVerificationLink() async {
@@ -55,7 +54,6 @@ class AuthService {
       print(e.toString());
     }
   }
-
 
   // tạo tài khoản bằng Email
   Future<User?> registerWithEmail(
@@ -88,7 +86,6 @@ class AuthService {
     return null;
   }
 
-
   // kiểm tra xem email đã được người dùng xác thực hay chưa để tiến hành lưu vào csdl
   Future<void> checkEmailVerificationAndSave(String fullname, String email,
       FirebaseAuth _auth, FirebaseFirestore _firestore) async {
@@ -102,17 +99,14 @@ class AuthService {
         user = _auth.currentUser; // Cập nhật đối tượng người dùng
       }
 
+      UserModel userModel =
+          UserModel(userId: user.uid, fullname: fullname, email: email);
+
       // Lưu thông tin người dùng vào Firestore
-      await _firestore.collection('users').doc(user.uid).set({
-        'fullname': fullname,
-        'email': email,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
       print("Thông tin người dùng đã được lưu vào Firestore.");
     } else {
       print("Người dùng chưa được xác thực.");
     }
   }
 }
-
-
