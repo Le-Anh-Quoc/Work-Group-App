@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/screens/group/AddGroupScreen.dart';
 import 'package:ruprup/screens/home/HomeScreen.dart';
@@ -15,6 +16,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
   late int _selectedIndex;
 
   @override
@@ -38,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
       case 3:
         return const ProjectScreen();
       case 4:
-        return const MeScreen();
+        return PersonalScreen(userId: currentUserId);
       default:
         return Container();
     }
