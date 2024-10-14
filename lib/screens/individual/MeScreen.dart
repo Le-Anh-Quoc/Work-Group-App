@@ -1,21 +1,29 @@
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/widgets/me/TaskWidget.dart';
 
-class MeScreen extends StatefulWidget {
-  const MeScreen({super.key});
+class PersonalScreen extends StatefulWidget {
+  final String userId;
+  const PersonalScreen({super.key, required this.userId});
 
   @override
-  State<MeScreen> createState() => _MeScreenState();
+  State<PersonalScreen> createState() => _PersonalScreenState();
 }
 
-class _MeScreenState extends State<MeScreen> {
+class _PersonalScreenState extends State<PersonalScreen> {
   @override
   Widget build(BuildContext context) {
+    String currentUserId =
+        FirebaseAuth.instance.currentUser!.uid; // lấy userId hiện tại
+    bool isCurrentUser = currentUserId ==
+        widget
+            .userId; // kiểm tra xem userId truyền vào có phải người dùng hiện tại không
+
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(bottom: 56.0),
+        padding: EdgeInsets.only(bottom: isCurrentUser ? 56.0 : 0),
         child: Column(
           children: [
             // Stack chứa AppBar với hình nền và hiệu ứng mờ
@@ -26,7 +34,8 @@ class _MeScreenState extends State<MeScreen> {
                   height: kToolbarHeight + 50, // Chiều cao của AppBar
                   decoration: const BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage('https://picsum.photos/200/300?random=${1}'),
+                      image: NetworkImage(
+                          'https://picsum.photos/200/300?random=${1}'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -42,6 +51,12 @@ class _MeScreenState extends State<MeScreen> {
                 ),
                 // AppBar
                 AppBar(
+                  leading: !isCurrentUser ? IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pop(context); // Quay lại khi nhấn nút
+                    },
+                  ) : null,
                   backgroundColor: Colors.transparent,
                   elevation: 0,
                   automaticallyImplyLeading: false,
@@ -54,14 +69,15 @@ class _MeScreenState extends State<MeScreen> {
                 ),
               ],
             ),
-            
+
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(30)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.5),
@@ -98,7 +114,27 @@ class _MeScreenState extends State<MeScreen> {
                           const Text("Study, study more, study forever",
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.w400)),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 15),
+                          if (!isCurrentUser)
+                            Column(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Xử lý logic gửi yêu cầu kết bạn
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blueAccent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(40),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12),
+                                  ),
+                                  child: Text('Add Friend', style: TextStyle(color: Colors.white)),
+                                ),
+                                const SizedBox(height: 15),
+                              ],
+                            ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -124,7 +160,8 @@ class _MeScreenState extends State<MeScreen> {
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold)),
-                                  Text('Tasks', style: TextStyle(color: Colors.grey))
+                                  Text('Tasks',
+                                      style: TextStyle(color: Colors.grey))
                                 ],
                               ),
                               Container(
@@ -138,7 +175,8 @@ class _MeScreenState extends State<MeScreen> {
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold)),
-                                  Text('Groups', style: TextStyle(color: Colors.grey))
+                                  Text('Groups',
+                                      style: TextStyle(color: Colors.grey))
                                 ],
                               )
                             ],
@@ -147,7 +185,8 @@ class _MeScreenState extends State<MeScreen> {
                           const Column(
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   TaskIndivi(
                                       percentTask: '23',
@@ -163,7 +202,8 @@ class _MeScreenState extends State<MeScreen> {
                               ),
                               SizedBox(height: 15),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   TaskIndivi(
                                       percentTask: '23',
