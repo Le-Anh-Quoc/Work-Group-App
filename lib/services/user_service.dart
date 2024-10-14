@@ -1,13 +1,63 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/friend_service.dart';
 import 'package:ruprup/services/notification_service.dart';
 
 class UserService {
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection('users');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // tìm kiếm người dùng khác bằng email
+  // 1. Create: Tạo một người dùng mới
+  Future<void> createUser(UserModel user) async {
+    try {
+      // Sử dụng userId (UID) từ Firebase Authentication làm ID cho người dùng
+      await userCollection.doc(user.userId).set(user.toMap());
+      print("Người dùng đã được tạo với ID: ${user.userId}");
+    } catch (e) {
+      print("Lỗi khi tạo người dùng: $e");
+    }
+  }
+
+  // 2. Read: Lấy thông tin người dùng theo ID
+  Future<UserModel?> readUser(String id) async {
+    try {
+      DocumentSnapshot docSnapshot = await userCollection.doc(id).get();
+      if (docSnapshot.exists) {
+        return UserModel.fromMap(docSnapshot.data() as Map<String, dynamic>);
+      } else {
+        print("Người dùng không tồn tại với ID: $id");
+        return null;
+      }
+    } catch (e) {
+      print("Lỗi khi đọc người dùng: $e");
+      return null;
+    }
+  }
+
+  // 3. Update: Cập nhật thông tin người dùng theo ID
+  Future<void> updateUser(String id, Map<String, dynamic> updatedData) async {
+    try {
+      await userCollection.doc(id).update(updatedData);
+      print("Người dùng đã được cập nhật với ID: $id");
+    } catch (e) {
+      print("Lỗi khi cập nhật người dùng: $e");
+    }
+  }
+
+  // 4. Delete: Xóa người dùng theo ID
+  Future<void> deleteUser(String id) async {
+    try {
+      await userCollection.doc(id).delete();
+      print("Người dùng đã được xóa với ID: $id");
+    } catch (e) {
+      print("Lỗi khi xóa người dùng: $e");
+    }
+  }
+
+  // 5. tìm kiếm người dùng khác bằng email
   Future<List<Map<String, dynamic>>> searchUserByEmail(String email) async {
     try {
       QuerySnapshot snapshot = await _firestore
@@ -29,7 +79,7 @@ class UserService {
     }
   }
 
-  // lấy fullName của người dùng hiện tại
+  // 6. lấy fullName của người dùng hiện tại
   Future<String?> getCurrentUserFullName() async {
     try {
       // Lấy uid của người dùng hiện tại
@@ -61,6 +111,7 @@ class UserService {
     }
   }
 
+  // 7. Lấy fullName của một người dùng nào đó bằng id
   Future<String> getFullNameByUid(String uid) async {
     try {
       DocumentSnapshot snapshot =
@@ -76,7 +127,7 @@ class UserService {
     return 'Người dùng'; // Trả về giá trị mặc định nếu có lỗi
   }
 
-  // người dùng hiện tại gửi yêu cầu kết bạn tới người dùng khác
+  // 8. Người dùng hiện tại gửi yêu cầu kết bạn tới người dùng khác
   Future<bool> sendFriendRequest(
       String currentUserId, String targetUserId) async {
     final requestId = '${currentUserId}_$targetUserId';
@@ -104,7 +155,7 @@ class UserService {
     }
   }
 
-  // người dùng chấp nhận lời mời kết bạn
+  // 9. người dùng chấp nhận lời mời kết bạn
   Future<void> acceptFriendRequest(
       String currentUserId, String friendUserId) async {
     try {
@@ -132,6 +183,7 @@ class UserService {
     }
   }
 
+  // 10. Hàm dùng để từ chối lời mời kết bạn
   Future<void> rejectFriendRequest(
       String currentUserId, String friendUserId) async {
     try {
@@ -146,8 +198,11 @@ class UserService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> searchUsers(String keyword) async {
-    keyword = keyword.toLowerCase();
+  // 11. tìm kiếm người dùng khác
+  Future<List<UserModel>> searchUsers(String keyword) async {
+    //keyword = keyword.toLowerCase();
+
+    Map<String, Map<String, dynamic>> userMap = {};
 
     // Tham chiếu tới collection "User"
     CollectionReference users = FirebaseFirestore.instance.collection('users');
@@ -155,40 +210,83 @@ class UserService {
     // Tìm kiếm các người dùng có 'email' hoặc 'fullname' chứa từ khóa
     QuerySnapshot emailQuery = await users
         .where('email', isGreaterThanOrEqualTo: keyword)
-        .where('email', isLessThan: keyword + '\uf8ff')
+        .where('email', isLessThan: '$keyword\uf8ff')
+        .where('email', isEqualTo: keyword)
         .get();
+
+    for (var doc in emailQuery.docs) {
+      userMap[doc.id] = doc.data() as Map<String, dynamic>;
+    }
 
     QuerySnapshot nameQuery = await users
         .where('fullname', isGreaterThanOrEqualTo: keyword)
-        .where('fullname', isLessThan: keyword + '\uf8ff')
+        .where('fullname', isLessThan: '$keyword\uf8ff')
+        .where('fullname', isEqualTo: keyword)
         .get();
 
-    // Hợp nhất kết quả từ email và fullname
-    Set<Map<String, dynamic>> resultsSet = {};
-    Set<String> uniqueEmails = {}; // Set để theo dõi email đã được thêm vào
-
-    // Thêm kết quả từ emailQuery
-    for (var doc in emailQuery.docs) {
-      var data = doc.data() as Map<String, dynamic>;
-      String email = data['email']; // Lấy email
-      // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
-      if (!uniqueEmails.contains(email)) {
-        resultsSet.add(data);
-        uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
-      }
-    }
-
-    // Thêm kết quả từ nameQuery
     for (var doc in nameQuery.docs) {
-      var data = doc.data() as Map<String, dynamic>;
-      String email = data['email']; // Lấy email
-      // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
-      if (!uniqueEmails.contains(email)) {
-        resultsSet.add(data);
-        uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
-      }
+      userMap[doc.id] = doc.data() as Map<String, dynamic>;
     }
 
-    return resultsSet.toList();
+    // Chuyển đổi map thành danh sách UserModel sử dụng hàm fromMap
+  List<UserModel> userList = userMap.values.map((userData) {
+    return UserModel.fromMap(userData);
+  }).toList();
+
+  return userList;
+
+    // Hợp nhất kết quả từ email và fullname
+    // Set<Map<String, dynamic>> resultsSet = {};
+    // Set<String> uniqueEmails = {}; // Set để theo dõi email đã được thêm vào
+
+    // // Thêm kết quả từ emailQuery
+    // for (var doc in emailQuery.docs) {
+    //   var data = doc.data() as Map<String, dynamic>;
+    //   String email = data['email']; // Lấy email
+    //   // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
+    //   if (!uniqueEmails.contains(email)) {
+    //     resultsSet.add(data);
+    //     uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
+    //   }
+    // }
+
+    // // Thêm kết quả từ nameQuery
+    // for (var doc in nameQuery.docs) {
+    //   var data = doc.data() as Map<String, dynamic>;
+    //   String email = data['email']; // Lấy email
+    //   // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
+    //   if (!uniqueEmails.contains(email)) {
+    //     resultsSet.add(data);
+    //     uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
+    //   }
+    // }
+
+    // return resultsSet.toList();
   }
+
+  // Hàm tìm kiếm người dùng dựa vào fullName hoặc email và trả về list ModelUser
+  // Future<List<UserModel>> searchUsers(String keyword) async {
+  //   if (keyword.isEmpty) {
+  //     return [];
+  //   }
+
+  //   try {
+  //     QuerySnapshot querySnapshot = await _firestore
+  //         .collection('users')
+  //         .orderBy('fullName')
+  //         .startAt([keyword])
+  //         .endAt([keyword + '\uf8ff'])
+  //         .get();
+
+  //     Chuyển đổi từ DocumentSnapshot thành ModelUser
+  //     List<UserModel> users = querySnapshot.docs.map((doc) {
+  //       return UserModel.fromMap(doc.data() as Map<String, dynamic>);
+  //     }).toList();
+
+  //     return users;
+  //   } catch (error) {
+  //     print("Lỗi tìm kiếm: $error");
+  //     return [];
+  //   }
+  // }
 }
