@@ -6,7 +6,7 @@ import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/friend_service.dart';
 import 'package:ruprup/services/group_service.dart';
 import 'package:ruprup/widgets/group/FieldWidget.dart';
-import 'package:ruprup/widgets/person_tile.dart';
+import 'package:ruprup/widgets/group/NewMemberWidget.dart';
 import 'package:ruprup/widgets/search/SearchWidget.dart';
 
 class AddGroupScreen extends StatefulWidget {
@@ -207,7 +207,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                               _friendResults[index]['fullname'];
                           String idUserChat = _friendResults[index]['uid'];
                           bool isSelected = selectedUsers.contains(idUserChat);
-                          return ChooseMemberGroupTile(
+                          return NewMemberWidget(
                             name: nameUserChat,
                             isSelected: isSelected,
                             onSelected: () {
