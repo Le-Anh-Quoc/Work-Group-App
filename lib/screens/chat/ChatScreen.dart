@@ -1,10 +1,11 @@
 import 'dart:math';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
+import 'package:image_picker/image_picker.dart';
 import 'package:ruprup/services/chat_service.dart';
-import 'package:ruprup/services/user_service.dart';
 import '../../models/message_model.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -23,11 +24,9 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ChatService _chatService = ChatService();
-  final UserService _userService = UserService();
   late final types.User _currentUser;
   final List<types.Message> _messages = [];
   Set<String> _recipientIds = {};
-  String _recipientName = '';
 
   @override
   void initState() {
@@ -36,7 +35,6 @@ class _ChatScreenState extends State<ChatScreen> {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
     _currentUser = types.User(id: currentUserId);
 
-    print(widget.chatId);
     _fetchRecipientDetails();
     _fetchMessages();
   }
@@ -46,23 +44,10 @@ class _ChatScreenState extends State<ChatScreen> {
       final chatData = await _chatService.getChatDetails(widget.chatId);
       final users = chatData['users'] as List<Map<String, dynamic>>;
 
-      // Lấy tất cả ID người dùng trừ người dùng hiện tại
       _recipientIds = users
           .map((user) => user['id'] as String)
           .where((id) => id != _currentUser.id)
           .toSet();
-      print('2');
-      print(_recipientIds);
-      // if (_recipientIds.length == 1) {
-      //   // Nếu là chat 1vs1, lấy tên của người còn lại
-      //   final fullName = await _userService.getFullNameByUid(_recipientIds.first);
-      //   setState(() {
-      //     _recipientName = fullName;
-      //   });
-      // } else {
-      //   final groupName = chatData['groupName'];
-      //   _recipientName = groupName;
-      // }
     } catch (e) {
       print('Error fetching recipient details: $e');
     }
@@ -89,7 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     setState(() {
-      _messages.add(textMessage.toTypesTextMessage());
+      _messages.add(textMessage.toTypesTextMessage()); // Đảm bảo phương thức toTypesTextMessage có xử lý cho imageUrl
     });
 
     _chatService.sendMessage(textMessage, widget.chatId);
@@ -101,27 +86,178 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.black,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        title: Text(widget.titleChat ?? "Chat"),
+        title: Row(
+          children: [
+            const CircleAvatar(
+              backgroundImage:
+                  NetworkImage('https://picsum.photos/200/300?random=2'),
+              radius: 20,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              widget.titleChat ?? "Chat",
+              style: const TextStyle(fontSize: 20),
+            ),
+          ],
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.white, Colors.white70, Colors.blue],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.more_horiz),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cài đặt cuộc trò chuyện')),
+                const SnackBar(content: Text('Setting')),
               );
             },
           ),
         ],
       ),
-      body: Chat(
-        messages: _messages,
-        onSendPressed: _handleSendPressed,
-        user: _currentUser,
+      body: Column(
+        children: [
+          Expanded(
+            child: Chat(
+              messages: _messages,
+              onSendPressed: (types.PartialText message) {
+                _handleSendPressed;
+              },
+              user: _currentUser,
+              showUserAvatars: true,
+              showUserNames: true,
+              // avatarBuilder: (userId) {
+              //   final messageUser = _messages
+              //       .firstWhere((message) => message.author.id == userId);
+              //   return CircleAvatar(
+              //     backgroundImage: NetworkImage(messageUser.author.avatarUrl ??
+              //         'https://example.com/default-avatar.png'),
+              //   );
+              // },
+              nameBuilder: (user) => Text(
+                user.firstName ?? 'Unknown',
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.grey),
+              ),
+              theme: DefaultChatTheme(
+                inputBackgroundColor: Colors.blue.shade100,
+                inputTextColor: Colors.black,
+                sendButtonIcon: const Icon(Icons.send, color: Colors.blue),
+                primaryColor: Colors.blue,
+                messageInsetsHorizontal: 15,
+                messageInsetsVertical: 15,
+              ),
+              customBottomWidget: CustomMessageInput(
+                onSendPressed: (message) => _handleSendPressed(types.PartialText(text: message))
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class CustomMessageInput extends StatefulWidget {
+  final Function(String) onSendPressed;
+
+  const CustomMessageInput({Key? key, required this.onSendPressed})
+      : super(key: key);
+
+  @override
+  _CustomMessageInputState createState() => _CustomMessageInputState();
+}
+
+class _CustomMessageInputState extends State<CustomMessageInput> {
+  final TextEditingController _controller = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+
+  void _sendMessage() {
+    if (_controller.text.isNotEmpty) {
+      widget.onSendPressed(_controller.text);
+      _controller.clear();
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    // if (pickedFile != null) {
+    //   widget.onSendPressed(); // Gửi đường dẫn hình ảnh
+    // }
+  }
+
+  Future<void> _pickFile() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
+      if (result != null) {
+        final file = result.files.single;
+        print('File picked: ${file.name}');
+        // Gửi file hoặc làm gì đó với file đã chọn
+      }
+    } catch (e) {
+      print('Error picking file: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              blurRadius: 9,
+              spreadRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.attach_file, color: Colors.blue),
+              onPressed: _pickFile,
+            ),
+            IconButton(
+              icon: const Icon(Icons.image, color: Colors.blue),
+              onPressed: _pickImage,
+            ),
+            Expanded(
+              child: TextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  hintText: 'Type a message...',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: InputBorder.none,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                ),
+                style: const TextStyle(fontSize: 16),
+                onSubmitted: (value) => _sendMessage(),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.send, color: Colors.blue),
+              onPressed: _sendMessage,
+              padding: const EdgeInsets.all(8.0),
+            ),
+          ],
+        ),
       ),
     );
   }
