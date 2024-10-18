@@ -16,6 +16,37 @@ class _SearchScreenState extends State<SearchScreen> {
   List<UserModel> _searchResults = [];
   bool _isLoading = false;
 
+  // void _searchUser(String email) async {
+  //   String Querry= _searchController.text.trim();
+  // if (Querry.isEmpty) return;
+
+  //   setState(() {
+  //     _isLoading =true;
+  //   });
+  //   try {
+  //   List<UserModel> results = await _userService.searchUsers(Querry);
+
+  //   setState(() {
+  //     _searchResults = results;
+  //   });
+
+  //   if (results.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Không tìm thấy người dùng!')),
+  //     );
+  //   }
+  // } catch (e) {
+  //   // Xử lý lỗi khi tìm kiếm thất bại
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(content: Text('Đã xảy ra lỗi: $e')),
+  //   );
+  // } finally {
+  //   setState(() {
+  //     _isLoading = false; // Tắt trạng thái loading
+  //   });
+  // }
+
+  // }
   void _searchUser(String email) async {
     if (_searchController.text.isEmpty) return;
 
@@ -26,7 +57,6 @@ class _SearchScreenState extends State<SearchScreen> {
       _searchResults = results;
     });
   }
-
   // Đợi người dùng ngừng nhập khoảng 1s rồi mới thực hiện tìm kiếm
   // void _onSearchChanged() {
   //   if (_searchController.text.isEmpty) {

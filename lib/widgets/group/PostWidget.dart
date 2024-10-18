@@ -1,110 +1,212 @@
 import 'package:flutter/material.dart';
 
-class PostWidget extends StatelessWidget {
-  final String userName; // Tên người dùng
-  final String timePost; // Thời gian đăng
-  final String content; // Nội dung bài đăng
-  final String avatarUrl; // URL hình đại diện
+// class PostWidget extends StatelessWidget {
+//   final String userName; // Tên người dùng
+//   final String timePost; // Thời gian đăng
+//   final String content; // Nội dung bài đăng
+//   final List<List<String>> reply;
+//   //final String avatarUrl; // URL hình đại diện
 
-  const PostWidget({
-    super.key,
-    required this.userName,
-    required this.timePost,
-    required this.content,
-    required this.avatarUrl,
-  });
+//   const PostWidget({
+//     super.key,
+//     required this.userName,
+//     required this.timePost,
+//     required this.content,
+//     required this.reply,
+//     //required this.avatarUrl,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final TextEditingController commentController = TextEditingController();
+//     return Card(
+//       color: Colors.grey[300],
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0),
+//       side: BorderSide(
+//         width: 0.5,
+//         color: Colors.black,
+//       )),
+//       margin: EdgeInsets.zero,
+//       child: Padding(
+//         padding: const EdgeInsets.all(12.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Row(
+//             children: [
+//         CircleAvatar(
+//           child: Text(userName.split(' ').map((e) => e[0]).take(2).join(''),),
+//         ),
+//         const SizedBox(width: 12),
+//         Expanded(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(userName, style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20,)),
+//               Text(timePost, style: TextStyle(color: Colors.grey)),
+//             ],
+//           ),
+//         ),
+//       ],
+//     ),
+//             const SizedBox(height: 8),
+//             Text(content, style: TextStyle(fontSize: 18)),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+class Postwidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController commentController = TextEditingController();
-
-    return Card(
-      elevation: 2, // Độ nổi của card
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+    return 
+       Container(
+        padding: const EdgeInsets.only(top: 10,bottom: (10)),
+        decoration: BoxDecoration(color: Colors.black),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hình đại diện và thông tin người dùng
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(avatarUrl),
-                  radius: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        userName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        timePost,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(
-                height: 8), // Khoảng cách giữa thông tin người dùng và nội dung
-            // Nội dung bài đăng
-            Text(
-              content,
-              style: const TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 12), // Khoảng cách dưới nội dung
+          _buildNotificationTile(
+            "Lương Trần Nhật Khiết",
+            "13/7 16:26",
+            "Chào các bạn.\nCác bạn chưa đăng ký TTNN2 và sẽ đăng ký trong năm tới vui lòng tham gia thêm vào nhóm Facebook này nhé.\n https://www.facebook.com/groups/hcmue.thuctap/ \n TTNN2 các bạn có thể chủ động liên hệ hoặc nhờ Khoa hỗ trợ kết nối các doanh nghiệp như Kyanon, FSOFT, Bảo Kim, Khoa Vũ, Hinnova, eton... Chuẩn bị sẵn portfolio, CV cá nhân.",
+            
+          ),
+          _buildReplyTile(
+            "Nguyễn Duy Tân",
+            "16/7 7:48",
+            "Bạn nào cần thực tập vui lòng gửi email đính kèm CV cá nhân về khietltn@hcmue.edu.vn. Chiều nay Thầy chốt danh sách gửi đi 1 đợt.",
+          ),
+          _senReply(),
+          ]
+        )
+      
+        
+       );
+  }
 
-            // Nút like và TextField
-            Row(
-              children: [
-                Expanded(
-                  // Để TextField có thể chiếm không gian còn lại
-                  child: TextField(
-                    controller: commentController,
-                    decoration: InputDecoration(
-                      hintText: "Reply",
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(20.0), // Bo tròn góc
-                        borderSide: BorderSide(color: Colors.grey), // Màu viền
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 12.0),
-                    ),
-                    onSubmitted: (value) {
-                      // Xử lý khi người dùng nhấn Enter
-                      print("Bình luận: $value");
-                      commentController
-                          .clear(); // Xóa nội dung sau khi bình luận
-                    },
-                  ),
-                ),
-                const SizedBox(
-                    width: 16), // Khoảng cách giữa nút Like và TextField
-                IconButton(
-                  icon: const Icon(Icons.thumb_up_outlined),
-                  onPressed: () {
-                    // Xử lý khi nhấn nút like
-                    print("Đã thích bài đăng");
-                  },
-                ),
-              ],
-            ),
+  Widget _buildNotificationTile(
+    String name,
+    String time,
+    String content1,
+  ) {
+    return Card(
+      color: Colors.grey[300],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(name, time),
+            const SizedBox(height: 8),
+            Text(content1, style: TextStyle(fontSize: 18)),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReplyTile(String name, String time, String note) {
+      return Card(
+    color: Colors.grey[300],
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+    margin: EdgeInsets.zero,
+    child: Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Avatar
+          CircleAvatar(
+            child: Text(name.split(' ').map((e) => e[0]).take(2).join(''),),
+          ),
+          const SizedBox(width: 12), 
+
+          // Phần nội dung
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Tên và thời gian trong một hàng
+                Row(
+                  
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),
+                    ),
+                    const SizedBox(width: 15,),
+                    Text(
+                      time,
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8), // Khoảng cách giữa tên và ghi chú
+    
+                  Text(
+                    note,
+                    style: TextStyle(fontSize: 18),
+                  ),
+            
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+  }
+  Widget _senReply(){
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      color: Colors.grey[300], 
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              style: TextStyle(color: Colors.black),
+              decoration: InputDecoration(
+                hintText: 'Trả lời...',
+                hintStyle: TextStyle(color: Colors.grey),
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.send, color: Colors.blue),
+            onPressed: () {
+
+              print('Tin nhắn đã gửi!');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildHeader(String name, String time) {
+    return Row(
+      children: [
+        CircleAvatar(
+          child: Text(name.split(' ').map((e) => e[0]).take(2).join(''),),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20)),
+              Text(time, style: TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

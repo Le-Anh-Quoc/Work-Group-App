@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/project_model.dart';
+import 'package:ruprup/models/task_model.dart';
 import 'package:ruprup/screens/task/AddTaskScreen.dart';
+import 'package:ruprup/services/task_service.dart';
 import 'package:ruprup/widgets/task/TaskWidget.dart';
+import 'package:ruprup/widgets/task/Todo.dart';
 
 class TaskListScreen extends StatefulWidget {
   final String typeTask;
   final Project project;
-  const TaskListScreen({super.key, required this.typeTask, required this.project});
+  const TaskListScreen(
+      {super.key, required this.typeTask, required this.project});
 
   @override
   State<TaskListScreen> createState() => _TaskListScreenState();
@@ -67,6 +71,11 @@ class _TaskListScreenState extends State<TaskListScreen>
     }
   }
 
+  // Hàm lấy tất cả tasks dựa vào projectId
+  Future<List<Task>> getTasks() async {
+    return await TaskService.getTasksByProjectId(widget.project.projectId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -120,17 +129,30 @@ class _TaskListScreenState extends State<TaskListScreen>
         body: TabBarView(
           controller: _tabController, // Link the controller
           children: [
-            Container(
-              decoration:
-                  BoxDecoration(color: Colors.yellowAccent.withOpacity(0.1)),
-              child: Expanded(
-                child: Column(
-                  children: [
-                    TaskWidget(),
-                    TaskWidget(),
-                  ],
-                ),
-              ),
+            // Lấy và hiển thị các task 'To do'
+            FutureBuilder<List<Task>>(
+              future: getTasks(), // Gọi hàm lấy tasks
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No tasks found.'));
+                }
+
+                final tasks = snapshot.data!;
+                return GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 3.5,
+                  ),
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    return TaskWidget(task: tasks[index]); // Hiển thị từng task
+                  },
+                );
+              },
             ),
             Container(
                 decoration:
@@ -148,8 +170,11 @@ class _TaskListScreenState extends State<TaskListScreen>
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => AddTaskScreen(project: widget.project)));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AddTaskScreen(project: widget.project)));
           }, // Add icon
           backgroundColor: Colors.white, // Button background color
           tooltip: 'Add Task',

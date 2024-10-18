@@ -244,26 +244,27 @@ class PostsTab extends StatelessWidget {
         // Danh sách bài đăng
         ListView(
           padding:
-              const EdgeInsets.only(bottom: 80), // Để tạo khoảng trống cho nút
-          children: const [
-            PostWidget(
-              userName: "Nguyễn Văn A",
-              timePost: "2 phút trước",
-              content: "Chào mọi người! Đây là một bài đăng thử nghiệm.",
-              avatarUrl: "https://picsum.photos/200/300?random=1",
-            ),
-            PostWidget(
-              userName: "Trần Thị B",
-              timePost: "5 phút trước",
-              content: "Hôm nay thời tiết thật đẹp!",
-              avatarUrl: "https://picsum.photos/200/300?random=2",
-            ),
-            PostWidget(
-              userName: "Lê Văn C",
-              timePost: "10 phút trước",
-              content: "Mình đang học Flutter, ai có mẹo gì không?",
-              avatarUrl: "https://picsum.photos/200/300?random=3",
-            ),
+              const EdgeInsets.only(bottom:80 ), // Để tạo khoảng trống cho nút
+          children: [
+             Postwidget(),
+             Postwidget(),
+            //   userName: "Nguyễn Văn A",
+            //   timePost: "2 phút trước",
+            //   content: "Chào mọi người! Đây là một bài đăng thử nghiệm.",
+            //   //avatarUrl: "https://picsum.photos/200/300?random=1",
+            // ),
+            // PostWidget(
+            //   userName: "Trần Thị B",
+            //   timePost: "5 phút trước",
+            //   content: "Hôm nay thời tiết thật đẹp!",
+            //   //avatarUrl: "https://picsum.photos/200/300?random=2",
+            // ),
+            // PostWidget(
+            //   userName: "Lê Văn C",
+            //   timePost: "10 phút trước",
+            //   content: "Mình đang học Flutter, ai có mẹo gì không?",
+            //   //avatarUrl: "https://picsum.photos/200/300?random=3",
+            // ),
           ],
         ),
         // Nút thêm bài đăng
