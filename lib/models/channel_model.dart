@@ -1,30 +1,29 @@
-class Group {
-  late final String groupId;
+class Channel {
+  late final String channelId;
   final String groupChatId;
   final String projectId;
-  final String groupName;
+  final String channelName;
   final String adminId;
   final List<String> memberIds;
   final DateTime createdAt;
 
-  Group({
-    required this.groupId,
+  Channel({
+    required this.channelId,
     required this.groupChatId,
     required this.projectId,
-    required this.groupName,
+    required this.channelName,
     required this.adminId,
     required this.memberIds,
     required this.createdAt,
-    //required this.tasks,
   });
 
   // Convert a Group object to a map for Firestore
   Map<String, dynamic> toMap() {
     return {
-      'groupId': groupId,
+      'channelId': channelId,
       'groupChatId': groupChatId,
       'projectId': projectId,
-      'groupName': groupName,
+      'channelName': channelName,
       'adminId': adminId,
       'memberIds': memberIds,
       'createdAt': createdAt.toIso8601String(),
@@ -33,16 +32,20 @@ class Group {
   }
 
   // Create a Group object from a map
-  factory Group.fromMap(Map<String, dynamic> map) {
-    return Group(
-      groupId: map['groupId'] ?? '',
+  factory Channel.fromMap(Map<String, dynamic> map) {
+    return Channel(
+      channelId: map['channelId'] ?? '',
       groupChatId: map['groupChatId'] ?? '',
       projectId: map['projectId'] ?? '',
-      groupName: map['groupName'] ?? '',
+      channelName: map['channelName'] ?? '',
       adminId: map['adminId'] ?? '',
       memberIds: List<String>.from(map['memberIds'] ?? []),
       createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
-      //tasks: List<String>.from(map['tasks'] ?? []),
     );
+  }
+
+  @override
+  String toString() {
+    return 'Channel(channelId: $channelId, channelName: $channelName, createdAt: $createdAt)';
   }
 }

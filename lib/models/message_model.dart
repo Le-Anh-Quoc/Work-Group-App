@@ -6,6 +6,7 @@ class MessageModel {
   final List<String> recipientId;
   final String content;
   final int timestamp;
+  final String type;
 
   MessageModel({
     required this.id,
@@ -13,6 +14,7 @@ class MessageModel {
     required this.recipientId,
     required this.content,
     required this.timestamp,
+    required this.type,
   });
 
   types.TextMessage toTypesTextMessage() => types.TextMessage(
@@ -20,6 +22,13 @@ class MessageModel {
         createdAt: timestamp,
         id: id,
         text: content,
+      );
+  types.ImageMessage toTypesImageMessage() => types.ImageMessage(
+        author: types.User(id: senderId),
+        createdAt: timestamp,
+        id: id,
+        uri: content, // Giả sử content là đường dẫn hình ảnh
+        name: 'Image', size: 15,
       );
 }
 
