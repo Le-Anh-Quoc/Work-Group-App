@@ -22,6 +22,7 @@ class ChatService {
                 content: data['content'],
                 timestamp:
                     (data['timestamp'] as Timestamp).millisecondsSinceEpoch,
+                type: data['type'],
               );
             }).toList());
   }
@@ -38,6 +39,7 @@ class ChatService {
       'recipientId': message.recipientId,
       'content': message.content,
       'timestamp': Timestamp.fromMillisecondsSinceEpoch(message.timestamp),
+      'type': message.type
     });
 
     await _db.collection('chats').doc(chatId).set({
@@ -53,18 +55,14 @@ class ChatService {
       if (snapshot.exists) {
         String? lastMessage = snapshot.get('lastMessage') as String?;
         List<dynamic> userIds = snapshot.get('userIds') as List<dynamic>;
-        Timestamp? timeStamp = snapshot.get('timestamp') as Timestamp?;
-
-        // Convert Timestamp to DateTime and extract hour and minute
-        String? time = timeStamp != null
-            ? '${timeStamp.toDate().hour.toString().padLeft(2, '0')}:${timeStamp.toDate().minute.toString().padLeft(2, '0')}'
-            : null;
+        String nameRoom = snapshot.get('nameRoom');
+        int createAt = snapshot.get('createAt');
 
         return {
           'lastMessage': lastMessage,
           'userIds': userIds,
-          'timeStamp': timeStamp,
-          'time': time, // Add the extracted time here (HH:MM format)
+          'createAt': createAt,
+          'nameRoom': nameRoom,
         };
       }
       return {};
@@ -107,20 +105,23 @@ class ChatService {
 
   // Hàm lấy danh sách các cuộc trò chuyện mà người dùng hiện tại tham gia
   Stream<List<Map<String, dynamic>>> getChatsOfCurrentUser(String userId) {
-  return _db.collection('chats')
-      .where('userIds', arrayContains: userId) // Lấy các chat mà userId là một phần của mảng userIds
-      .snapshots()
-      .map((snapshot) {
-        return snapshot.docs.map((doc) {
-          return {
-            'chatId': doc.id,
-            'lastMessage': doc['lastMessage'],
-            'timestamp': doc['timestamp'],
-            // Thêm các trường khác nếu cần
-          };
-        }).toList();
-      });
-}
+    return _db
+        .collection('chats')
+        .where('userIds',
+            arrayContains:
+                userId) // Lấy các chat mà userId là một phần của mảng userIds
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'chatId': doc.id,
+          'lastMessage': doc['lastMessage'],
+          'createAt': doc['createAt'],
+          // Thêm các trường khác nếu cần
+        };
+      }).toList();
+    });
+  }
 
   // lấy thông tin chi tiết của đoạn
   Future<Map<String, dynamic>> getChatDetails(String chatId) async {
@@ -176,20 +177,22 @@ class ChatService {
     return chatDetails;
   }
 
-
   Stream<List<Map<String, dynamic>>> getChatUpdatesForUser(String userId) {
-    return _db.collection('chats')
-      .where('userIds', arrayContains: userId) // Assuming `userIds` contains the current user's ID
-      .snapshots()
-      .map((snapshot) {
-        return snapshot.docs.map((doc) {
-          return {
-            'chatId': doc.id,
-            'lastMessage': doc['lastMessage'],
-            'timestamp': doc['timestamp'], // Ensure the timestamp is present
-            // Add other fields as necessary
-          };
-        }).toList();
-      });
+    return _db
+        .collection('chats')
+        .where('userIds',
+            arrayContains:
+                userId) // Assuming `userIds` contains the current user's ID
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'chatId': doc.id,
+          'lastMessage': doc['lastMessage'],
+          'timestamp': doc['timestamp'], // Ensure the timestamp is present
+          // Add other fields as necessary
+        };
+      }).toList();
+    });
   }
 }
