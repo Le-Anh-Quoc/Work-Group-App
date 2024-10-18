@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/screens/task/AddTaskScreen.dart';
 import 'package:ruprup/widgets/task/TaskWidget.dart';
+import 'package:ruprup/widgets/task/Todo.dart';
 
 class TaskListScreen extends StatefulWidget {
   final String typeTask;
@@ -125,9 +126,8 @@ class _TaskListScreenState extends State<TaskListScreen>
                   BoxDecoration(color: Colors.yellowAccent.withOpacity(0.1)),
               child: Expanded(
                 child: Column(
-                  children: [
-                    TaskWidget(),
-                    TaskWidget(),
+                  children: [ Expanded(child: TodoWidget(),),
+                  
                   ],
                 ),
               ),

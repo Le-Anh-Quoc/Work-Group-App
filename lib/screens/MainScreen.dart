@@ -5,6 +5,7 @@ import 'package:ruprup/screens/home/HomeScreen.dart';
 import 'package:ruprup/screens/search/SearchScreen.dart';
 import 'package:ruprup/screens/project/ProjectScreen.dart';
 import 'package:ruprup/screens/individual/MeScreen.dart';
+import 'package:ruprup/screens/task/TaskListScreen.dart';
 import 'package:ruprup/widgets/bottomNav/BottomNav.dart';
 
 class MainScreen extends StatefulWidget {
