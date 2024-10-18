@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ruprup/models/project_model.dart';
+import 'package:ruprup/models/task_model.dart';
+import 'package:ruprup/screens/task/TaskDetailScreen.dart';
+import 'package:ruprup/services/task_service.dart';
 import 'package:ruprup/widgets/task/AssignPersonWidget.dart';
 import 'package:ruprup/widgets/task/DifficultyWidget.dart';
 
@@ -13,8 +16,10 @@ class AddTaskScreen extends StatefulWidget {
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
-  DateTime? startDateTime;
-  DateTime? endDateTime;
+  TaskService taskService = TaskService();
+
+  late DateTime startDateTime = DateTime.now();
+  late DateTime endDateTime = DateTime.now();
   final DateFormat dateTimeFormat = DateFormat('HH:mm dd/MM/yyyy');
 
   // Thay đổi trạng thái chọn
@@ -64,26 +69,76 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     });
   }
 
-  void _showErrorDialog(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Đóng dialog
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
+  Difficulty _getDifficultyFromSelected() {
+    switch (selectedDifficulty.toLowerCase()) {
+      case 'low':
+        return Difficulty.low;
+      case 'medium':
+        return Difficulty.medium;
+      case 'hard':
+        return Difficulty.hard;
+      default:
+        return Difficulty.low; // Mặc định là Low nếu không chọn gì
+    }
+  }
 
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng dialog
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _onAssignPersonSelected(String memberId) {
+    setState(() {
+      if (assigneeIds.contains(memberId)) {
+        assigneeIds.remove(memberId); // Bỏ người được giao nếu đã chọn
+      } else {
+        assigneeIds.add(memberId); // Thêm người được giao
+      }
+    });
+  }
+
+  void _createTask() async {
+    Task newTask = Task(
+        taskId: '',
+        projectId: widget.project.projectId,
+        taskName: _taskNameController.text,
+        description: _descriptionController.text,
+        assigneeIds: assigneeIds,
+        status: TaskStatus.toDo,
+        dueDate: endDateTime,
+        createdAt: startDateTime,
+        difficulty: _getDifficultyFromSelected());
+
+    Task task = await TaskService.addTask(widget.project.projectId, newTask);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('add Task success'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TaskDetailScreen(task: task),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +206,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     final memberId = widget.project.memberIds[index];
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                      child: AssignPersonWidget(memberId: memberId),
+                      child: AssignPersonWidget(
+                          memberId: memberId,
+                          onSelect: () => _onAssignPersonSelected(memberId)),
                     );
                   },
                 ),
@@ -276,9 +333,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 decoration: BoxDecoration(color: Colors.white),
                 child: Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Thực hiện hành động khi button được nhấn
-                    },
+                    onPressed: _createTask,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue.shade500,
                       padding: const EdgeInsets.symmetric(

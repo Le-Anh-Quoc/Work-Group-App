@@ -2,8 +2,8 @@ enum TaskStatus { toDo, inProgress, inReview, done }
 enum Difficulty { low, medium, hard}
 
 class Task {
-  final String taskId;
-  //final String groupId;
+  late final String taskId;
+  final String projectId;
   final String taskName;
   final String description;
   final List<String> assigneeIds;
@@ -14,7 +14,7 @@ class Task {
 
   Task({
     required this.taskId,
-    //required this.groupId,
+    required this.projectId,    //
     required this.taskName,
     required this.description,
     required this.assigneeIds,
@@ -24,17 +24,30 @@ class Task {
     required this.difficulty,
   });
 
+  Task copyWith({String? taskId}) {
+    return Task(
+      taskId: taskId ?? this.taskId, // Nếu không cung cấp taskId mới, sử dụng taskId hiện tại
+      taskName: taskName,
+      description: description,
+      assigneeIds: assigneeIds,
+      status: status,
+      dueDate: dueDate,
+      createdAt: createdAt,
+      difficulty: difficulty, projectId: projectId,
+    );
+  }
+
   // Convert a Task object to a map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'taskId': taskId,
-      //'groupId': groupId,
+      'projectId': projectId,
       'taskName': taskName,
       'description': description,
       'assigneeIds': assigneeIds,
       'status': status.name,
-      'dueDate': dueDate.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
+      'dueDate': dueDate?.toIso8601String(),
+      'createdAt': createdAt?.toIso8601String(),
       'difficulty': difficulty.name
     };
   }
@@ -43,7 +56,7 @@ class Task {
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
       taskId: map['taskId'] ?? '',
-      //groupId: map['groupId'] ?? '',
+      projectId: map['projectId'] ?? '',
       taskName: map['taskName'] ?? '',
       description: map['description'] ?? '',
       assigneeIds: List<String>.from(map['assigneeIds'] ?? []),

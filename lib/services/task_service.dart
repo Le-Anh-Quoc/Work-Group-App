@@ -2,30 +2,81 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ruprup/models/task_model.dart';
 
 class TaskService {
-  final CollectionReference _taskCollection =
-      FirebaseFirestore.instance.collection('tasks');
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Create a new task
-  Future<void> createTask(Task task) async {
-    await _taskCollection.doc(task.taskId).set(task.toMap());
+  // Thêm một Task mới vào subcollection tasks của project
+  static Future<Task> addTask(String projectId, Task task) async {
+    // Lấy reference cho document mới
+    final taskRef = _firestore
+        .collection('projects')
+        .doc(projectId)
+        .collection('tasks')
+        .doc();
+
+    // Khởi tạo taskId từ ID của document
+    final taskWithId = task.copyWith(taskId: taskRef.id);
+
+    // Lưu task vào Firestore
+    await taskRef.set(taskWithId.toMap());
+
+    // Cập nhật số lượng todo trong bảng project
+    await _firestore.collection('projects').doc(projectId).update({
+      'toDo': FieldValue.increment(1), // Tăng giá trị trường toDo lên 1
+    });
+
+    // Trả về Task mới đã được lưu vào Firestore
+    return taskWithId;
   }
 
-  // Read a task by taskId
-  Future<Task?> readTask(String taskId) async {
-    DocumentSnapshot snapshot = await _taskCollection.doc(taskId).get();
-    if (snapshot.exists) {
-      return Task.fromMap(snapshot.data() as Map<String, dynamic>);
+  // Lấy danh sách tất cả Task trong subcollection tasks của project
+  Future<List<Task>> getTasks(String projectId) async {
+    final taskSnapshot = await _firestore
+        .collection('projects')
+        .doc(projectId)
+        .collection('tasks')
+        .get();
+
+    return taskSnapshot.docs.map((doc) => Task.fromMap(doc.data())).toList();
+  }
+
+  // Cập nhật một Task trong subcollection tasks của project
+  Future<void> updateTask(String projectId, Task task) async {
+    await _firestore
+        .collection('projects')
+        .doc(projectId)
+        .collection('tasks')
+        .doc(task.taskId)
+        .update(task.toMap());
+  }
+
+  // Xóa một Task trong subcollection tasks của project
+  Future<void> deleteTask(String projectId, String taskId) async {
+    await _firestore
+        .collection('projects')
+        .doc(projectId)
+        .collection('tasks')
+        .doc(taskId)
+        .delete();
+  }
+
+  // Hàm lấy tất cả các task dựa vào projectId
+  static Future<List<Task>> getTasksByProjectId(String projectId) async {
+    try {
+      // Truy vấn các task trong subcollection 'tasks' của project
+      final taskQuerySnapshot = await _firestore
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .get();
+
+      // Chuyển đổi các document thành danh sách Task
+      return taskQuerySnapshot.docs.map((doc) {
+        return Task.fromMap(doc.data() as Map<String, dynamic>)
+            .copyWith(taskId: doc.id); // Thiết lập taskId từ document ID
+      }).toList();
+    } catch (e) {
+      print("Error getting tasks: $e");
+      return []; // Trả về danh sách rỗng nếu có lỗi
     }
-    return null; // Task not found
-  }
-
-  // Update an existing task
-  Future<void> updateTask(Task task) async {
-    await _taskCollection.doc(task.taskId).update(task.toMap());
-  }
-
-  // Delete a task
-  Future<void> deleteTask(String taskId) async {
-    await _taskCollection.doc(taskId).delete();
   }
 }

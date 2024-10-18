@@ -1,22 +1,23 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:ruprup/services/user_service.dart';
 
 class AssignPersonWidget extends StatefulWidget {
   final String memberId;
-  const AssignPersonWidget({Key? key, required this.memberId})
-      : super(key: key);
+  final VoidCallback onSelect; // Thêm hàm callback
+  const AssignPersonWidget({
+    Key? key,
+    required this.memberId,
+    required this.onSelect, // Truyền callback
+  }) : super(key: key);
 
   @override
   _AssignPersonWidgetState createState() => _AssignPersonWidgetState();
 }
 
 class _AssignPersonWidgetState extends State<AssignPersonWidget> {
-  UserService _userService = UserService();
-
+  final UserService _userService = UserService();
   String? nameMember;
-
   bool isSelected = false;
 
   @override
@@ -25,25 +26,22 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
     _getNameMember();
   }
 
-  void _getNameMember() async {
+  Future<void> _getNameMember() async {
     try {
       String name = await _userService.getFullNameByUid(widget.memberId);
       setState(() {
-        nameMember = name; // Cập nhật tên thành viên
+        nameMember = name;
       });
     } catch (error) {
       setState(() {
-        nameMember = 'Error'; // Cập nhật nếu có lỗi
+        nameMember = 'Error'; // Xử lý lỗi nếu không lấy được tên
       });
     }
   }
 
   int randomIndex() {
-    // Tạo một instance của Random
     Random random = Random();
-
-    // Tạo số ngẫu nhiên từ 1 đến 10 (bao gồm cả 10)
-    return random.nextInt(5) + 1;
+    return random.nextInt(5) + 1; // Tạo số ngẫu nhiên từ 1 đến 5
   }
 
   @override
@@ -51,11 +49,12 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          isSelected = !isSelected;
+          isSelected = !isSelected; // Đảo ngược trạng thái isSelected
         });
+        widget.onSelect(); // Gọi hàm callback khi nhấn chọn
       },
       child: Stack(
-        alignment: Alignment.topRight, // Align tick on the top right
+        alignment: Alignment.topRight,
         children: [
           Container(
             width: 120,
@@ -64,13 +63,13 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
               children: [
                 CircleAvatar(
                   backgroundImage: NetworkImage(
-                    'https://randomuser.me/api/portraits/women/1.jpg',
+                    'https://randomuser.me/api/portraits/women/${randomIndex()}.jpg', // Ảnh ngẫu nhiên
                   ),
-                  radius: 20,
+                  radius: 17,
                 ),
-                //SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  nameMember ?? 'Loading...',
+                  nameMember ?? 'Loading...', // Hiển thị tên thành viên
                   style: const TextStyle(color: Colors.grey, fontSize: 16),
                 ),
               ],
