@@ -27,10 +27,10 @@ class _ProjectScreenState extends State<ProjectScreen>
   Future<void> _loadUserProjects() async {
     try {
       String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      List<Project> userGroups =
+      List<Project> userProjects =
           await _projectService.getProjectsForCurrentUser(currentUserId!);
       setState(() {
-        _userProjects = userGroups;
+        _userProjects = userProjects;
         isLoading = false;
       });
     } catch (e) {

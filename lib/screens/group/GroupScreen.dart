@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/group_model.dart';
+import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
-import 'package:ruprup/services/group_service.dart';
+import 'package:ruprup/services/channel_service.dart';
 import 'package:ruprup/services/project_service.dart';
 import 'package:ruprup/widgets/group/PostWidget.dart';
 
@@ -16,7 +16,7 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends State<GroupScreen> {
-  GroupService _groupService = GroupService();
+  ChannelService _channelService = ChannelService();
   ProjectService _projectService = ProjectService();
 
   final TextEditingController _nameProjectController = TextEditingController();
@@ -45,7 +45,7 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   void _showCreateProjectBottomSheet(BuildContext context) async {
-    Group? groupData = await _groupService.getGroup(widget.groupId);
+    Channel? groupData = await _channelService.getChannel(widget.groupId);
 
     if (groupData != null && groupData.adminId == currentUserId) {
       List<String> groupMemberIds = List<String>.from(groupData.memberIds);

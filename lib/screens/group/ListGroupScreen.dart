@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/group_model.dart';
-import 'package:ruprup/services/group_service.dart';
+import 'package:ruprup/models/channel_model.dart';
+import 'package:ruprup/services/channel_service.dart';
 import 'package:ruprup/widgets/group/GroupWidget.dart';
 
 class ListGroupScreen extends StatefulWidget {
@@ -13,8 +13,8 @@ class ListGroupScreen extends StatefulWidget {
 
 class _ListGroupScreenState extends State<ListGroupScreen> 
 with AutomaticKeepAliveClientMixin<ListGroupScreen>{
-  GroupService _groupService = GroupService();
-  List<Group> _userGroups = [];
+  ChannelService _channelService = ChannelService();
+  List<Channel> _userChannels = [];
   bool isLoading = true;
 
   @override
@@ -27,9 +27,10 @@ with AutomaticKeepAliveClientMixin<ListGroupScreen>{
   Future<void> _loadUserGroups() async {
     try {
       String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      List<Group> userGroups = await _groupService.getGroupsForCurrentUser(currentUserId!);
+      List<Channel> userChannels = await _channelService.getChannelsForCurrentUser(currentUserId!);
+      print(userChannels);
       setState(() {
-        _userGroups = userGroups;
+        _userChannels = userChannels;
         isLoading = false;
       });
     } catch (e) {
@@ -57,15 +58,15 @@ with AutomaticKeepAliveClientMixin<ListGroupScreen>{
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _refreshGroups, // Kéo từ trên xuống để làm mới
-              child: _userGroups.isEmpty
+              child: _userChannels.isEmpty
                   ? const Center(child: Text("No groups found"))
                   : ListView.builder(
-                      itemCount: _userGroups.length,
+                      itemCount: _userChannels.length,
                       itemBuilder: (context, index) {
-                        final group = _userGroups[index];
+                        final channel = _userChannels[index];
                         return Container(
                           margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                          child: GroupWidget(groupId: group.groupId),
+                          child: GroupWidget(channelId: channel.channelId),
                         );
                       },
                     ),

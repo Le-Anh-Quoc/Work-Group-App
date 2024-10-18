@@ -1,16 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:ruprup/models/room_model.dart';
 import 'package:ruprup/screens/chat/ChatScreen.dart';
 import 'package:ruprup/services/chat_service.dart';
-import 'package:ruprup/services/group_service.dart';
 import 'package:ruprup/services/user_service.dart';
 
 class ChattingUsersWidget extends StatefulWidget {
-  final String chatId;
+  final RoomChat roomChat;
 
   const ChattingUsersWidget({
     super.key,
-    required this.chatId,
+    required this.roomChat,
   });
 
   @override
@@ -19,15 +20,12 @@ class ChattingUsersWidget extends StatefulWidget {
 
 class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
   final ChatService _chatService = ChatService();
-  final GroupService _groupService = GroupService();
   String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-
-  String? titleNameChat;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Map<String, dynamic>>(
-      stream: _chatService.getLastMessageStream(widget.chatId),
+      stream: _chatService.getLastMessageStream(widget.roomChat.idRoom),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -43,17 +41,14 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
         List<dynamic> userIds = snapshot.data!['userIds'] ?? [];
         String senderId = userIds.isNotEmpty ? userIds[0] : '';
         String messagePrefix = (senderId == currentUserId) ? "You: " : "";
-       
-        final time = snapshot.data!['time'] ?? '??:??'; 
+        String nameRoom = snapshot.data!['nameRoom'] ?? '';
 
+        int createAtTimestamp = snapshot.data!['createAt'];
+        DateTime createAt =
+            DateTime.fromMillisecondsSinceEpoch(createAtTimestamp);
 
-        if (titleNameChat == null) {
-          _getChatTitle(userIds).then((title) {
-            setState(() {
-              titleNameChat = title;
-            });
-          });
-        }
+        // Định dạng thời gian
+        String formattedTime = DateFormat('hh:mm a').format(createAt);
 
         return GestureDetector(
           child: Container(
@@ -69,23 +64,36 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
                 children: [
                   Row(
                     children: [
-                      const CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            'https://picsum.photos/200/300?random=2'),
+                      CircleAvatar(
+                        backgroundImage:
+                            NetworkImage('${widget.roomChat.imageUrl}'),
                       ),
                       const SizedBox(width: 20),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            titleNameChat ?? 'Loading....',
+                            nameRoom,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 19),
                           ),
-                          Text(
-                            messagePrefix + lastMessage,
-                            style:
-                                TextStyle(fontSize: 15, color: Colors.grey[00]),
+                          Container(
+                            constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width *
+                                    0.5), // Giới hạn chiều rộng
+                            child: Text(
+                              (lastMessage
+                                      .startsWith('https://firebasestorage'))
+                                  ? 'You sent an image'
+                                  : (lastMessage == '')
+                                      ? 'Bạn vừa tạo nhóm thành công'
+                                      : messagePrefix + lastMessage,
+                              style: TextStyle(
+                                  fontSize: 15, color: Colors.grey[600]),
+                              maxLines: 1, // Giới hạn số dòng hiển thị
+                              overflow: TextOverflow
+                                  .ellipsis, // Hiển thị "..." khi vượt quá độ dài
+                            ),
                           ),
                         ],
                       ),
@@ -95,19 +103,19 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        time,
+                        formattedTime,
                         style: TextStyle(fontSize: 15, color: Colors.grey[400]),
                       ),
                       const SizedBox(height: 4),
-                      // if (4 > 0)
-                      //   const CircleAvatar(
-                      //     radius: 12,
-                      //     backgroundColor: Colors.red,
-                      //     child: Text(
-                      //       '4',
-                      //       style: TextStyle(color: Colors.white, fontSize: 12),
-                      //     ),
-                      //   ),
+                      if (4 > 0)
+                        const CircleAvatar(
+                          radius: 12,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            '4',
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                        ),
                     ],
                   ),
                 ],
@@ -118,23 +126,12 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    ChatScreen(chatId: widget.chatId, titleChat: titleNameChat),
+                builder: (context) => ChatScreen(roomChat: widget.roomChat),
               ),
             );
           },
         );
       },
     );
-  }
-
-  Future<String?> _getChatTitle(List<dynamic> userIds) async {
-    if (userIds.length == 2) {
-      String otherUserId = userIds.firstWhere((id) => id != currentUserId);
-      return await UserService().getFullNameByUid(otherUserId);
-    } else {
-      final groupData = await _groupService.getGroupByChatId(widget.chatId);
-      return groupData?.groupName;
-    }
   }
 }

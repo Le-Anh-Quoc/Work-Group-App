@@ -1,10 +1,20 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/group_model.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' as type;
+import 'package:flutter_chat_types/flutter_chat_types.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/models/project_model.dart';
+import 'package:ruprup/models/room_model.dart';
+import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/screens/chat/ChatScreen.dart';
 import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/friend_service.dart';
-import 'package:ruprup/services/group_service.dart';
+import 'package:ruprup/services/channel_service.dart';
+import 'package:ruprup/services/image_service.dart';
+import 'package:ruprup/services/roomchat_service.dart';
 import 'package:ruprup/widgets/group/FieldWidget.dart';
 import 'package:ruprup/widgets/group/NewMemberWidget.dart';
 import 'package:ruprup/widgets/search/SearchWidget.dart';
@@ -23,10 +33,14 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
   bool isLoading = false;
 
   final FriendService _friendService = FriendService();
-  final ChatService _chatService = ChatService();
-  final GroupService _groupService = GroupService();
+  final ImageService _imageService = ImageService();
+  final RoomChatService _roomChatService = RoomChatService();
   List<Map<String, dynamic>> _friendResults = [];
   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+  final ImagePicker _picker = ImagePicker();
+  File? _imageFile; // Biến để lưu tệp ảnh đã chọn
+  String? _imageUrl; // Biến để lưu URL của ảnh sau khi upload
 
   @override
   void initState() {
@@ -55,6 +69,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
   }
 
   void _createGroup() async {
+    print(selectedUsers);
     if (_groupNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter a group name")),
@@ -73,29 +88,52 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
       isLoading = true;
     });
 
-    String chatId = await _chatService.createChat(selectedUsers);
-
-    Group newGroup = Group(
-      groupId: '', // Tạm thời đặt là chuỗi rỗng, sẽ được Firestore tự sinh
-      groupChatId: chatId, // ID của cuộc trò chuyện nhóm
-      projectId: '', // ID của dự án liên quan đến nhóm
-      groupName: _groupNameController.text, // Tên nhóm
-      adminId: currentUserId, // ID của admin nhóm
-      memberIds: selectedUsers, // Danh sách ID thành viên
-      createdAt: DateTime.now(), // Thời gian tạo nhóm
+    RoomChat newRoomChat = RoomChat(
+      idRoom: '',
+      type: 'group',
+      userIds: selectedUsers,
+      nameRoom: _groupNameController.text,
+      imageUrl: _imageUrl,
+      createAt: DateTime.now().millisecondsSinceEpoch,
     );
 
-    await _groupService.createGroup(newGroup);
+    RoomChat roomChat = await _roomChatService.createRoomChat(newRoomChat);
 
     setState(() {
       isLoading = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Group chat created!")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text("Group chat created!")),
+    // );
 
-    // Điều hướng sang màn hình group chat sau khi tạo thành công
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ChatScreen(roomChat: roomChat),
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path); // Lưu tệp ảnh đã chọn
+      });
+
+      // Upload ảnh lên Firebase Storage
+      _imageUrl = await _imageService.uploadImageToFirebaseStorage(_imageFile!, true);
+
+      // // Sau khi có URL ảnh, lưu vào Firestore (ví dụ như lưu vào tài liệu của group)
+      // if (_imageUrl != null) {
+      //   await FirebaseFirestore.instance.collection('groups').add({
+      //     'imageUrl': _imageUrl,
+      //     'nameRoom': _groupNameController.text,
+      //     'createdAt': DateTime.now().millisecondsSinceEpoch,
+      //     'userIds': selectedUsers,
+      //   });
+      // }
+    }
   }
 
   @override
@@ -141,8 +179,12 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                             color: Colors.blue[50], // Đặt màu nền xanh nhạt
                             shape: BoxShape.circle, // Giữ nút hình tròn
                           ),
-                          child: IconButton(
-                            onPressed: () {},
+                          child: _imageFile != null ?
+                          ClipOval(
+                            child: Image.file(_imageFile!, width: 50, height: 50, fit: BoxFit.cover),
+                          )
+                          : IconButton(
+                            onPressed: _pickImage,
                             icon: Icon(Icons.image),
                             color: Colors.blue,
                             iconSize: 35,
@@ -151,15 +193,18 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                         Positioned(
                           right: 0, // Vị trí góc phải
                           bottom: 0, // Vị trí góc dưới
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.white, // Màu nền cho dấu cộng
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              color: Colors.blue,
-                              Icons.add_circle, // Dấu cộng
-                              size: 18, // Kích thước của dấu cộng
+                          child: GestureDetector(
+                            onTap: _pickImage,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white, // Màu nền cho dấu cộng
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                color: Colors.blue,
+                                Icons.add_circle, // Dấu cộng
+                                size: 18, // Kích thước của dấu cộng
+                              ),
                             ),
                           ),
                         ),

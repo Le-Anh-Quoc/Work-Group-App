@@ -1,21 +1,21 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/group_model.dart';
+import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/screens/group/GroupScreen.dart';
-import 'package:ruprup/services/group_service.dart'; // Import dịch vụ nhóm
+import 'package:ruprup/services/channel_service.dart'; // Import dịch vụ nhóm
 
 class GroupWidget extends StatelessWidget {
-  final String groupId;
+  final String channelId;
 
   const GroupWidget({
     Key? key,
-    required this.groupId,
+    required this.channelId,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Group?>(
-      future: GroupService().getGroup(groupId), // Gọi hàm getGroup đã định nghĩa
+    return FutureBuilder<Channel?>(
+      future: ChannelService().getChannel(channelId), // Gọi hàm getGroup đã định nghĩa
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -30,7 +30,7 @@ class GroupWidget extends StatelessWidget {
         }
 
         // Lấy thông tin nhóm từ dữ liệu trả về
-        final group = snapshot.data!;
+        final channel = snapshot.data!;
 
         // Danh sách mẫu các hình ảnh
         final List<String> allMemberImages = [
@@ -51,7 +51,7 @@ class GroupWidget extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => GroupScreen(groupId: group.groupId)),
+                  builder: (context) => GroupScreen(groupId: channel.channelId)),
             );
           },
           child: Container(
@@ -110,7 +110,7 @@ class GroupWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 16), // Khoảng cách giữa hình đại diện và tiêu đề
                 Text(
-                  group.groupName, // Sử dụng groupName từ dữ liệu nhóm
+                  channel.channelName, // Sử dụng groupName từ dữ liệu nhóm
                   style: const TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
