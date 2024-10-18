@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,17 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:image_picker/image_picker.dart';
+import 'package:ruprup/models/room_model.dart';
+import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/screens/MainScreen.dart';
+import 'package:ruprup/screens/chat/ListChatScreen.dart';
 import 'package:ruprup/services/chat_service.dart';
+import 'package:ruprup/services/image_service.dart';
+import 'package:ruprup/services/user_service.dart';
 import '../../models/message_model.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String chatId;
-  final String? titleChat;
+  final RoomChat roomChat;
+  //final String? titleChat;
 
   const ChatScreen({
     super.key,
-    required this.chatId,
-    required this.titleChat,
+    required this.roomChat,
+    //required this.titleChat,
   });
 
   @override
@@ -24,9 +31,12 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ChatService _chatService = ChatService();
+  final UserService _userService = UserService();
   late final types.User _currentUser;
   final List<types.Message> _messages = [];
   Set<String> _recipientIds = {};
+
+  Map<String, UserModel> userMap = {}; // Tạo một Map để chứa UserModel theo id
 
   @override
   void initState() {
@@ -41,43 +51,83 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _fetchRecipientDetails() async {
     try {
-      final chatData = await _chatService.getChatDetails(widget.chatId);
+      final chatData =
+          await _chatService.getChatDetails(widget.roomChat.idRoom);
       final users = chatData['users'] as List<Map<String, dynamic>>;
 
       _recipientIds = users
           .map((user) => user['id'] as String)
           .where((id) => id != _currentUser.id)
           .toSet();
+
+      // Lấy thông tin chi tiết của người dùng và lưu vào userMap
+      for (String id in _recipientIds) {
+        final userData = await _userService.readUser(id);
+        //final userModel = UserModel.fromMap(userData);
+        setState(() {
+          userMap[id] = userData!;
+        });
+      }
     } catch (e) {
       print('Error fetching recipient details: $e');
     }
   }
 
   void _fetchMessages() {
-    _chatService.getMessages(widget.chatId).listen((messages) {
+    _chatService.getMessages(widget.roomChat.idRoom).listen((messages) {
       setState(() {
-        _messages
-          ..clear()
-          ..addAll(messages.map((msg) => msg.toTypesTextMessage()).toList()
-            ..sort((a, b) => b.createdAt!.compareTo(a.createdAt!)));
+        _messages.clear();
+        _messages.addAll((messages.map((msg) {
+          if (msg.type == 'image' && msg.content.startsWith('http')) {
+            return msg.toTypesImageMessage(); // Nếu là hình ảnh
+          } else {
+            return msg.toTypesTextMessage(); // Nếu không thì tin nhắn văn bản
+          }
+        }).toList()
+          ..sort((a, b) => b.createdAt!.compareTo(a.createdAt!))));
       });
     });
   }
 
   void _handleSendPressed(types.PartialText message) {
-    final textMessage = MessageModel(
+    final isImage = message.text.startsWith('https://firebasestorage') ||
+        message.text.endsWith('.jpg') ||
+        message.text.endsWith('.png');
+
+    print(isImage);
+
+    // Tạo một message mới
+    final newMessage = MessageModel(
       id: _generateRandomId(),
       senderId: _currentUser.id,
       recipientId: _recipientIds.toList(),
       content: message.text,
       timestamp: DateTime.now().millisecondsSinceEpoch,
+      type: isImage ? 'image' : 'text', // Xác định loại tin nhắn
     );
 
     setState(() {
-      _messages.add(textMessage.toTypesTextMessage()); // Đảm bảo phương thức toTypesTextMessage có xử lý cho imageUrl
+      if (isImage) {
+        // Tạo một PartialImage và thêm vào danh sách tin nhắn
+        final imageMessage = types.ImageMessage(
+          author: _currentUser,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          id: newMessage.id,
+          uri: newMessage.content, // Sử dụng đường dẫn hình ảnh
+          name: 'image', // Tên hình ảnh
+          size: 15, // Kích thước có thể tùy chỉnh
+        );
+        _messages.add(imageMessage);
+        print('đã add image');
+      } else {
+        // Thêm tin nhắn văn bản bình thường
+        _messages.add(newMessage.toTypesTextMessage());
+        print('đã add text');
+      }
     });
 
-    _chatService.sendMessage(textMessage, widget.chatId);
+    // Gửi tin nhắn
+    _chatService.sendMessage(newMessage, widget.roomChat.idRoom);
   }
 
   String _generateRandomId() => Random().nextInt(100000).toString();
@@ -89,20 +139,24 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.black,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MainScreen(selectedIndex: 0),
+            ),
+          ),
           icon: const Icon(Icons.arrow_back_ios),
         ),
         title: Row(
           children: [
-            const CircleAvatar(
-              backgroundImage:
-                  NetworkImage('https://picsum.photos/200/300?random=2'),
+            CircleAvatar(
+              backgroundImage: NetworkImage('${widget.roomChat.imageUrl}'),
               radius: 20,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 20),
             Text(
-              widget.titleChat ?? "Chat",
-              style: const TextStyle(fontSize: 20),
+              widget.roomChat.nameRoom,
+              style: TextStyle(fontSize: 20),
             ),
           ],
         ),
@@ -132,7 +186,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Chat(
               messages: _messages,
               onSendPressed: (types.PartialText message) {
-                _handleSendPressed;
+                _handleSendPressed(message);
               },
               user: _currentUser,
               showUserAvatars: true,
@@ -145,11 +199,30 @@ class _ChatScreenState extends State<ChatScreen> {
               //         'https://example.com/default-avatar.png'),
               //   );
               // },
-              nameBuilder: (user) => Text(
-                user.firstName ?? 'Unknown',
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.grey),
-              ),
+              nameBuilder: (types.User user) {
+                // Kiểm tra nếu có userModel cho userId hiện tại
+                final userModel = userMap[user.id];
+
+                // Nếu tìm thấy userModel, hiển thị fullname
+                if (userModel != null) {
+                  return Text(
+                    userModel.fullname,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  );
+                } else {
+                  // Nếu không tìm thấy userModel, hiển thị 'Unknown'
+                  return const Text(
+                    'Unknown User',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  );
+                }
+              },
               theme: DefaultChatTheme(
                 inputBackgroundColor: Colors.blue.shade100,
                 inputTextColor: Colors.black,
@@ -159,8 +232,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 messageInsetsVertical: 15,
               ),
               customBottomWidget: CustomMessageInput(
-                onSendPressed: (message) => _handleSendPressed(types.PartialText(text: message))
-              ),
+                  onSendPressed: (message) =>
+                      _handleSendPressed(types.PartialText(text: message))),
             ),
           )
         ],
@@ -182,6 +255,7 @@ class CustomMessageInput extends StatefulWidget {
 class _CustomMessageInputState extends State<CustomMessageInput> {
   final TextEditingController _controller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+  final ImageService imageService = ImageService();
 
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
@@ -192,9 +266,16 @@ class _CustomMessageInputState extends State<CustomMessageInput> {
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    // if (pickedFile != null) {
-    //   widget.onSendPressed(); // Gửi đường dẫn hình ảnh
-    // }
+    if (pickedFile != null) {
+      File imageFile = File(pickedFile.path);
+
+      // Gửi ảnh lên Firebase Storage và lấy URL
+      String imageUrl =
+          await imageService.uploadImageToFirebaseStorage(imageFile, false);
+      print(imageUrl);
+
+      widget.onSendPressed(imageUrl); // Gửi đường dẫn hình ảnh
+    }
   }
 
   Future<void> _pickFile() async {
