@@ -1,7 +1,6 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/group_model.dart';
 import 'package:ruprup/screens/MainScreen.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
 import 'package:ruprup/screens/group/GroupScreen.dart';
