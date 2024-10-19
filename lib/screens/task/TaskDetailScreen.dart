@@ -5,18 +5,19 @@ import 'package:ruprup/models/task_model.dart';
 import 'package:ruprup/screens/MainScreen.dart';
 import 'package:ruprup/screens/task/TaskListScreen.dart';
 import 'package:ruprup/services/project_service.dart';
+import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/utils/validators.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 //import 'package:slideable/Slideable.dart';
 import 'package:ruprup/widgets/task/Todo.dart';
 import 'package:intl/intl.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
-  TaskDetailScreen({Key? key, required this.task}) : super(key: key);
+  const TaskDetailScreen({super.key, required this.task});
   @override
-  ProjectService _projectService = ProjectService();
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -25,10 +26,10 @@ class TaskDetailScreen extends StatelessWidget {
               Navigator.pop(context);
             },
             icon: Icon(Icons.arrow_back_ios)),
-        title: Text(task.taskName),
+        title: Text('TASK'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -41,7 +42,7 @@ class TaskDetailScreen extends StatelessWidget {
             // Description
             Text(
               'Description',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             SizedBox(height: 8),
             Text(
@@ -53,29 +54,29 @@ class TaskDetailScreen extends StatelessWidget {
             // Assignee
             Text(
               'Assignee',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             SizedBox(height: 8),
-            // Row(
-            //   children: [
-            //     InitialsAvatar(name: task.assignedTo),
-            //     SizedBox(width: 15),
-            //     Text(
-            //       task.assignedTo,
-            //       style: TextStyle(fontSize: 16,),
-            //     ),
-            //   ],
-            // ),
-            SizedBox(height: 16),
+            Row(
+              children: [
+                for (String uid in task.assigneeIds)
+                  InitialsAvatar(name: UserService().getFullNameByUid(uid)),
+                // Text(
+                //   task.assignedTo,
+                //   style: TextStyle(fontSize: 16,),
+                // ),
+              ],
+            ),
+            SizedBox(height: 8),
 
             // Due Date
             Text(
               'Due Date',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             SizedBox(height: 8),
             Text(
-              DateFormat('MMM/dd/yyyy').format(task.dueDate),
+              DateFormat('MMM dd, yyyy').format(task.dueDate),
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 16),
@@ -83,7 +84,7 @@ class TaskDetailScreen extends StatelessWidget {
             // Status
             Text(
               'Status',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             SizedBox(height: 8),
             Container(
@@ -101,7 +102,7 @@ class TaskDetailScreen extends StatelessWidget {
             // Comments
             Text(
               'Comments',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.grey),
             ),
             SizedBox(height: 8),
             Expanded(

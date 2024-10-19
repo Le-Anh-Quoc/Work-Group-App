@@ -140,13 +140,9 @@ class _TaskListScreenState extends State<TaskListScreen>
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(child: Text('No tasks found.'));
                 }
-
+            
                 final tasks = snapshot.data!;
-                return GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    childAspectRatio: 3.5,
-                  ),
+                return ListView.builder(
                   itemCount: tasks.length,
                   itemBuilder: (context, index) {
                     return TaskWidget(task: tasks[index]); // Hiển thị từng task
