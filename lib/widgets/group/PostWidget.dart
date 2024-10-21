@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
 // class PostWidget extends StatelessWidget {
 //   final String userName; // Tên người dùng
@@ -58,155 +58,253 @@ import 'package:flutter/material.dart';
 //   }
 // }
 
+import 'package:flutter/material.dart';
 
-class Postwidget extends StatelessWidget {
-
+class PostWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return 
-       Container(
-        padding: const EdgeInsets.only(top: 10,bottom: (10)),
-        decoration: BoxDecoration(color: Colors.black),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-          _buildNotificationTile(
-            "Lương Trần Nhật Khiết",
-            "13/7 16:26",
-            "Chào các bạn.\nCác bạn chưa đăng ký TTNN2 và sẽ đăng ký trong năm tới vui lòng tham gia thêm vào nhóm Facebook này nhé.\n https://www.facebook.com/groups/hcmue.thuctap/ \n TTNN2 các bạn có thể chủ động liên hệ hoặc nhờ Khoa hỗ trợ kết nối các doanh nghiệp như Kyanon, FSOFT, Bảo Kim, Khoa Vũ, Hinnova, eton... Chuẩn bị sẵn portfolio, CV cá nhân.",
-            
-          ),
-          _buildReplyTile(
-            "Nguyễn Duy Tân",
-            "16/7 7:48",
-            "Bạn nào cần thực tập vui lòng gửi email đính kèm CV cá nhân về khietltn@hcmue.edu.vn. Chiều nay Thầy chốt danh sách gửi đi 1 đợt.",
-          ),
-          _senReply(),
-          ]
-        )
-      
-        
-       );
-  }
-
-  Widget _buildNotificationTile(
-    String name,
-    String time,
-    String content1,
-  ) {
     return Card(
-      color: Colors.grey[300],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(name, time),
-            const SizedBox(height: 8),
-            Text(content1, style: TextStyle(fontSize: 18)),
-          ],
-        ),
+      elevation: 4, // Đổ bóng cho card
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15), // Bo góc cho card
       ),
-    );
-  }
-
-  Widget _buildReplyTile(String name, String time, String note) {
-      return Card(
-    color: Colors.grey[300],
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-    margin: EdgeInsets.zero,
-    child: Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Avatar
-          CircleAvatar(
-            child: Text(name.split(' ').map((e) => e[0]).take(2).join(''),),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: () {
+          // Xử lý sự kiện nhấn ở đây
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15), // Nền trắng
           ),
-          const SizedBox(width: 12), 
-
-          // Phần nội dung
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Tên và thời gian trong một hàng
-                Row(
-                  
-                  children: [
-                    Text(
-                      name,
-                      style: TextStyle(fontWeight: FontWeight.bold,fontSize: 17),
-                    ),
-                    const SizedBox(width: 15,),
-                    Text(
-                      time,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8), // Khoảng cách giữa tên và ghi chú
-    
-                  Text(
-                    note,
-                    style: TextStyle(fontSize: 18),
-                  ),
-            
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-  }
-  Widget _senReply(){
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      color: Colors.grey[300], 
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              style: TextStyle(color: Colors.black),
-              decoration: InputDecoration(
-                hintText: 'Trả lời...',
-                hintStyle: TextStyle(color: Colors.grey),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.send, color: Colors.blue),
-            onPressed: () {
-
-              print('Tin nhắn đã gửi!');
-            },
-          ),
-        ],
-      ),
-    );
-  }
-  Widget _buildHeader(String name, String time) {
-    return Row(
-      children: [
-        CircleAvatar(
-          child: Text(name.split(' ').map((e) => e[0]).take(2).join(''),),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20)),
-              Text(time, style: TextStyle(color: Colors.grey)),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.blueAccent,
+                    child: Text(
+                      'Anh Quoc'.split(' ').map((e) => e[0]).take(2).join(''),
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Anh Quoc',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '5:20, Oct 20',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Meeting notice',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'On October 19th we will have a meeting at 7pm, please turn on the cam, wear formal clothes and be on time. Thank you',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+              const SizedBox(height: 15), // Khoảng cách trước TextField
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Reply...',
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  prefixIcon: Icon(Icons.reply,
+                      color: Colors.blueAccent), // Biểu tượng bên trái
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                  ),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                ),
+              ),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
+
+
+
+// class NotificationCard extends StatelessWidget {
+//   final String name;
+//   final String time;
+//   final String content;
+
+//   const NotificationCard({
+//     required this.name,
+//     required this.time,
+//     required this.content,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       color: Colors.grey[100],
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(12),
+//       ),
+//       margin: EdgeInsets.symmetric(vertical: 8),
+//       elevation: 4,
+//       child: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             _buildHeader(name, time),
+//             const SizedBox(height: 8),
+//             Text(
+//               content,
+//               style: TextStyle(fontSize: 16),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildHeader(String name, String time) {
+//     return Row(
+//       children: [
+//         CircleAvatar(
+//           child: Text(name.split(' ').map((e) => e[0]).take(2).join('')),
+//         ),
+//         const SizedBox(width: 12),
+//         Expanded(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(name,
+//                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+//               Text(time, style: TextStyle(color: Colors.grey)),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// class ReplyCard extends StatelessWidget {
+//   final String name;
+//   final String time;
+//   final String note;
+
+//   const ReplyCard({
+//     required this.name,
+//     required this.time,
+//     required this.note,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Card(
+//       color: Colors.grey[100],
+//       shape: RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(12),
+//       ),
+//       margin: EdgeInsets.symmetric(vertical: 4),
+//       elevation: 2,
+//       child: Padding(
+//         padding: const EdgeInsets.all(12.0),
+//         child: Row(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             CircleAvatar(
+//               child: Text(name.split(' ').map((e) => e[0]).take(2).join('')),
+//             ),
+//             const SizedBox(width: 12),
+//             Expanded(
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Row(
+//                     children: [
+//                       Text(
+//                         name,
+//                         style: TextStyle(
+//                             fontWeight: FontWeight.bold, fontSize: 17),
+//                       ),
+//                       const SizedBox(width: 15),
+//                       Text(
+//                         time,
+//                         style: TextStyle(color: Colors.grey),
+//                       ),
+//                     ],
+//                   ),
+//                   const SizedBox(height: 8),
+//                   Text(
+//                     note,
+//                     style: TextStyle(fontSize: 16),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class SendReply extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 8),
+//       color: Colors.grey[100],
+//       child: Row(
+//         children: [
+//           Expanded(
+//             child: TextField(
+//               style: TextStyle(color: Colors.black),
+//               decoration: InputDecoration(
+//                 hintText: 'Trả lời...',
+//                 hintStyle: TextStyle(color: Colors.grey),
+//                 border: InputBorder.none,
+//               ),
+//             ),
+//           ),
+//           IconButton(
+//             icon: Icon(Icons.send, color: Colors.blue),
+//             onPressed: () {
+//               print('Tin nhắn đã gửi!');
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

@@ -185,8 +185,11 @@ class _GroupScreenState extends State<GroupScreen> {
     return DefaultTabController(
       length: 2, // Số lượng tab
       child: Scaffold(
+        backgroundColor: Colors.grey[100],
         appBar: AppBar(
-          title: const Text("Group ABC"),
+          backgroundColor: Colors.white,
+          leading: IconButton(onPressed: () {Navigator.pop(context);}, icon: Icon(Icons.arrow_back_ios)),
+          title: const Text("Group ABC", style: TextStyle(fontWeight: FontWeight.bold)),
           actions: [
             IconButton(
               color: Colors.blue,
@@ -213,8 +216,8 @@ class _GroupScreenState extends State<GroupScreen> {
           ],
           bottom: const TabBar(
             tabs: [
-              Tab(text: "Bài Đăng"), // Tab cho các bài đăng
-              Tab(text: "Tài Liệu"), // Tab cho lưu tài liệu
+              Tab(text: "Posts"), // Tab cho các bài đăng
+              Tab(text: "Files"), // Tab cho lưu tài liệu
             ],
             indicatorColor: Colors.blue, // Màu của thanh trượt
             labelColor: Colors.blue, // Màu của văn bản đã chọn
@@ -244,27 +247,9 @@ class PostsTab extends StatelessWidget {
         // Danh sách bài đăng
         ListView(
           padding:
-              const EdgeInsets.only(bottom:80 ), // Để tạo khoảng trống cho nút
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 8), // Để tạo khoảng trống cho nút
           children: [
-             Postwidget(),
-             Postwidget(),
-            //   userName: "Nguyễn Văn A",
-            //   timePost: "2 phút trước",
-            //   content: "Chào mọi người! Đây là một bài đăng thử nghiệm.",
-            //   //avatarUrl: "https://picsum.photos/200/300?random=1",
-            // ),
-            // PostWidget(
-            //   userName: "Trần Thị B",
-            //   timePost: "5 phút trước",
-            //   content: "Hôm nay thời tiết thật đẹp!",
-            //   //avatarUrl: "https://picsum.photos/200/300?random=2",
-            // ),
-            // PostWidget(
-            //   userName: "Lê Văn C",
-            //   timePost: "10 phút trước",
-            //   content: "Mình đang học Flutter, ai có mẹo gì không?",
-            //   //avatarUrl: "https://picsum.photos/200/300?random=3",
-            // ),
+             PostWidget(),
           ],
         ),
         // Nút thêm bài đăng
