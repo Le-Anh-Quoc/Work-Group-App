@@ -119,12 +119,12 @@ class UserService {
       if (snapshot.exists) {
         Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
         return data['fullname'] as String? ??
-            'Người dùng'; // Trả về 'Người dùng' nếu fullname là null
+            'User'; // Trả về 'Người dùng' nếu fullname là null
       }
     } catch (e) {
       print('Error getting full name: $e');
     }
-    return 'Người dùng'; // Trả về giá trị mặc định nếu có lỗi
+    return 'User'; // Trả về giá trị mặc định nếu có lỗi
   }
 
   // 8. Người dùng hiện tại gửi yêu cầu kết bạn tới người dùng khác
