@@ -2,17 +2,10 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as type;
-import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:ruprup/models/channel_model.dart';
-import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/room_model.dart';
-import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/screens/chat/ChatScreen.dart';
-import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/friend_service.dart';
-import 'package:ruprup/services/channel_service.dart';
 import 'package:ruprup/services/image_service.dart';
 import 'package:ruprup/services/roomchat_service.dart';
 import 'package:ruprup/widgets/group/FieldWidget.dart';

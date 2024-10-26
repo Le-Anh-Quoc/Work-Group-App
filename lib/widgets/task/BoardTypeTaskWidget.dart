@@ -3,39 +3,42 @@ import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/widgets/task/TypeTaskWidget.dart';
 
 class BoardTypeTaskWidget extends StatelessWidget {
-  final Project project;
+  final Project? project;
   const BoardTypeTaskWidget({super.key, required this.project});
 
   @override
   Widget build(BuildContext context) {
     final taskTypes = [
       {
-        'total': project.toDo,
-        'typeTask': 'To do',
+        'total': project!.toDo,
+        'typeTask': 'toDo',
         'color': Colors.orangeAccent,
         'icon': Icons.task,
       },
       {
-        'total': project.inProgress,
-        'typeTask': 'In progress',
+        'total': project!.inProgress,
+        'typeTask': 'inProgress',
         'color': Colors.blueAccent,
         'icon': Icons.timeline,
       },
       {
-        'total': project.inReview,
-        'typeTask': 'In review',
+        'total': project!.inReview,
+        'typeTask': 'inReview',
         'color': Colors.redAccent,
         'icon': Icons.visibility,
       },
       {
-        'total': project.done,
-        'typeTask': 'Completed',
+        'total': project!.done,
+        'typeTask': 'done',
         'color': Colors.greenAccent,
         'icon': Icons.check_box_rounded,
       },
     ];
-    return Expanded(
-        child: GridView.count(
+    return GridView.count(
+      shrinkWrap:
+          true, // Cho phép GridView điều chỉnh kích thước theo nội dung
+      physics:
+          NeverScrollableScrollPhysics(), // Ngăn cuộn nếu không cần thiết
       crossAxisCount: 2,
       childAspectRatio: 1.3,
       children: taskTypes.map((task) {
@@ -47,6 +50,6 @@ class BoardTypeTaskWidget extends StatelessWidget {
           project: project,
         );
       }).toList(),
-    ));
+    );
   }
 }

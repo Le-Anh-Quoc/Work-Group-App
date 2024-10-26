@@ -4,11 +4,13 @@ import 'package:ruprup/services/user_service.dart';
 
 class AssignPersonWidget extends StatefulWidget {
   final String memberId;
+  final bool isSelected;
   final VoidCallback onSelect; // Thêm hàm callback
   const AssignPersonWidget({
     Key? key,
     required this.memberId,
     required this.onSelect, // Truyền callback
+    required this.isSelected, 
   }) : super(key: key);
 
   @override
@@ -18,7 +20,7 @@ class AssignPersonWidget extends StatefulWidget {
 class _AssignPersonWidgetState extends State<AssignPersonWidget> {
   final UserService _userService = UserService();
   String? nameMember;
-  bool isSelected = false;
+  //bool isSelected = false;
 
   @override
   void initState() {
@@ -48,9 +50,6 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          isSelected = !isSelected; // Đảo ngược trạng thái isSelected
-        });
         widget.onSelect(); // Gọi hàm callback khi nhấn chọn
       },
       child: Stack(
@@ -75,7 +74,7 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
               ],
             ),
           ),
-          if (isSelected)
+          if (widget.isSelected)
             Positioned(
               right: 0,
               top: 0,

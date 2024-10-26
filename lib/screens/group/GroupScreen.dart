@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
@@ -35,7 +36,7 @@ class _GroupScreenState extends State<GroupScreen> {
         ownerId: currentUserId,
         memberIds: groupMemberIds, tasks: []);
 
-    idProject = await _projectService.createProject(newProject);
+    await Provider.of<Project>(context, listen: false).createProject(newProject);
 
     Navigator.of(context).push(
       MaterialPageRoute(

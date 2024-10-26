@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
-import 'package:ruprup/services/project_service.dart';
 import 'package:ruprup/widgets/project/ProjectWidget.dart';
 import 'package:ruprup/widgets/search/SearchWidget.dart';
 
@@ -12,45 +11,30 @@ class ProjectScreen extends StatefulWidget {
   State<ProjectScreen> createState() => _ProjectScreenState();
 }
 
-class _ProjectScreenState extends State<ProjectScreen>
-    with AutomaticKeepAliveClientMixin<ProjectScreen> {
-  ProjectService _projectService = ProjectService();
-  List<Project> _userProjects = [];
-  bool isLoading = true;
+class _ProjectScreenState extends State<ProjectScreen> {
+  String? _selectedGroup; // Biến để lưu trữ nhóm được chọn
+  final List<String> _groups = [
+    'All',
+    'Project A',
+    'Project B',
+    'Project C',
+    'Project D',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadUserProjects();
-  }
-
-  Future<void> _loadUserProjects() async {
-    try {
-      String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      List<Project> userProjects =
-          await _projectService.getProjectsForCurrentUser(currentUserId!);
-      setState(() {
-        _userProjects = userProjects;
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Error fetching Projects: $e');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _refreshProjects() async {
-    setState(() {
-      isLoading = true; // Hiển thị loading trong lúc đang làm mới dữ liệu
-    });
-    await _loadUserProjects(); // Gọi lại hàm lấy dữ liệu
+    // ignore: avoid_print
+    print("Screen List Project");
+    Future.microtask(
+        // ignore: use_build_context_synchronously
+        () => Provider.of<Project>(context, listen: false).fetchProjects());
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    final projectProvider = Provider.of<Project>(context);
+
     return SafeArea(
       child: Scaffold(
           backgroundColor: Colors.white,
@@ -59,39 +43,58 @@ class _ProjectScreenState extends State<ProjectScreen>
             child: Column(children: [
               CustomSearchField(),
               const SizedBox(height: 15),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Projects',
-                      style:
-                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                  const Text('Projects',
+                      style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black)),
+                  DropdownButton<String>(
+                    value: _selectedGroup,
+                    hint: const Text(
+                        'All'), // Hiển thị khi không có lựa chọn nào
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedGroup =
+                            newValue; // Cập nhật giá trị được chọn
+                      });
+                    },
+                    items:
+                        _groups.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value, style: TextStyle(color: Colors.grey),),
+                      );
+                    }).toList(),
+                    underline: SizedBox(), 
+                  ),
                 ],
               ),
               const SizedBox(height: 15),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: _refreshProjects, // Kéo từ trên xuống để làm mới
-                  child: isLoading
-                      ? const Center(
-                          child: CircularProgressIndicator()) // Hiển thị loader
-                      : _userProjects.isEmpty
-                          ? const Center(
-                              child: Text("You currently have no projects"))
-                          : ListView.builder(
-                              itemCount: _userProjects.length,
-                              itemBuilder: (context, index) {
-                                final project = _userProjects[index];
-                                return ProjectWidget(
-                                    project: project);
-                              },
-                            ),
-                ),
-              ),
+              projectProvider.projects.isEmpty
+                  ? const Center(
+                      child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Currently, you don\'t have any projects.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ))
+                  : Expanded(
+                      child: ListView.builder(
+                        itemCount: projectProvider.projects.length,
+                        itemBuilder: (context, index) {
+                          final project = projectProvider.projects[index];
+                          return ProjectWidget(project: project);
+                        },
+                      ),
+                    ),
             ]),
           )),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

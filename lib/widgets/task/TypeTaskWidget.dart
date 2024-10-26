@@ -7,34 +7,53 @@ class TypeTaskWidget extends StatefulWidget {
   final String typeTask;
   final Color color;
   final IconData icon;
-  
-  final Project project;
+
+  final Project? project;
 
   const TypeTaskWidget(
       {super.key,
       required this.total,
       required this.typeTask,
-      required this.color, required this.icon, required this.project});
+      required this.color,
+      required this.icon,
+      required this.project});
 
   @override
   State<TypeTaskWidget> createState() => _TypeTaskWidgetState();
 }
 
 class _TypeTaskWidgetState extends State<TypeTaskWidget> {
+  String getTaskDisplayName(String typeTask) {
+    switch (typeTask) {
+      case 'toDo':
+        return 'To do';
+      case 'inProgress':
+        return 'In progress';
+      case 'inReview':
+        return 'In review';
+      case 'done':
+        return 'Completed';
+      default:
+        return 'Completed';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String displayTask = getTaskDisplayName(widget.typeTask);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => TaskListScreen(typeTask: widget.typeTask, project: widget.project),
+              builder: (_) => TaskListScreen(
+                  typeTask: widget.typeTask, project: widget.project),
             ),
           );
         },
         child: Container(
-          height: 100,
+          //height: 100,
           decoration: BoxDecoration(
             //border: Border.all(color: Colors.black.withOpacity(0.8)),
             borderRadius: BorderRadius.circular(40),
@@ -82,8 +101,8 @@ class _TypeTaskWidgetState extends State<TypeTaskWidget> {
                 ),
                 //const SizedBox(height: 5), // Khoảng cách giữa các phần tử
                 Text(
-                  widget.typeTask,
-                  style: TextStyle(
+                  displayTask,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                     color: Colors.white,

@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart';
 import 'package:ruprup/models/room_model.dart';
 import 'package:ruprup/services/auth_service.dart';
-import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/roomchat_service.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/chat/ChattingUsers.dart';
@@ -54,8 +51,8 @@ class _ListChatScreenState extends State<ListChatScreen>
               : ListView.builder(
                   itemCount: chatResults.length,
                   itemBuilder: (context, index) {
-                    RoomChat _roomChat = chatResults[index];
-                    return ChattingUsersWidget(roomChat: _roomChat);
+                    RoomChat roomChat = chatResults[index];
+                    return ChattingUsersWidget(roomChat: roomChat);
                   },
                 );
         },

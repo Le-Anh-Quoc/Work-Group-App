@@ -1,14 +1,33 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
+import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/task_model.dart';
 import 'package:intl/intl.dart';
 import 'package:ruprup/screens/task/TaskDetailScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
+import 'package:ruprup/widgets/task/ModalBottomTask.dart';
 
-class TaskWidget extends StatelessWidget {
+class TaskWidget extends StatefulWidget {
   final Task task;
   const TaskWidget({super.key, required this.task});
+
+  @override
+  State<TaskWidget> createState() => _TaskWidgetState();
+}
+
+class _TaskWidgetState extends State<TaskWidget> {
+  final String actionUserId = FirebaseAuth.instance.currentUser!.uid;
+  late Task
+      _taskProvider; // Thay TaskProvider bằng tên provider thực tế của bạn
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _taskProvider = Provider.of<Task>(context); // Lưu tham chiếu đến provider
+  }
 
   Color getDifficultyColor(Difficulty difficulty) {
     switch (difficulty) {
@@ -40,39 +59,85 @@ class TaskWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Project? currentProject =
+        Provider.of<Project>(context, listen: false).currentProject;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Slidable(
-        key: ValueKey(task.taskId),
+        key: ValueKey(widget.task.taskId),
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
           children: [
-            SlidableAction(
-              onPressed: (context) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Marked as Done'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              icon: Icons.check_circle_outline,
-            ),
-            SlidableAction(
-              onPressed: (context) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Task Updated'),
-                    backgroundColor: Colors.orangeAccent,
-                  ),
-                );
-              },
-              backgroundColor: Colors.orangeAccent,
-              foregroundColor: Colors.white,
-              icon: Icons.edit_outlined,
-            ),
+            if (actionUserId == currentProject!.ownerId) ...[
+              if (widget.task.status == TaskStatus.toDo ||
+                  widget.task.status == TaskStatus.inProgress)
+                SlidableAction(
+                  onPressed: (context) {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(25.0)),
+                      ),
+                      builder: (BuildContext context) {
+                        return ModalBottomTask(task: widget.task, isAdd: false);
+                      },
+                    );
+                  },
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.orange,
+                  icon: Icons.edit_outlined,
+                  padding: const EdgeInsets.all(5),
+                ),
+              if (widget.task.status == TaskStatus.toDo)
+                SlidableAction(
+                  onPressed: (context) async {
+                    final confirmDelete = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          backgroundColor: Colors.white,
+                          title: const Text('Confirm deletion'),
+                          content: Text(
+                              'Are you sure you want to delete ${widget.task.taskName}?'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(false), // Không xóa
+                              child: const Text('No',
+                                  style: TextStyle(color: Colors.blue)),
+                            ),
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(context).pop(true), // Xóa
+                              child: const Text('Yes',
+                                  style: TextStyle(color: Colors.blue)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    // Nếu người dùng xác nhận xóa
+                    if (confirmDelete == true) {
+                      await _taskProvider.deleteTask(
+                          context,
+                          widget.task.projectId,
+                          widget.task.taskId,
+                          actionUserId);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Delete task success'),
+                        backgroundColor: Colors.redAccent,
+                      ));
+                    }
+                  },
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.red,
+                  icon: Icons.delete,
+                  padding: const EdgeInsets.all(5),
+                ),
+            ]
           ],
         ),
         child: GestureDetector(
@@ -80,7 +145,7 @@ class TaskWidget extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => TaskDetailScreen(task: task),
+                builder: (context) => TaskDetailScreen(task: widget.task),
               ),
             );
           },
@@ -110,7 +175,7 @@ class TaskWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              task.taskName,
+                              widget.task.taskName,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -125,19 +190,19 @@ class TaskWidget extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: getDifficultyColor(task
+                                color: getDifficultyColor(widget.task
                                     .difficulty), // Hàm lấy màu dựa trên độ khó
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                task.difficulty
+                                widget.task.difficulty
                                     .toString()
                                     .split('.')
                                     .last, // Hiển thị độ khó
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: getTextColor(task
+                                  color: getTextColor(widget.task
                                       .difficulty), // Hàm lấy màu chữ dựa trên độ khó
                                 ),
                               ),
@@ -148,7 +213,7 @@ class TaskWidget extends StatelessWidget {
                       // Danh sách avatar của người tham gia
                       Row(
                         children: [
-                          for (String uid in task.assigneeIds)
+                          for (String uid in widget.task.assigneeIds)
                             Padding(
                               padding: const EdgeInsets.only(left: 4.0),
                               child: InitialsAvatar(
@@ -170,19 +235,19 @@ class TaskWidget extends StatelessWidget {
                               color: Colors.grey, size: 18),
                           const SizedBox(width: 5),
                           Text(
-                            DateFormat('MMM dd, yyyy').format(task.createdAt),
+                            DateFormat('MMM dd, yyyy')
+                                .format(widget.task.createdAt),
                             style: const TextStyle(color: Colors.grey),
                           ),
                         ],
                       ),
-                      Row(
+                      const Row(
                         children: [
-                          const Icon(Icons.comment,
-                              color: Colors.grey, size: 18),
-                          const SizedBox(width: 5),
+                          Icon(Icons.attach_file, color: Colors.grey, size: 18),
+                          SizedBox(width: 5),
                           Text(
                             '1', // Có thể thay bằng số lượng bình luận thực tế
-                            style: const TextStyle(color: Colors.grey),
+                            style: TextStyle(color: Colors.grey),
                           ),
                         ],
                       ),

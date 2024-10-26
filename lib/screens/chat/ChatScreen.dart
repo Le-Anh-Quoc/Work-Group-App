@@ -9,7 +9,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ruprup/models/room_model.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/screens/MainScreen.dart';
-import 'package:ruprup/screens/chat/ListChatScreen.dart';
 import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/image_service.dart';
 import 'package:ruprup/services/user_service.dart';
@@ -69,6 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching recipient details: $e');
     }
   }
@@ -94,6 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
         message.text.endsWith('.jpg') ||
         message.text.endsWith('.png');
 
+    // ignore: avoid_print
     print(isImage);
 
     // Tạo một message mới
@@ -118,10 +119,12 @@ class _ChatScreenState extends State<ChatScreen> {
           size: 15, // Kích thước có thể tùy chỉnh
         );
         _messages.add(imageMessage);
+        // ignore: avoid_print
         print('đã add image');
       } else {
         // Thêm tin nhắn văn bản bình thường
         _messages.add(newMessage.toTypesTextMessage());
+        // ignore: avoid_print
         print('đã add text');
       }
     });
@@ -156,7 +159,7 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(width: 20),
             Text(
               widget.roomChat.nameRoom,
-              style: TextStyle(fontSize: 20),
+              style: const TextStyle(fontSize: 20),
             ),
           ],
         ),
@@ -245,10 +248,10 @@ class _ChatScreenState extends State<ChatScreen> {
 class CustomMessageInput extends StatefulWidget {
   final Function(String) onSendPressed;
 
-  const CustomMessageInput({Key? key, required this.onSendPressed})
-      : super(key: key);
+  const CustomMessageInput({super.key, required this.onSendPressed});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CustomMessageInputState createState() => _CustomMessageInputState();
 }
 
@@ -272,6 +275,7 @@ class _CustomMessageInputState extends State<CustomMessageInput> {
       // Gửi ảnh lên Firebase Storage và lấy URL
       String imageUrl =
           await imageService.uploadImageToFirebaseStorage(imageFile, false);
+      // ignore: avoid_print
       print(imageUrl);
 
       widget.onSendPressed(imageUrl); // Gửi đường dẫn hình ảnh
@@ -283,10 +287,12 @@ class _CustomMessageInputState extends State<CustomMessageInput> {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result != null) {
         final file = result.files.single;
+        // ignore: avoid_print
         print('File picked: ${file.name}');
         // Gửi file hoặc làm gì đó với file đã chọn
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error picking file: $e');
     }
   }

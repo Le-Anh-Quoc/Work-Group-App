@@ -1,39 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
+import 'package:ruprup/services/user_service.dart';
+import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 //import 'package:ruprup/services/project_service.dart';
 
 class ProjectWidget extends StatelessWidget {
   final Project project;
-  //final ProjectService _projectService = ProjectService();
-  ProjectWidget({super.key, required this.project}) {
-    debugPrint('Project ID: ${project.projectId}');
-    debugPrint('Project Name: ${project.projectName}');
-    debugPrint('To Do: ${project.toDo}');
-    debugPrint('Done: ${project.done}');
-  }
+  const ProjectWidget({super.key, required this.project});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      // child: FutureBuilder<Project?>(
-      //     future: _projectService.getProject(idProject),
-      //     builder: (context, snapshot) {
-      //       if (snapshot.connectionState == ConnectionState.waiting) {
-      //         return Center(child: CircularProgressIndicator());
-      //       } else if (snapshot.hasError) {
-      //         return Center(child: Text('Có lỗi xảy ra'));
-      //       } else if (!snapshot.hasData || snapshot.data == null) {
-      //         return Center(child: Text('Không tìm thấy dự án'));
-      //       }
-
-      //       Project project = snapshot.data!; // Lấy dự án từ snapshot
-
       child: GestureDetector(
         onTap: () {
+          Provider.of<Project>(context, listen: false).setCurrentProject(project);
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => DetailProjectScreen(project: project),
@@ -71,11 +56,52 @@ class ProjectWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(project.projectName,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              color: Colors.blueAccent)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(project.projectName,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
+                                  color: Colors.black)),
+                          // IconButton(
+                          //   onPressed: () async {
+                          //     // Hiển thị hộp thoại xác nhận
+                          //     bool? confirm = await showDialog<bool>(
+                          //       context: context,
+                          //       builder: (BuildContext context) {
+                          //         return AlertDialog(
+                          //           backgroundColor: Colors.white,
+                          //           title: const Text('Delete Project'),
+                          //           content: const Text('Are you sure you want to delete this project?'),
+                          //           actions: <Widget>[
+                          //             TextButton(
+                          //               child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+                          //               onPressed: () {
+                          //                 Navigator.of(context).pop(false); // Trả về false khi hủy
+                          //               },
+                          //             ),
+                          //             TextButton(
+                          //               child: const Text('Delete', style: TextStyle(color: Colors.blue)),
+                          //               onPressed: () {
+                          //                 Navigator.of(context).pop(true); // Trả về true khi xác nhận
+                          //               },
+                          //             ),
+                          //           ],
+                          //         );
+                          //       },
+                          //     );
+
+                          //     // Nếu người dùng xác nhận, gọi phương thức xóa
+                          //     if (confirm == true) {
+                          //       await Provider.of<Project>(context, listen: false).deleteProject(project.projectId);
+                          //     }
+                          //   },
+                          //   icon: const Icon(Icons.delete),
+                          //   color: Colors.red, // Màu đỏ cho icon xóa
+                          // ),
+                        ],
+                      ),
                       // Text(project.description,
                       //     style: const TextStyle(
                       //         color: Colors.grey, fontSize: 16)),
@@ -88,14 +114,16 @@ class ProjectWidget extends StatelessWidget {
                         child: Stack(
                           children:
                               List.generate(project.memberIds.length, (index) {
+                                final uid = project.memberIds[index];
                             return Positioned(
                               left: index *
                                   25, // Điều chỉnh khoảng cách giữa các avatar
-                              child: CircleAvatar(
-                                radius: 15, // Bán kính avatar
-                                backgroundImage: NetworkImage(
-                                    'https://randomuser.me/api/portraits/women/$index.jpg'),
-                              ),
+                              // child: CircleAvatar(
+                              //   radius: 15, // Bán kính avatar
+                              //   backgroundImage: NetworkImage(
+                              //       'https://randomuser.me/api/portraits/women/$index.jpg'),
+                              // ),
+                              child: InitialsAvatar(name: UserService().getFullNameByUid(uid), size: 25)
                             );
                           }),
                         ),
@@ -154,7 +182,7 @@ class ProjectWidget extends StatelessWidget {
                     ],
                   ),
                   Positioned(
-                    top: 20,
+                    top: 10,
                     right: 20,
                     child: CircularPercentIndicator(
                       radius: 50,

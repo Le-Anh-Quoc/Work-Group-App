@@ -1,14 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/task_model.dart';
-import 'package:ruprup/screens/task/AddTaskScreen.dart';
-import 'package:ruprup/services/task_service.dart';
+import 'package:ruprup/screens/project/DetailProjectScreen.dart';
+import 'package:ruprup/widgets/task/ModalBottomTask.dart';
 import 'package:ruprup/widgets/task/TaskWidget.dart';
-import 'package:ruprup/widgets/task/Todo.dart';
 
 class TaskListScreen extends StatefulWidget {
   final String typeTask;
-  final Project project;
+  final Project? project;
   const TaskListScreen(
       {super.key, required this.typeTask, required this.project});
 
@@ -19,11 +20,16 @@ class TaskListScreen extends StatefulWidget {
 class _TaskListScreenState extends State<TaskListScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool isMe = false;
+  final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   @override
   void initState() {
     super.initState();
+
     int initialIndex = getInitialIndex(widget.typeTask);
+    //TaskStatus taskStatus = getStatus(widget.typeTask);
+
     _tabController =
         TabController(length: 4, vsync: this, initialIndex: initialIndex);
 
@@ -31,6 +37,8 @@ class _TaskListScreenState extends State<TaskListScreen>
     _tabController.addListener(() {
       setState(() {});
     });
+
+    fetchTasks();
   }
 
   @override
@@ -39,16 +47,35 @@ class _TaskListScreenState extends State<TaskListScreen>
     super.dispose();
   }
 
+  void fetchTasks() {
+    final taskProvider = Provider.of<Task>(context, listen: false);
+    if (isMe) {
+      taskProvider.fetchTasksToDo(widget.project!.projectId,
+          currentUserId: currentUserId);
+      taskProvider.fetchTasksInProgess(widget.project!.projectId,
+          currentUserId: currentUserId);
+      taskProvider.fetchTasksInReview(widget.project!.projectId,
+          currentUserId: currentUserId);
+      taskProvider.fetchTasksDone(widget.project!.projectId,
+          currentUserId: currentUserId);
+    } else {
+      taskProvider.fetchTasksToDo(widget.project!.projectId);
+      taskProvider.fetchTasksInProgess(widget.project!.projectId);
+      taskProvider.fetchTasksInReview(widget.project!.projectId);
+      taskProvider.fetchTasksDone(widget.project!.projectId);
+    }
+  }
+
 // Phương thức để xác định chỉ số dựa trên typeTask
   int getInitialIndex(String typeTask) {
     switch (typeTask) {
-      case 'To do':
+      case 'toDo':
         return 0; // Chỉ số cho 'To do'
-      case 'In progress':
+      case 'inProgress':
         return 1; // Chỉ số cho 'In progress'
-      case 'In review':
+      case 'inReview':
         return 2; // Chỉ số cho 'In review'
-      case 'Completed':
+      case 'done':
         return 3; // Chỉ số cho 'Complete'
       default:
         return 1; // Mặc định là 'In progress'
@@ -71,13 +98,25 @@ class _TaskListScreenState extends State<TaskListScreen>
     }
   }
 
-  // Hàm lấy tất cả tasks dựa vào projectId
-  Future<List<Task>> getTasks() async {
-    return await TaskService.getTasksByProjectId(widget.project.projectId);
+  TaskStatus getStatus(String typeTask) {
+    switch (typeTask) {
+      case 'To do':
+        return TaskStatus.toDo;
+      case 'In progress':
+        return TaskStatus.inProgress;
+      case 'In review':
+        return TaskStatus.inReview;
+      case 'Completed':
+        return TaskStatus.done;
+      default:
+        return TaskStatus.toDo;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final taskProvider = Provider.of<Task>(context);
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -87,18 +126,64 @@ class _TaskListScreenState extends State<TaskListScreen>
           backgroundColor: Colors.white,
           leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => DetailProjectScreen(project: widget.project),
+                ),
+              );
             },
-            icon: const Icon(Icons.arrow_back_ios_new),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.blue),
           ),
-          title: const Center(
-            child: Text(
-              'Task',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-            ),
+          title: const Text(
+            'Task',
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 24, color: Colors.blue),
           ),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
+            GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isMe = !isMe;
+                    fetchTasks();
+                  });
+                },
+                child: isMe
+                    ? Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.person_outline,
+                                size: 30, color: Colors.blue),
+                            SizedBox(width: 5),
+                            Text('Me', style: TextStyle(color: Colors.blue))
+                          ],
+                        ),
+                      )
+                    : Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.group_outlined,
+                                size: 30, color: Colors.blue),
+                            SizedBox(width: 5),
+                            Text('Team', style: TextStyle(color: Colors.blue))
+                          ],
+                        ),
+                      )),
+            IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.more_vert,
+                  color: Colors.blue,
+                )),
           ],
           bottom: TabBar(
             controller: _tabController, // Link the controller
@@ -106,7 +191,7 @@ class _TaskListScreenState extends State<TaskListScreen>
               Tab(text: 'To do'),
               Tab(text: 'In progress'),
               Tab(text: 'In review'),
-              Tab(text: 'Complete'),
+              Tab(text: 'Done'),
             ],
             dividerColor: Colors.transparent,
             indicatorColor: Colors.transparent,
@@ -129,48 +214,46 @@ class _TaskListScreenState extends State<TaskListScreen>
         body: TabBarView(
           controller: _tabController, // Link the controller
           children: [
-            // Lấy và hiển thị các task 'To do'
-            FutureBuilder<List<Task>>(
-              future: getTasks(), // Gọi hàm lấy tasks
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No tasks found.'));
-                }
-            
-                final tasks = snapshot.data!;
-                return ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    return TaskWidget(task: tasks[index]); // Hiển thị từng task
-                  },
-                );
-              },
+            TaskListWidget(
+              tasks: taskProvider.tasksToDo,
+              backgroundColor: Colors.yellowAccent.withOpacity(0.1),
             ),
-            Container(
-                decoration:
-                    BoxDecoration(color: Colors.blueAccent.withOpacity(0.1)),
-                child: const Center(child: Text('Task in Progess'))),
-            Container(
-                decoration:
-                    BoxDecoration(color: Colors.redAccent.withOpacity(0.1)),
-                child: const Center(child: Text('Task in Review'))),
-            Container(
-                decoration:
-                    BoxDecoration(color: Colors.greenAccent.withOpacity(0.1)),
-                child: const Center(child: Text('Task Completed'))),
+            TaskListWidget(
+              tasks: taskProvider.tasksInProgess,
+              backgroundColor: Colors.blueAccent.withOpacity(0.1),
+            ),
+            TaskListWidget(
+              tasks: taskProvider
+                  .tasksInReview, // Add actual list for 'In review' tasks
+              backgroundColor: Colors.redAccent.withOpacity(0.1),
+            ),
+            TaskListWidget(
+              tasks: taskProvider
+                  .tasksDone, // Add actual list for 'Completed' tasks
+              backgroundColor: Colors.greenAccent.withOpacity(0.1),
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        AddTaskScreen(project: widget.project)));
+            if (currentUserId == widget.project!.ownerId) {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true, // Để cho phép cuộn khi nội dung dài
+                builder: (BuildContext context) {
+                  return ModalBottomTask(
+                      isAdd: true); // Gọi ModalBottomTask ở đây
+                },
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      'This feature is only available to the project owner.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
           }, // Add icon
           backgroundColor: Colors.white, // Button background color
           tooltip: 'Add Task',
@@ -182,5 +265,41 @@ class _TaskListScreenState extends State<TaskListScreen>
         ),
       ),
     );
+  }
+}
+
+class TaskListWidget extends StatelessWidget {
+  final List<Task> tasks;
+  final Color backgroundColor;
+
+  const TaskListWidget({required this.tasks, required this.backgroundColor});
+
+  @override
+  Widget build(BuildContext context) {
+    if (tasks.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(color: backgroundColor),
+        child: const Center(
+          child: Text(
+            'Currently, project don\'t have any tasks.',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    } else {
+      return Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return TaskWidget(task: task);
+              },
+            ),
+          ),
+        ],
+      );
+    }
   }
 }
