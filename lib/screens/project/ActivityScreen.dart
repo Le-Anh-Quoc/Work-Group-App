@@ -90,7 +90,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget build(BuildContext context) {
     final activityProvider = Provider.of<ActivityLog>(context);
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Activities',
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
@@ -98,11 +100,14 @@ class _ActivityScreenState extends State<ActivityScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            SizedBox(
-              height: 70,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: _buildWeekdayButtons(),
+            Container(
+              color: Colors.white,
+              child: SizedBox(
+                height: 70,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: _buildWeekdayButtons(),
+                ),
               ),
             ),
             const SizedBox(height: 8),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -30,6 +31,7 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
   @override
   Widget build(BuildContext context) {
     final activityProvider = Provider.of<ActivityLog>(context);
+    final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
     return DefaultTabController(
       length: 4,
       child: Scaffold(
@@ -45,13 +47,14 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
                 );
               },
               icon: const Icon(Icons.arrow_back_ios_new)),
-          title: const Center(
-              child: Text(
-            'Overview',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          )),
+          title: const Text(
+                      'Overview',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                    ),
+          centerTitle: true,
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
+            if (currentUserId == widget.project!.ownerId)
+              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
           ],
         ),
         body: SingleChildScrollView(
@@ -237,8 +240,8 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        ActivityScreen(projectId: widget.project!.projectId),
+                                    builder: (_) => ActivityScreen(
+                                        projectId: widget.project!.projectId),
                                   ),
                                 );
                               },
