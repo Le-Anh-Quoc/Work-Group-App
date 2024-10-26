@@ -1,3 +1,5 @@
+import 'package:ruprup/services/user_service.dart';
+
 class UserModel {
   final String userId;
   final String fullname;
@@ -37,5 +39,12 @@ class UserModel {
       friendList: List<String>.from(map['friendList'] ?? []),
       groupIds: List<String>.from(map['groupIds'] ?? []),
     );
+  }
+
+  static final UserService _userService = UserService();
+
+  Future<String> getFullNameByUid(String userId) async {
+    String fullname = await _userService.getFullNameByUid(userId);
+    return fullname;
   }
 }

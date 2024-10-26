@@ -1,7 +1,18 @@
-enum TaskStatus { toDo, inProgress, inReview, done }
-enum Difficulty { low, medium, hard}
+import 'dart:io';
+import 'dart:math';
 
-class Task {
+import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
+import 'package:ruprup/models/activityProject_model.dart';
+import 'package:ruprup/services/activity_service.dart';
+import 'package:ruprup/services/task_service.dart';
+
+enum TaskStatus { toDo, inProgress, inReview, done }
+
+enum Difficulty { low, medium, hard }
+
+class Task extends ChangeNotifier {
   late final String taskId;
   final String projectId;
   final String taskName;
@@ -10,11 +21,12 @@ class Task {
   final TaskStatus status;
   final DateTime dueDate;
   final DateTime createdAt;
-  final Difficulty difficulty; 
+  final Difficulty difficulty;
+  final List<File> files;
 
   Task({
     required this.taskId,
-    required this.projectId,    //
+    required this.projectId, //
     required this.taskName,
     required this.description,
     required this.assigneeIds,
@@ -22,11 +34,13 @@ class Task {
     required this.dueDate,
     required this.createdAt,
     required this.difficulty,
+    this.files = const [],
   });
 
-  Task copyWith({String? taskId}) {
+  Task copyWith({String? taskId, List<File>? files}) {
     return Task(
-      taskId: taskId ?? this.taskId, // Nếu không cung cấp taskId mới, sử dụng taskId hiện tại
+      taskId: taskId ??
+          this.taskId, // Nếu không cung cấp taskId mới, sử dụng taskId hiện tại
       taskName: taskName,
       description: description,
       assigneeIds: assigneeIds,
@@ -34,6 +48,7 @@ class Task {
       dueDate: dueDate,
       createdAt: createdAt,
       difficulty: difficulty, projectId: projectId,
+      files: files ?? this.files,
     );
   }
 
@@ -46,26 +61,177 @@ class Task {
       'description': description,
       'assigneeIds': assigneeIds,
       'status': status.name,
-      'dueDate': dueDate?.toIso8601String(),
-      'createdAt': createdAt?.toIso8601String(),
-      'difficulty': difficulty.name
+      'dueDate': dueDate.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'difficulty': difficulty.name,
+      'files': files,
     };
   }
 
   // Create a Task object from a map
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
-      taskId: map['taskId'] ?? '',
-      projectId: map['projectId'] ?? '',
-      taskName: map['taskName'] ?? '',
-      description: map['description'] ?? '',
-      assigneeIds: List<String>.from(map['assigneeIds'] ?? []),
-      status: TaskStatus.values.firstWhere(
-          (e) => e.name == map['status'], orElse: () => TaskStatus.toDo),
-      dueDate: DateTime.parse(map['dueDate'] ?? DateTime.now().toIso8601String()),
-      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
-      difficulty: Difficulty.values.firstWhere(
-          (e) => e.name == map['difficulty'], orElse: () => Difficulty.medium),
-    );
+        taskId: map['taskId'] ?? '',
+        projectId: map['projectId'] ?? '',
+        taskName: map['taskName'] ?? '',
+        description: map['description'] ?? '',
+        assigneeIds: List<String>.from(map['assigneeIds'] ?? []),
+        status: TaskStatus.values.firstWhere((e) => e.name == map['status'],
+            orElse: () => TaskStatus.toDo),
+        dueDate:
+            DateTime.parse(map['dueDate'] ?? DateTime.now().toIso8601String()),
+        createdAt: DateTime.parse(
+            map['createdAt'] ?? DateTime.now().toIso8601String()),
+        difficulty: Difficulty.values.firstWhere(
+            (e) => e.name == map['difficulty'],
+            orElse: () => Difficulty.medium),
+        files: List<File>.from(map['files'] ?? []));
+  }
+
+  static final TaskService _taskService = TaskService();
+  static final ActivityService _activityService = ActivityService();
+
+  List<Task> _tasksToDo = [];
+  List<Task> get tasksToDo => _tasksToDo;
+
+  List<Task> _tasksInProgess = [];
+  List<Task> get tasksInProgess => _tasksInProgess;
+
+  List<Task> _tasksInReview = [];
+  List<Task> get tasksInReview => _tasksInReview;
+
+  List<Task> _tasksDone = [];
+  List<Task> get tasksDone => _tasksDone;
+
+  // lấy danh sách Task
+  // Future<void> fetchTasks(String idProject, TaskStatus status) async {
+  //   try {
+  //     _tasks = await _taskService.getTasks(idProject, status);
+  //     notifyListeners();
+  //   } catch (e) {
+  //     // ignore: avoid_print
+  //     print('Error fetching tasks: $e');
+  //     // ignore: use_rethrow_when_possible
+  //     throw e;
+  //   }
+  // }
+
+  // lấy danh sách Task
+  Future<void> fetchTasksToDo(String idProject, {String? currentUserId}) async {
+    try {
+      _tasksToDo = await _taskService.getTasks(idProject, TaskStatus.toDo,
+          currentUserId: currentUserId);
+      notifyListeners();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching tasks: $e');
+      // ignore: use_rethrow_when_possible
+      throw e;
+    }
+  }
+
+  Future<void> fetchTasksInProgess(String idProject,
+      {String? currentUserId}) async {
+    try {
+      _tasksInProgess = await _taskService.getTasks(
+          idProject, TaskStatus.inProgress,
+          currentUserId: currentUserId);
+      notifyListeners();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching tasks: $e');
+      // ignore: use_rethrow_when_possible
+      throw e;
+    }
+  }
+
+  Future<void> fetchTasksInReview(String idProject,
+      {String? currentUserId}) async {
+    try {
+      _tasksInReview = await _taskService.getTasks(
+          idProject, TaskStatus.inReview,
+          currentUserId: currentUserId);
+      notifyListeners();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching tasks: $e');
+      // ignore: use_rethrow_when_possible
+      throw e;
+    }
+  }
+
+  Future<void> fetchTasksDone(String idProject, {String? currentUserId}) async {
+    try {
+      _tasksDone = await _taskService.getTasks(idProject, TaskStatus.done,
+          currentUserId: currentUserId);
+      notifyListeners();
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching tasks: $e');
+      // ignore: use_rethrow_when_possible
+      throw e;
+    }
+  }
+
+  Future<void> addTask(BuildContext context, String idProject, Task task, String actionUserId) async {
+    try {
+      Task taskWithId = await _taskService.addTask(idProject, task);
+      await fetchTasksToDo(idProject);
+
+      await _activityService.logTaskActivity(context, 'add', taskWithId, actionUserId);
+
+    } catch (e) {
+      // ignore: avoid_print
+      print("Error creating task: $e");
+    }
+  }
+
+  Future<Task?> getTask(String idProject, String idTask) async {
+    final task = await _taskService.getTask(idProject, idTask);
+    return task;
+  }
+
+  Future<void> updateTask(BuildContext context, String idProject, Task task, String actionUserId) async {
+    try {
+      await _taskService.updateTask(idProject, task);
+      if (task.status == TaskStatus.toDo) {
+        await fetchTasksToDo(idProject);
+      } else {
+        await fetchTasksInProgess(idProject);
+      }
+      
+      await _activityService.logTaskActivity(context, 'update', task, actionUserId);
+
+    } catch (e) {
+      print("Error updating task: $e");
+    }
+  }
+
+  Future<void> deleteTask(BuildContext context, String idProject, String idTask, String actionUserId) async {
+    try {
+      Task? task = await _taskService.getTask(idProject, idTask);
+
+      await _taskService.deleteTask(idProject, idTask);
+      await fetchTasksToDo(idProject);
+
+      await _activityService.logTaskActivity(context, 'delete', task!, actionUserId);
+
+    } catch (e) {
+      print("Error deleting task: $e");
+    }
+  }
+
+  Future<void> updateTaskStatus(
+      BuildContext context, String projectId, String taskId, TaskStatus status, String actionUserId) async {
+    try {
+      await _taskService.updateTaskStatus(projectId, taskId, status);
+
+      Task? task = await _taskService.getTask(projectId, taskId);
+
+      await _activityService.logTaskActivity(context, 'update status', task!, actionUserId);
+
+    } catch (e) {
+      print('Error update task status: $e');
+    }
   }
 }
