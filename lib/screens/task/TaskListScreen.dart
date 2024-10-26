@@ -234,35 +234,28 @@ class _TaskListScreenState extends State<TaskListScreen>
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (currentUserId == widget.project!.ownerId) {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true, // Để cho phép cuộn khi nội dung dài
-                builder: (BuildContext context) {
-                  return ModalBottomTask(
-                      isAdd: true); // Gọi ModalBottomTask ở đây
-                },
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                      'This feature is only available to the project owner.'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            }
-          }, // Add icon
-          backgroundColor: Colors.white, // Button background color
-          tooltip: 'Add Task',
-          child: const Icon(
-            Icons.add,
-            color: Colors.blue,
-            size: 30,
-          ), // Tooltip for the button
-        ),
+        floatingActionButton: (currentUserId == widget.project!.ownerId)
+            ? FloatingActionButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled:
+                        true, // Để cho phép cuộn khi nội dung dài
+                    builder: (BuildContext context) {
+                      return ModalBottomTask(
+                          isAdd: true); // Gọi ModalBottomTask ở đây
+                    },
+                  );
+                }, // Add icon
+                backgroundColor: Colors.white, // Button background color
+                tooltip: 'Add Task',
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.blue,
+                  size: 30,
+                ), // Tooltip for the button
+              )
+            : null,
       ),
     );
   }
