@@ -22,47 +22,246 @@ class TaskDetailScreen extends StatefulWidget {
 
 class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final String actionUserId = FirebaseAuth.instance.currentUser!.uid;
-
-  final List<File> _uploadedFiles = []; // Danh sách các tệp đã tải lên
-  //final ImagePicker _picker = ImagePicker();
-
-  // Hàm tải lên hình ảnh
-  // Future<void> _pickImage() async {
-  //   final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-  //   if (image != null) {
-  //     setState(() {
-  //       _uploadedFiles.add(File(image.path));
-  //     });
-  //   }
-  // }
+  final List<File> _uploadedFiles = [];
 
   // Hàm tải lên tệp
   Future<void> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(allowMultiple: true);
     if (result != null) {
       setState(() {
-        _uploadedFiles.add(File(result.files.single.path!));
+        _uploadedFiles
+            .addAll(result.paths.whereType<String>().map((path) => File(path)));
       });
     }
   }
 
-// Hàm để lấy màu dựa trên status của task
-  Color getBackgroundColorForStatus(TaskStatus status) {
-    switch (status) {
-      case TaskStatus.toDo:
-        return Colors.orange[100]!;
-      case TaskStatus.inProgress:
-        return Colors.blue[100]!;
-      case TaskStatus.inReview:
-        return Colors.red[100]!;
-      case TaskStatus.done:
-        return Colors.green[100]!;
-      default:
-        return Colors.grey[200]!;
-    }
+  @override
+  Widget build(BuildContext context) {
+    final currentProject =
+        Provider.of<Project>(context, listen: false).currentProject;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => TaskListScreen(
+                typeTask: widget.task!.status.name,
+                project: currentProject,
+              ),
+            ),
+          ),
+          icon: const Icon(Icons.arrow_back_ios),
+        ),
+        title: const Text('Task', style: TextStyle(color: Colors.grey)),
+        centerTitle: true,
+        actions: _buildTaskActions(context),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTaskTitle(),
+              const SizedBox(height: 16),
+              _buildCreaterRow(currentProject!.ownerId),
+              const SizedBox(height: 16),
+              _buildTaskDescription(),
+              const SizedBox(height: 16),
+              _buildDueDateRow(),
+              const SizedBox(height: 16),
+              _buildDifficultyIndicator(),
+              const SizedBox(height: 16),
+              _buildAssigneeList(),
+              const SizedBox(height: 16),
+              _buildAttachmentSection(),
+              const SizedBox(height: 16),
+              _buildAttachButton(),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  Color getBackgroundColorForDifficulty(Difficulty difficulty) {
+  // Các phương thức riêng cho các phần tử widget
+  Widget _buildTaskTitle() {
+    return Text(
+      widget.task!.taskName,
+      style: const TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _buildCreaterRow(String ownerProject) {
+    final name = UserService().getFullNameByUid(ownerProject);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            InitialsAvatar(
+              name: name,
+              size: 30,
+            ),
+            const SizedBox(width: 5),
+            const Text('Created by \'Project Leader\'',
+                style: TextStyle(fontSize: 16, color: Colors.grey)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaskDescription() {
+    return Text(
+      widget.task!.description,
+      style: const TextStyle(fontSize: 18, color: Colors.black, height: 1.4),
+    );
+  }
+
+  Widget _buildDueDateRow() {
+    return Row(
+      children: [
+        const Icon(Icons.flag, color: Colors.redAccent),
+        const SizedBox(width: 8),
+        Text(
+          DateFormat('dd MMM yyyy').format(widget.task!.dueDate),
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDifficultyIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: _getBackgroundColorForDifficulty(widget.task!.difficulty),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        widget.task!.difficulty.name,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: _getTextColorForDifficulty(widget.task!.difficulty),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAssigneeList() {
+    return Row(
+      children: 
+      widget.task!.assigneeIds
+          .map((uid) => InitialsAvatar(
+                name: UserService().getFullNameByUid(uid),
+                size: 45,
+              ))
+          .toList(),
+    );
+  }
+
+  Widget _buildAttachmentSection() {
+    if (_uploadedFiles.isEmpty) {
+      return const Text('Attachment',
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        
+        const SizedBox(height: 8),
+        Column(
+          children: _uploadedFiles.map((file) {
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                border: Border.all(color: Colors.blueAccent),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                leading: Icon(_getFileIcon(file), color: Colors.blueAccent),
+                title: Text(path.basename(file.path)),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildAttachButton() {
+    return Row(
+      children: [
+        TextButton.icon(
+          onPressed: _pickFile,
+          icon: const Icon(Icons.attach_file),
+          label: const Text("Attach"),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.blue,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Tách riêng hành động task ra một phương thức riêng
+  List<Widget> _buildTaskActions(BuildContext context) {
+    final task = widget.task!;
+    if (!task.assigneeIds.contains(actionUserId)) return [];
+
+    List<Widget> actions = [];
+    if (task.status == TaskStatus.toDo) {
+      actions.add(_buildActionButton(Icons.start, Colors.blueAccent,
+          () => _updateTaskStatus(context, TaskStatus.inProgress)));
+    } else if (task.status == TaskStatus.inProgress) {
+      actions.add(_buildActionButton(Icons.visibility, Colors.redAccent,
+          () => _updateTaskStatus(context, TaskStatus.inReview)));
+    } else if (task.status == TaskStatus.inReview) {
+      actions.addAll([
+        _buildActionButton(Icons.replay, Colors.orange,
+            () => _updateTaskStatus(context, TaskStatus.inProgress)),
+        _buildActionButton(Icons.done, Colors.green,
+            () => _updateTaskStatus(context, TaskStatus.done)),
+      ]);
+    }
+    return actions;
+  }
+
+  IconButton _buildActionButton(
+      IconData icon, Color color, VoidCallback onPressed) {
+    return IconButton(
+      icon: Icon(icon, color: color),
+      iconSize: 30,
+      onPressed: onPressed,
+    );
+  }
+
+  Future<void> _updateTaskStatus(
+      BuildContext context, TaskStatus status) async {
+    await Provider.of<Task>(context, listen: false).updateTaskStatus(
+      context,
+      widget.task!.projectId,
+      widget.task!.taskId,
+      status,
+      actionUserId,
+    );
+  }
+
+  // Hàm để lấy màu và icon
+  Color _getBackgroundColorForDifficulty(Difficulty difficulty) {
     switch (difficulty) {
       case Difficulty.low:
         return Colors.greenAccent.withOpacity(0.2);
@@ -75,23 +274,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-// Hàm để lấy màu text dựa trên status của task
-  Color getTextColorForStatus(TaskStatus status) {
-    switch (status) {
-      case TaskStatus.toDo:
-        return Colors.orangeAccent[700]!;
-      case TaskStatus.inProgress:
-        return Colors.blue[700]!;
-      case TaskStatus.inReview:
-        return Colors.red[700]!;
-      case TaskStatus.done:
-        return Colors.green[700]!;
-      default:
-        return Colors.grey[700]!;
-    }
-  }
-
-  Color getTextColorForDifficulty(Difficulty difficulty) {
+  Color _getTextColorForDifficulty(Difficulty difficulty) {
     switch (difficulty) {
       case Difficulty.low:
         return Colors.greenAccent;
@@ -100,318 +283,27 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       case Difficulty.hard:
         return Colors.redAccent;
       default:
-        return Colors
-            .grey.shade600; // Màu mặc định nếu không xác định được độ khó
+        return Colors.grey.shade600;
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Project? currentProject =
-        Provider.of<Project>(context, listen: false).currentProject;
-
-    return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-            backgroundColor: Colors.white,
-            leading: IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => TaskListScreen(
-                          typeTask: widget.task!.status.name,
-                          project: currentProject),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.arrow_back_ios)),
-            title: const Row(
-              children: [
-                Text('Task'),
-                SizedBox(width: 15),
-                // Text(task.status.name,
-                //     style:
-                //         TextStyle(color: getTextColorForStatus(task.status))),
-                // Container(
-                //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                //     decoration: BoxDecoration(
-                //       color: getBackgroundColorForStatus(widget.task.status),
-                //       borderRadius: BorderRadius.circular(20),
-                //     ),
-                //     child: Text(
-                //       widget.task.status.name,
-                //       style: TextStyle(
-                //           fontSize: 18,
-                //           color: getTextColorForStatus(widget.task.status)),
-                //     ),
-                //   ),
-              ],
-            ),
-            actions: [
-              if (widget.task!.assigneeIds.contains(actionUserId)) ...[
-                if (widget.task!.status == TaskStatus.toDo)
-                  IconButton(
-                    icon: const Icon(Icons.start), // Icon for 'To do'
-                    onPressed: () async {
-                      await Provider.of<Task>(context, listen: false)
-                          .updateTaskStatus(
-                              context,
-                              widget.task!.projectId,
-                              widget.task!.taskId,
-                              TaskStatus.inProgress,
-                              actionUserId);
-                    },
-                    iconSize: 30,
-                    color: Colors.blueAccent,
-                  ),
-                if (widget.task!.status == TaskStatus.inProgress)
-                  IconButton(
-                    icon: const Icon(Icons.visibility), // Icon for 'To do'
-                    onPressed: () async {
-                      await Provider.of<Task>(context, listen: false)
-                          .updateTaskStatus(
-                              context,
-                              widget.task!.projectId,
-                              widget.task!.taskId,
-                              TaskStatus.inReview,
-                              actionUserId);
-                    },
-                    iconSize: 30,
-                    color: Colors.redAccent,
-                  ),
-                if (widget.task!.status == TaskStatus.inReview)
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.replay, color: Colors.orange),
-                        onPressed: () async {
-                          await Provider.of<Task>(context, listen: false)
-                              .updateTaskStatus(
-                                  context,
-                                  widget.task!.projectId,
-                                  widget.task!.taskId,
-                                  TaskStatus.inProgress,
-                                  actionUserId);
-                        },
-                        iconSize: 30,
-                        color: Colors.blueAccent,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.done),
-                        onPressed: () async {
-                          await Provider.of<Task>(context, listen: false)
-                              .updateTaskStatus(
-                                  context,
-                                  widget.task!.projectId,
-                                  widget.task!.taskId,
-                                  TaskStatus.done,
-                                  actionUserId);
-                        },
-                        iconSize: 30,
-                        color: Colors.blueAccent,
-                      ),
-                    ],
-                  ),
-              ]
-            ]),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Difficulty Indicator
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: getBackgroundColorForDifficulty(
-                            widget.task!.difficulty),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        widget.task!.difficulty.name,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: getTextColorForDifficulty(
-                              widget.task!.difficulty),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                // Task Name
-                Text(
-                  widget.task!.taskName,
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Assignee and Due Date
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        InitialsAvatar(
-                            name: UserService()
-                                .getFullNameByUid(widget.task!.assigneeIds[0])),
-                        const SizedBox(width: 12),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Created',
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey)),
-                            Text('Duy Tan',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w600)),
-                          ],
-                        )
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle, // Tạo hình tròn
-                            color: Colors.grey[100], // Màu nền xám
-                          ),
-                          padding: const EdgeInsets.all(
-                              12), // Khoảng cách giữa biểu tượng và đường viền
-                          child: const Icon(
-                            Icons.calendar_today,
-                            color: Colors.blueAccent,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Due Date',
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.grey)),
-                            Text(
-                                DateFormat('dd MMM yyyy')
-                                    .format(widget.task!.dueDate),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ))
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                // Description Section
-                const Text(
-                  'Description',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.task!.description,
-                  style: TextStyle(
-                      fontSize: 16, color: Colors.grey[600], height: 1.4),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Assignee',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    for (String uid in widget.task!.assigneeIds)
-                      InitialsAvatar(name: UserService().getFullNameByUid(uid)),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                const Text('Work',
-                    style:
-                        TextStyle(fontWeight: FontWeight.w700, fontSize: 20)),
-                if (_uploadedFiles.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Column(
-                    children: _uploadedFiles.map((file) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8), // Khoảng cách giữa các tệp
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50], // Màu nền
-                          border:
-                              Border.all(color: Colors.blueAccent), // Viền màu
-                          borderRadius: BorderRadius.circular(10), // Bo góc
-                        ),
-                        child: ListTile(
-                          leading: Icon(
-                            _getFileIcon(file),
-                            color: Colors.blueAccent,
-                          ),
-                          title: Text(path.basename(file.path)),
-                          //subtitle: Text('File size: ${file.lengthSync()} bytes'),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                const Divider(thickness: 2, color: Colors.grey),
-                Row(
-                  children: [
-                    TextButton.icon(
-                      onPressed: _pickFile,
-                      icon: const Icon(Icons.attach_file),
-                      label: const Text("Attach"),
-                      style: TextButton.styleFrom(
-                        foregroundColor:
-                            Colors.blue, // Màu văn bản và biểu tượng
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ));
-  }
-}
-
-// Hàm để lấy biểu tượng theo loại tệp
-IconData _getFileIcon(File file) {
-  String extension = path.extension(file.path);
-  switch (extension) {
-    case '.jpg':
-    case '.jpeg':
-    case '.png':
-      return Icons.image;
-    case '.pdf':
-      return Icons.picture_as_pdf;
-    case '.doc':
-    case '.docx':
-      return Icons.description;
-    case '.xls':
-    case '.xlsx':
-      return Icons.table_chart;
-    case '.ppt':
-    case '.pptx':
-      return Icons.slideshow;
-    default:
-      return Icons.file_copy; // Biểu tượng mặc định cho tệp khác
+  IconData _getFileIcon(File file) {
+    final extension = path.extension(file.path).toLowerCase();
+    switch (extension) {
+      case '.jpg':
+      case '.jpeg':
+      case '.png':
+        return Icons.image;
+      case '.pdf':
+        return Icons.picture_as_pdf;
+      case '.doc':
+      case '.docx':
+        return Icons.description;
+      case '.xls':
+      case '.xlsx':
+        return Icons.table_chart;
+      default:
+        return Icons.attach_file;
+    }
   }
 }
