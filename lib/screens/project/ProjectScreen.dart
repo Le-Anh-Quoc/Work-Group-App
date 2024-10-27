@@ -41,8 +41,8 @@ class _ProjectScreenState extends State<ProjectScreen> {
           body: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 56),
             child: Column(children: [
-              CustomSearchField(),
-              const SizedBox(height: 15),
+              // CustomSearchField(),
+              // const SizedBox(height: 15),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
