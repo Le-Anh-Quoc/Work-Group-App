@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:ruprup/models/activityProject_model.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/task_model.dart';
+import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
 import 'package:ruprup/widgets/animation/hero.dart';
 
@@ -19,6 +20,7 @@ Future main() async {
       ChangeNotifierProvider(
         create: (context) => Project(
           projectId: '1', // Thay thế bằng giá trị thực tế nếu cần
+          groupId: 'group1',
           projectName: 'Project 1',
           description: 'Description of Project 1',
           startDate: DateTime.now(),
@@ -49,6 +51,9 @@ Future main() async {
               action: 'action',
               userActionId: 'userActionId',
               timestamp: DateTime.now())),
+      ChangeNotifierProvider(
+          create: (context) =>
+              UserModel(userId: '12', fullname: '22', email: 'leanhquocit@gmail.com')),
       // Các Provider khác nếu có
     ],
     child: const MyApp(),
