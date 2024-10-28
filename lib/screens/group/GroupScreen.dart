@@ -30,6 +30,7 @@ class _GroupScreenState extends State<GroupScreen> {
   void _createProject(List<String> groupMemberIds) async {
     Project newProject = Project(
         projectId: '',
+        groupId: widget.groupId,
         projectName: _nameProjectController.text,
         description: _descriptionController.text,
         startDate: DateTime.now(),
