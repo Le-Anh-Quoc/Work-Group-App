@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:path/path.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/friend_service.dart';
@@ -229,11 +230,11 @@ class UserService {
     }
 
     // Chuyển đổi map thành danh sách UserModel sử dụng hàm fromMap
-  List<UserModel> userList = userMap.values.map((userData) {
-    return UserModel.fromMap(userData);
-  }).toList();
+    List<UserModel> userList = userMap.values.map((userData) {
+      return UserModel.fromMap(userData);
+    }).toList();
 
-  return userList;
+    return userList;
 
     // Hợp nhất kết quả từ email và fullname
     // Set<Map<String, dynamic>> resultsSet = {};
@@ -289,4 +290,24 @@ class UserService {
   //     return [];
   //   }
   // }
+
+  Future<List<Map<String, String>>> getListGroupForCurrentUser(
+      String currentUserId) async {
+    // Lấy danh sách các nhóm (channels) mà người dùng hiện tại là thành viên
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('channel') // Tên collection là 'channel'
+        .where('memberIds', arrayContains: currentUserId)
+        .get();
+
+    // Chuyển đổi kết quả thành danh sách Map với 'id' và 'name' của nhóm
+    List<Map<String, String>> groups = querySnapshot.docs.map((doc) {
+      return {
+        'id': doc.id, // ID của tài liệu (nhóm)
+        'name': doc['channelName']
+            as String // Lấy tên của nhóm từ trường 'channelName'
+      };
+    }).toList();
+
+    return groups;
+  }
 }

@@ -59,19 +59,24 @@ class ProjectService {
   }
 
   // 5. lấy tất cả (ALL) các project của người dùng hiện tại đang tham gia
-  Future<List<Project>> getAllProjectsForCurrentUser() async {
+  Future<List<Project>> getAllProjectsForCurrentUser({String? groupId}) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       // Trường hợp người dùng chưa đăng nhập
       throw Exception("No user is currently signed in.");
     }
     String currentUserId = currentUser.uid;
-    QuerySnapshot querySnapshot = await _firestore
+
+    Query query = _firestore
         .collection(collection)
-        .where('memberIds',
-            arrayContains:
-                currentUserId) // Kiểm tra người dùng có trong memberIds
-        .get();
+        .where('memberIds', arrayContains: currentUserId);
+
+    // Nếu groupId không null, thêm điều kiện vào truy vấn
+    if (groupId != null) {
+      query = query.where('groupId', isEqualTo: groupId);
+    }
+
+    QuerySnapshot querySnapshot = await query.get();
 
     // Chuyển đổi kết quả truy vấn thành danh sách Project
     List<Project> projects = querySnapshot.docs.map((doc) {
