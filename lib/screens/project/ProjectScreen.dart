@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
+import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/widgets/project/ProjectWidget.dart';
-import 'package:ruprup/widgets/search/SearchWidget.dart';
+// import 'package:ruprup/widgets/search/SearchWidget.dart';
 
 class ProjectScreen extends StatefulWidget {
   const ProjectScreen({super.key});
@@ -12,23 +14,57 @@ class ProjectScreen extends StatefulWidget {
 }
 
 class _ProjectScreenState extends State<ProjectScreen> {
-  String? _selectedGroup; // Biến để lưu trữ nhóm được chọn
-  final List<String> _groups = [
-    'All',
-    'Project A',
-    'Project B',
-    'Project C',
-    'Project D',
-  ];
+  final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+  String? _selectedGroupId; // Biến để lưu trữ nhóm được chọn
+  List<Map<String, String>> _groups = []; // Danh sách nhóm với id và tên
+  // final List<String> _groups = [
+  //   'All',
+  //   'Project A',
+  //   'Project B',
+  //   'Project C',
+  //   'Project D',
+  // ];
 
   @override
   void initState() {
     super.initState();
     // ignore: avoid_print
     print("Screen List Project");
-    Future.microtask(
-        // ignore: use_build_context_synchronously
-        () => Provider.of<Project>(context, listen: false).fetchProjects());
+    // Future.microtask(
+    //     // ignore: use_build_context_synchronously
+    //     () => Provider.of<Project>(context, listen: false).fetchProjects(groupId: _selectedGroup));
+    // // final List<String> listGroup = Provider.of<UserModel>(context, listen: false).getListGroupForCurrentUser(currentUserId);
+    // print(listGroup);
+    _fetchGroups();
+  }
+
+  Future<void> _fetchGroups() async {
+    try {
+      // Lấy danh sách groupId và tên của nhóm
+      List<Map<String, String>> groupList =
+          await Provider.of<UserModel>(context, listen: false)
+              .getListGroupForCurrentUser(currentUserId);
+
+      groupList.insert(0, {'id': 'All', 'name': 'All'});
+
+      setState(() {
+        _groups = groupList;
+      });
+
+      _fetchProjects(_selectedGroupId);
+    } catch (e) {
+      print("Error fetching groups: $e");
+    }
+  }
+
+  void _fetchProjects(String? groupId) {
+    if (groupId != 'All') {
+      Provider.of<Project>(context, listen: false)
+          .fetchProjects(groupId: groupId);
+    } else {
+      Provider.of<Project>(context, listen: false).fetchProjects();
+    }
   }
 
   @override
@@ -52,24 +88,49 @@ class _ProjectScreenState extends State<ProjectScreen> {
                           fontWeight: FontWeight.bold,
                           color: Colors.black)),
                   DropdownButton<String>(
-                    value: _selectedGroup,
-                    hint: const Text(
-                        'All'), // Hiển thị khi không có lựa chọn nào
+                    value: _selectedGroupId,
+                    hint:
+                        const Text('All'), // Hiển thị khi không có lựa chọn nào
                     onChanged: (String? newValue) {
                       setState(() {
-                        _selectedGroup =
-                            newValue; // Cập nhật giá trị được chọn
+                        _selectedGroupId = newValue;
+                        _fetchProjects(newValue); // Cập nhật giá trị được chọn
                       });
                     },
-                    items:
-                        _groups.map<DropdownMenuItem<String>>((String value) {
+                    dropdownColor: Colors.white, // Làm nền dropdown trong suốt
+                    underline: SizedBox(), // Loại bỏ đường gạch chân
+                    items: _groups.map<DropdownMenuItem<String>>((group) {
                       return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value, style: TextStyle(color: Colors.grey),),
+                        value: group['id'],
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 12.0),
+                          decoration: BoxDecoration(
+                            color: Colors
+                                .transparent, // Làm nền của item trong suốt
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: Row(
+                            children: [
+                              if (group['name'] != 'All')
+                                const Icon(
+                                  Icons.group,
+                                  color: Colors.blueAccent,
+                                ),
+                              const SizedBox(width: 8.0),
+                              Text(
+                                group['name']!,
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       );
                     }).toList(),
-                    underline: SizedBox(), 
-                  ),
+                  )
                 ],
               ),
               const SizedBox(height: 15),
