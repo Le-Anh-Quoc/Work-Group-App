@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:ruprup/services/user_service.dart';
 
-class UserModel {
+class UserModel extends ChangeNotifier{
   final String userId;
   final String fullname;
   final String email;
@@ -8,7 +10,7 @@ class UserModel {
   final List<String>? friendList;
   final List<String>? groupIds;
 
-  UserModel({  
+  UserModel({
     required this.userId,
     required this.fullname,
     required this.email,
@@ -46,5 +48,17 @@ class UserModel {
   Future<String> getFullNameByUid(String userId) async {
     String fullname = await _userService.getFullNameByUid(userId);
     return fullname;
+  }
+
+  Future<UserModel?> getUser(String id) async {
+    final user = await _userService.readUser(id);
+    return user;
+  }
+
+  Future<List<Map<String, String>>> getListGroupForCurrentUser(
+      String id) async {
+    List<Map<String, String>> listGroup =
+        await _userService.getListGroupForCurrentUser(id);
+    return listGroup;
   }
 }
