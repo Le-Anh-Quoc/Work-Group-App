@@ -160,8 +160,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Widget _buildAssigneeList() {
     return Row(
-      children: 
-      widget.task!.assigneeIds
+      children: widget.task!.assigneeIds
           .map((uid) => InitialsAvatar(
                 name: UserService().getFullNameByUid(uid),
                 size: 45,
@@ -173,13 +172,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   Widget _buildAttachmentSection() {
     if (_uploadedFiles.isEmpty) {
       return const Text('Attachment',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20));
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20));
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        
         const SizedBox(height: 8),
         Column(
           children: _uploadedFiles.map((file) {
@@ -227,8 +225,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       actions.add(_buildActionButton(Icons.start, Colors.blueAccent,
           () => _updateTaskStatus(context, TaskStatus.inProgress)));
     } else if (task.status == TaskStatus.inProgress) {
-      actions.add(_buildActionButton(Icons.visibility, Colors.redAccent,
-          () => _updateTaskStatus(context, TaskStatus.inReview)));
+      actions.addAll([
+        _buildActionButton(Icons.replay, Colors.orange,
+            () => _updateTaskStatus(context, TaskStatus.inProgress)),
+        _buildActionButton(Icons.visibility, Colors.redAccent,
+            () => _updateTaskStatus(context, TaskStatus.inReview)),
+      ]);
     } else if (task.status == TaskStatus.inReview) {
       actions.addAll([
         _buildActionButton(Icons.replay, Colors.orange,
