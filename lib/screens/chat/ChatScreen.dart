@@ -10,7 +10,6 @@ import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:image_picker/image_picker.dart';
 import 'package:ruprup/models/room_model.dart';
 import 'package:ruprup/models/user_model.dart';
-import 'package:ruprup/screens/MainScreen.dart';
 import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/image_service.dart';
 import 'package:ruprup/services/user_service.dart';
@@ -144,12 +143,7 @@ class _ChatScreenState extends State<ChatScreen> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.black,
         leading: IconButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MainScreen(selectedIndex: 0),
-            ),
-          ),
+          onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios),
         ),
         title: Row(

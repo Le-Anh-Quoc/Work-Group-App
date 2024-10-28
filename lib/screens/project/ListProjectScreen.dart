@@ -5,17 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/project/ProjectWidget.dart';
 // import 'package:ruprup/widgets/search/SearchWidget.dart';
 
-class ProjectScreen extends StatefulWidget {
-  const ProjectScreen({super.key});
+class ListProjectScreen extends StatefulWidget {
+  const ListProjectScreen({super.key});
 
   @override
-  State<ProjectScreen> createState() => _ProjectScreenState();
+  State<ListProjectScreen> createState() => _ListProjectScreenState();
 }
 
-class _ProjectScreenState extends State<ProjectScreen> {
+class _ListProjectScreenState extends State<ListProjectScreen> {
   final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
   String? _selectedGroupId; // Biến để lưu trữ nhóm được chọn
@@ -76,20 +77,16 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
     return SafeArea(
       child: Scaffold(
+        appBar: const CustomAppBar(title: 'Projects'),
           backgroundColor: Colors.white,
           body: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 56),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 56),
             child: Column(children: [
               // CustomSearchField(),
               // const SizedBox(height: 15),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const Text('Projects',
-                      style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black)),
                   DropdownButton<String>(
                     value: _selectedGroupId,
                     hint:
@@ -117,7 +114,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                             children: [
                               if (group['name'] != 'All')
                                 const Icon(
-                                  Icons.group,
+                                  Icons.groups_outlined,
                                   color: Colors.blueAccent,
                                 ),
                               const SizedBox(width: 8.0),
@@ -136,7 +133,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                   )
                 ],
               ),
-              const SizedBox(height: 15),
+              //const SizedBox(height: 15),
               projectProvider.projects.isEmpty
                   ? const Center(
                       child: Column(

@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 
 class BottomNavItem extends StatelessWidget {
   final IconData icon;
- //final String label;
+  final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
   const BottomNavItem({
     super.key,
     required this.icon,
-    //required this.label,
+    required this.label,
     required this.isSelected,
     required this.onTap,
   });
@@ -23,7 +23,7 @@ class BottomNavItem extends StatelessWidget {
       child: Container(
         color: Colors.transparent,
         padding: const EdgeInsets.symmetric(
-            vertical: 12.0,
+            vertical: 8.0,
             horizontal: 16.0), // Thay đổi khoảng cách để mở rộng vùng bấm
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -31,14 +31,15 @@ class BottomNavItem extends StatelessWidget {
             Icon(
               icon,
               color: isSelected ? Colors.blue : Colors.grey,
-              size: 35,
+              size: 26,
             ),
-            // Text(
-            //   label,
-            //   style: TextStyle(
-            //     color: isSelected ? Colors.blue : Colors.grey,
-            //   ),
-            // ),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.blue : Colors.grey,
+                fontWeight: isSelected ? FontWeight.bold : null
+              ),
+            ),
           ],
         ),
       ),

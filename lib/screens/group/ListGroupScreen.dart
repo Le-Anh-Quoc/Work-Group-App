@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/services/channel_service.dart';
+import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/group/GroupWidget.dart';
 
 class ListGroupScreen extends StatefulWidget {
@@ -57,6 +58,22 @@ with AutomaticKeepAliveClientMixin<ListGroupScreen>{
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+      appBar: CustomAppBar(title: 'Groups', actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.grey[50],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.calendar_month,
+                  color: Colors.black, size: 30),
+              onPressed: () {
+                
+              },
+            ),
+          )
+        ],),
       backgroundColor: Colors.white,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

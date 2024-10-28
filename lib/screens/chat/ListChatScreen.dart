@@ -3,9 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/room_model.dart';
+import 'package:ruprup/screens/search/SearchScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
 import 'package:ruprup/services/roomchat_service.dart';
 import 'package:ruprup/services/user_service.dart';
+import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/chat/ChattingUsers.dart';
 
 class ListChatScreen extends StatefulWidget {
@@ -25,8 +27,32 @@ class _ListChatScreenState extends State<ListChatScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Cần thiết cho AutomaticKeepAliveClientMixin hoạt động
+    super.build(
+        context); // Cần thiết cho AutomaticKeepAliveClientMixin hoạt động
     return Scaffold(
+      appBar: CustomAppBar(
+        title: 'Chats',
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.grey[50],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.search_rounded,
+                  color: Colors.black, size: 30),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const SearchScreen(),
+                  ),
+                );
+              },
+            ),
+          )
+        ],
+      ),
       backgroundColor: Colors.white,
       body: StreamBuilder<List<RoomChat>>(
         stream: roomChatService.getChatsOfCurrentUser(currentUserId),
