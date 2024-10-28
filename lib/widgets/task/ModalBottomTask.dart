@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, unused_element, file_names, unnecessary_null_comparison
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -196,7 +198,6 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
     }
   }
 
-  void _updateTask() {}
 
   @override
   Widget build(BuildContext context) {
@@ -249,12 +250,12 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                     vertical: 20.0, horizontal: 20.0),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             const Text('ASSIGN',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-            SizedBox(height: 10),
-            Container(
+            const SizedBox(height: 10),
+            SizedBox(
               height: 65,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -271,7 +272,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                 },
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               //mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -308,19 +309,19 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                     const Text('END TIME',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, color: Colors.grey)),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () => _selectDateTime(context, false),
                       child: Container(
                         padding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                            const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           endDateTime != null
-                              ? dateTimeFormat.format(endDateTime!)
+                              ? dateTimeFormat.format(endDateTime)
                               : dateTimeFormat.format(
                                   DateTime.now().copyWith(hour: 0, minute: 0)),
                         ),
@@ -330,11 +331,11 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             const Text('DESCRIPTION',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             TextField(
               controller: _descriptionController,
               maxLines: 4,

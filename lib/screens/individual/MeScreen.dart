@@ -1,6 +1,7 @@
+// ignore_for_file: file_names
+
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/widgets/me/TaskWidget.dart';
 
@@ -72,18 +73,18 @@ class _PersonalScreenState extends State<PersonalScreen> {
 
             Expanded(
               child: ClipRRect(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(30)),
+                        const BorderRadius.vertical(top: Radius.circular(30)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.5),
                         spreadRadius: 2,
                         blurRadius: 5,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
@@ -130,7 +131,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 24, vertical: 12),
                                   ),
-                                  child: Text('Add Friend', style: TextStyle(color: Colors.white)),
+                                  child: const Text('Add Friend', style: TextStyle(color: Colors.white)),
                                 ),
                                 const SizedBox(height: 15),
                               ],

@@ -58,9 +58,13 @@
 //   }
 // }
 
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class PostWidget extends StatelessWidget {
+  const PostWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -89,7 +93,7 @@ class PostWidget extends StatelessWidget {
                     backgroundColor: Colors.blueAccent,
                     child: Text(
                       'Anh Quoc'.split(' ').map((e) => e[0]).take(2).join(''),
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -97,7 +101,7 @@ class PostWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Anh Quoc',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -116,12 +120,12 @@ class PostWidget extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              Text(
+              const Text(
                 'Meeting notice',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
-              Text(
+              const Text(
                 'On October 19th we will have a meeting at 7pm, please turn on the cam, wear formal clothes and be on time. Thank you',
                 style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
@@ -130,22 +134,22 @@ class PostWidget extends StatelessWidget {
                 decoration: InputDecoration(
                   hintText: 'Reply...',
                   hintStyle: TextStyle(color: Colors.grey[400]),
-                  prefixIcon: Icon(Icons.reply,
+                  prefixIcon: const Icon(Icons.reply,
                       color: Colors.blueAccent), // Biểu tượng bên trái
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                    borderSide: const BorderSide(color: Colors.grey, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                    borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                    borderSide: const BorderSide(color: Colors.grey, width: 1),
                   ),
                   contentPadding:
-                      EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 ),
               ),
             ],

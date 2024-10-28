@@ -1,10 +1,11 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/room_model.dart';
 import 'package:ruprup/screens/chat/ChatScreen.dart';
 import 'package:ruprup/services/chat_service.dart';
-import 'package:ruprup/services/user_service.dart';
 
 class ChattingUsersWidget extends StatefulWidget {
   final RoomChat roomChat;
@@ -15,6 +16,7 @@ class ChattingUsersWidget extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChattingUsersWidgetState createState() => _ChattingUsersWidgetState();
 }
 

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,7 +36,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
     return Scaffold(
       body: Align(
         alignment: Alignment.center,
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 25),
+        child: Padding(padding: const EdgeInsets.symmetric(horizontal: 25),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -58,7 +60,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10), color: Colors.blue),
           alignment: Alignment.center,
-          child: Text("Resend",
+          child: const Text("Resend",
               style: TextStyle(color: Colors.white, fontSize: 22))),
     );
   }

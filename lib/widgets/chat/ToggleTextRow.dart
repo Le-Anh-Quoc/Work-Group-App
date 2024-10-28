@@ -1,7 +1,12 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class ToggleTextRow extends StatefulWidget {
+  const ToggleTextRow({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ToggleTextRowState createState() => _ToggleTextRowState();
 }
 

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class FieldWidget extends StatefulWidget {
@@ -17,6 +19,7 @@ class FieldWidget extends StatefulWidget {
   });
 
   @override
+  // ignore: library_private_types_in_public_api
   _FieldWidgetState createState() => _FieldWidgetState();
 }
 

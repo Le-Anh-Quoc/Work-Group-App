@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ruprup/services/user_service.dart';
@@ -7,13 +9,14 @@ class AssignPersonWidget extends StatefulWidget {
   final bool isSelected;
   final VoidCallback onSelect; // Thêm hàm callback
   const AssignPersonWidget({
-    Key? key,
+    super.key,
     required this.memberId,
     required this.onSelect, // Truyền callback
     required this.isSelected, 
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _AssignPersonWidgetState createState() => _AssignPersonWidgetState();
 }
 
@@ -55,7 +58,7 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
       child: Stack(
         alignment: Alignment.topRight,
         children: [
-          Container(
+          SizedBox(
             width: 120,
             height: 80,
             child: Column(

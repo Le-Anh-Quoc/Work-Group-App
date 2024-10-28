@@ -88,6 +88,7 @@ class ChannelService {
 
       return channels;
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching channels: $e');
       return []; // Trả về danh sách rỗng trong trường hợp lỗi
     }

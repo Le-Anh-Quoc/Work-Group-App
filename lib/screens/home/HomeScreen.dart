@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/screens/chat/ListChatScreen.dart';
@@ -20,7 +22,6 @@ class _HomeScreenState extends State<HomeScreen>
   final ChatService chatService = ChatService();
   final UserService userService = UserService();
   final AuthService authService = AuthService();
-  final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> chatResults = [];
   bool isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();

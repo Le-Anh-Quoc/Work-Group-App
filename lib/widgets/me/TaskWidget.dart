@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -23,7 +25,7 @@ class TaskIndivi extends StatelessWidget {
     Color textColor = color.withOpacity(0.8); // Màu chữ chính
 
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         color: backgroundColor, // Sử dụng màu nền nhạt
         borderRadius: BorderRadius.circular(15.0), // Bo góc
@@ -54,7 +56,7 @@ class TaskIndivi extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 10.0),
+          const SizedBox(height: 10.0),
           Text(
             typeTask,
             style: TextStyle(
@@ -74,12 +76,12 @@ class TaskIndivi extends StatelessWidget {
           Align(
             alignment: Alignment.bottomRight,
             child: Container(
-              padding: EdgeInsets.all(8.0), // Điều chỉnh khoảng cách bên trong
+              padding: const EdgeInsets.all(8.0), // Điều chỉnh khoảng cách bên trong
               decoration: BoxDecoration(
                 color: color, // Màu nền
                 borderRadius: BorderRadius.circular(8.0), // Bo góc
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.arrow_forward,
                 color: Colors.white,
               ),

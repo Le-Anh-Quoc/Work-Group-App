@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +56,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
 
       _fetchProjects(_selectedGroupId);
     } catch (e) {
+      // ignore: avoid_print
       print("Error fetching groups: $e");
     }
   }
@@ -98,7 +101,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
                       });
                     },
                     dropdownColor: Colors.white, // Làm nền dropdown trong suốt
-                    underline: SizedBox(), // Loại bỏ đường gạch chân
+                    underline: const SizedBox(), // Loại bỏ đường gạch chân
                     items: _groups.map<DropdownMenuItem<String>>((group) {
                       return DropdownMenuItem<String>(
                         value: group['id'],

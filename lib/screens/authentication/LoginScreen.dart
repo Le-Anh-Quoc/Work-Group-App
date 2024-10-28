@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously, file_names
+
 import 'package:flutter/material.dart';
 import 'package:ruprup/screens/authentication/SignUpScreen.dart';
 import 'package:ruprup/screens/MainScreen.dart';
@@ -33,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
           });
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => MainScreen(selectedIndex: 0)),
+            MaterialPageRoute(builder: (_) => const MainScreen(selectedIndex: 0)),
           );
         } else {
           setState(() {
@@ -57,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: SizedBox(
                 height: size.height / 20,
                 width: size.width / 20,
-                child: CircularProgressIndicator(),
+                child: const CircularProgressIndicator(),
               ),
             )
           : SingleChildScrollView(

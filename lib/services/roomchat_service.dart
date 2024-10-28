@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ruprup/models/room_model.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:ruprup/services/channel_service.dart';
 
 class RoomChatService {
@@ -78,7 +77,7 @@ class RoomChatService {
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
-        return RoomChat.fromMap(doc.data() as Map<String, dynamic>);
+        return RoomChat.fromMap(doc.data());
       }).toList();
     });
   }

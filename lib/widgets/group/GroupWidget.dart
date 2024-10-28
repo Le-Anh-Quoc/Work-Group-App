@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/channel_model.dart';
@@ -8,9 +10,9 @@ class GroupWidget extends StatelessWidget {
   final String channelId;
 
   const GroupWidget({
-    Key? key,
+    super.key,
     required this.channelId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,7 @@ class GroupWidget extends StatelessWidget {
           },
           child: Container(
             padding: const EdgeInsets.all(16.0),
-            constraints: BoxConstraints(
+            constraints: const BoxConstraints(
               minHeight: 150, // Đặt chiều cao tối thiểu
             ),
             decoration: BoxDecoration(
@@ -67,7 +69,7 @@ class GroupWidget extends StatelessWidget {
                   color: Colors.grey.withOpacity(0.5), // Màu sắc bóng
                   spreadRadius: 1, // Độ lan tỏa của bóng
                   blurRadius: 5, // Độ mờ của bóng
-                  offset: Offset(0, 3), // Vị trí của bóng (x,y)
+                  offset: const Offset(0, 3), // Vị trí của bóng (x,y)
                 ),
               ],
             ),

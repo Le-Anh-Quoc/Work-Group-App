@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/widgets/notification/ButtonInvite.dart';

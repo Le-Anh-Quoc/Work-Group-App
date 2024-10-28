@@ -1,7 +1,12 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class CustomSearchField extends StatefulWidget {
+  const CustomSearchField({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _CustomSearchFieldState createState() => _CustomSearchFieldState();
 }
 

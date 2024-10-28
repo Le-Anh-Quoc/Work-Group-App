@@ -1,6 +1,7 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path/path.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/friend_service.dart';

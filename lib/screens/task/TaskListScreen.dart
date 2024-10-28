@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -265,7 +267,7 @@ class TaskListWidget extends StatelessWidget {
   final List<Task> tasks;
   final Color backgroundColor;
 
-  const TaskListWidget({required this.tasks, required this.backgroundColor});
+  const TaskListWidget({super.key, required this.tasks, required this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {

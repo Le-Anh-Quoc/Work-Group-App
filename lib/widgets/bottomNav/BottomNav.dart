@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class BottomNavItem extends StatelessWidget {
@@ -7,12 +9,12 @@ class BottomNavItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const BottomNavItem({
-    Key? key,
+    super.key,
     required this.icon,
     //required this.label,
     required this.isSelected,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

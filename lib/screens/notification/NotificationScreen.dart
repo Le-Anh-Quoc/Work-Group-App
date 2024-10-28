@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field, file_names, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:ruprup/services/notification_service.dart';
 import 'package:ruprup/widgets/notification/NotificationWidget.dart';

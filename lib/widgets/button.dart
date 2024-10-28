@@ -12,10 +12,10 @@ class ButtonAccept extends StatelessWidget {
     UserService user = UserService();
     return GestureDetector(
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         decoration: BoxDecoration(
             color: Colors.blue, borderRadius: BorderRadius.circular(8.0)),
-        child: Center(
+        child: const Center(
           child: Text(
             "Accept",
             style: TextStyle(color: Colors.white),
@@ -38,11 +38,11 @@ class ButtonRefuse extends StatelessWidget {
     UserService user = UserService();
     return GestureDetector(
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           decoration: BoxDecoration(
               color: const Color.fromARGB(255, 193, 190, 190),
               borderRadius: BorderRadius.circular(8.0)),
-          child: Center(
+          child: const Center(
             child: Text(
               "Refuse",
               style: TextStyle(color: Colors.black),

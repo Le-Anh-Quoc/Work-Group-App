@@ -53,7 +53,9 @@ class ProjectService {
     try {
       await _firestore.collection(collection).doc(idProject).delete();
     } catch (e) {
+      // ignore: avoid_print
       print('Error deleting project: $e');
+      // ignore: use_rethrow_when_possible
       throw e;
     }
   }

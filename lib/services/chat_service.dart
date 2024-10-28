@@ -158,7 +158,9 @@ class ChatService {
     }
     chatDetails['users'] = users;
 
+    // ignore: avoid_print
     print('1');
+    // ignore: avoid_print
     print(chatDetails['users']);
 
     // Lấy tin nhắn trong chat

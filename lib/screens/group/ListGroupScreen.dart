@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/channel_model.dart';
@@ -13,7 +15,7 @@ class ListGroupScreen extends StatefulWidget {
 
 class _ListGroupScreenState extends State<ListGroupScreen> 
 with AutomaticKeepAliveClientMixin<ListGroupScreen>{
-  ChannelService _channelService = ChannelService();
+  final ChannelService _channelService = ChannelService();
   List<Channel> _userChannels = [];
   bool isLoading = true;
 
@@ -28,12 +30,14 @@ with AutomaticKeepAliveClientMixin<ListGroupScreen>{
     try {
       String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
       List<Channel> userChannels = await _channelService.getChannelsForCurrentUser(currentUserId!);
+      // ignore: avoid_print
       print(userChannels);
       setState(() {
         _userChannels = userChannels;
         isLoading = false;
       });
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching groups: $e');
       setState(() {
         isLoading = false;

@@ -15,6 +15,7 @@ class NotificationService {
         throw Exception("User is not logged in");
       }
 
+      // ignore: avoid_print
       print(currentUserId);
       // Truy vấn tất cả thông báo của người dùng hiện tại từ Firestore
       QuerySnapshot notificationsSnapshot = await FirebaseFirestore.instance
@@ -25,6 +26,7 @@ class NotificationService {
           //     descending: true) // Sắp xếp theo thời gian giảm dần
           .get();
 
+      // ignore: avoid_print
       print(
           'Notifications Snapshot: ${notificationsSnapshot.docs.length} documents found');
 
@@ -32,9 +34,11 @@ class NotificationService {
       List<Map<String, dynamic>> notifications = notificationsSnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
+      // ignore: avoid_print
       print('Notifications: $notifications');
       return notifications;
     } catch (e) {
+      // ignore: avoid_print
       print('Error getting user notifications: $e');
       return [];
     }
@@ -58,8 +62,10 @@ class NotificationService {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
+      // ignore: avoid_print
       print('Thông báo đã được gửi đi cho người dùng mục tiêu');
     } catch (e) {
+      // ignore: avoid_print
       print('Lỗi khi tạo thông báo: $e');
     }
   }
@@ -82,9 +88,11 @@ class NotificationService {
         'timeStamp': FieldValue.serverTimestamp(),
       });
 
+      // ignore: avoid_print
       print("Thông báo tới người dùng lời mời kết bạn đã được chấp nhận");
 
     } catch (e) {
+      // ignore: avoid_print
       print('Lỗi khi tạo thông báo: $e');
     }
   }

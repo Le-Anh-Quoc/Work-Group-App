@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/services/user_service.dart';
@@ -14,7 +16,6 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final UserService _userService = UserService(); // Instance of UserService
   List<UserModel> _searchResults = [];
-  bool _isLoading = false;
 
   // void _searchUser(String email) async {
   //   String Querry= _searchController.text.trim();

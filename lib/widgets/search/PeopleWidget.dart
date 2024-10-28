@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/screens/individual/MeScreen.dart';
@@ -102,9 +104,11 @@ class PeopleWidget extends StatelessWidget {
                         targetUserId,
                       );
                     } else {
+                      // ignore: avoid_print
                       print('notifications not created');
                     }
                   } catch (e) {
+                    // ignore: avoid_print
                     print('Error: $e');
                   }
                 },

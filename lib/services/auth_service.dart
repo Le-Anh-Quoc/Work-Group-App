@@ -19,13 +19,16 @@ class AuthService {
           .user;
 
       if (user != null) {
+        // ignore: avoid_print
         print("Login Successful");
         return user;
       } else {
+        // ignore: avoid_print
         print("Login Failed");
         return user;
       }
     } catch (e) {
+      // ignore: avoid_print
       print(e);
       return null;
     }
@@ -36,12 +39,14 @@ class AuthService {
     //FirebaseAuth _auth = FirebaseAuth.instance;
     try {
       await _auth.signOut().then((value) {
+        // ignore: use_build_context_synchronously
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
           (Route<dynamic> route) => false,
         );
       });
     } catch (e) {
+      // ignore: avoid_print
       print("error");
     }
   }
@@ -51,6 +56,7 @@ class AuthService {
     try {
       await _auth.currentUser?.sendEmailVerification();
     } catch (e) {
+      // ignore: avoid_print
       print(e.toString());
     }
   }
@@ -72,6 +78,7 @@ class AuthService {
       // Gửi email xác thực
       await userCredential.user!.sendEmailVerification();
 
+      // ignore: avoid_print
       print('Email verification sent.');
 
       // Đợi người dùng xác thực email
@@ -88,13 +95,15 @@ class AuthService {
 
   // kiểm tra xem email đã được người dùng xác thực hay chưa để tiến hành lưu vào csdl
   Future<void> checkEmailVerificationAndSave(String fullname, String email,
+      // ignore: no_leading_underscores_for_local_identifiers
       FirebaseAuth _auth, FirebaseFirestore _firestore) async {
     User? user = _auth.currentUser;
     if (user != null) {
       while (!(user!.emailVerified)) {
+        // ignore: avoid_print
         print("Waiting for email verification...");
         await Future.delayed(
-            Duration(seconds: 3)); // Đợi 3 giây trước khi thử lại
+            const Duration(seconds: 3)); // Đợi 3 giây trước khi thử lại
         await user.reload(); // Làm mới trạng thái người dùng
         user = _auth.currentUser; // Cập nhật đối tượng người dùng
       }
@@ -104,8 +113,10 @@ class AuthService {
 
       // Lưu thông tin người dùng vào Firestore
       await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
+      // ignore: avoid_print
       print("Thông tin người dùng đã được lưu vào Firestore.");
     } else {
+      // ignore: avoid_print
       print("Người dùng chưa được xác thực.");
     }
   }

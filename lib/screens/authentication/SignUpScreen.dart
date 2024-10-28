@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print, file_names
+
 import 'package:flutter/material.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
 import 'package:ruprup/screens/authentication/VerificationScreen.dart';

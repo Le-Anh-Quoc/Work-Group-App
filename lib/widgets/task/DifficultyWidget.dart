@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class DifficultyTag extends StatefulWidget {
@@ -7,14 +9,15 @@ class DifficultyTag extends StatefulWidget {
   final VoidCallback onSelect; // Thêm tham số để xử lý sự kiện chọn
 
   const DifficultyTag({
-    Key? key,
+    super.key,
     required this.label,
     required this.color,
     required this.isSelected,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _DifficultyTagState createState() => _DifficultyTagState();
 }
 

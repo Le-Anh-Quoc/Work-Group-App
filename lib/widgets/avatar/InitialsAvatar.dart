@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 class InitialsAvatar extends StatelessWidget {
@@ -5,10 +7,10 @@ class InitialsAvatar extends StatelessWidget {
   final double size;
 
   const InitialsAvatar({
-    Key? key,
+    super.key,
     required this.name,
     this.size = 50.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

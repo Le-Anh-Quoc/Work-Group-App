@@ -1,10 +1,7 @@
-import 'dart:io';
-import 'dart:math';
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
-import 'package:provider/provider.dart';
-import 'package:ruprup/models/activityProject_model.dart';
 import 'package:ruprup/services/activity_service.dart';
 import 'package:ruprup/services/task_service.dart';
 
@@ -123,7 +120,6 @@ class Task extends ChangeNotifier {
           currentUserId: currentUserId);
       notifyListeners();
     } catch (e) {
-      // ignore: avoid_print
       print('Error fetching tasks: $e');
       // ignore: use_rethrow_when_possible
       throw e;
@@ -138,7 +134,6 @@ class Task extends ChangeNotifier {
           currentUserId: currentUserId);
       notifyListeners();
     } catch (e) {
-      // ignore: avoid_print
       print('Error fetching tasks: $e');
       // ignore: use_rethrow_when_possible
       throw e;
@@ -153,7 +148,6 @@ class Task extends ChangeNotifier {
           currentUserId: currentUserId);
       notifyListeners();
     } catch (e) {
-      // ignore: avoid_print
       print('Error fetching tasks: $e');
       // ignore: use_rethrow_when_possible
       throw e;
@@ -166,7 +160,6 @@ class Task extends ChangeNotifier {
           currentUserId: currentUserId);
       notifyListeners();
     } catch (e) {
-      // ignore: avoid_print
       print('Error fetching tasks: $e');
       // ignore: use_rethrow_when_possible
       throw e;
@@ -178,10 +171,11 @@ class Task extends ChangeNotifier {
       Task taskWithId = await _taskService.addTask(idProject, task);
       await fetchTasksToDo(idProject);
 
+      // ignore: duplicate_ignore
+      // ignore: use_build_context_synchronously
       await _activityService.logTaskActivity(context, 'add', taskWithId, actionUserId);
 
     } catch (e) {
-      // ignore: avoid_print
       print("Error creating task: $e");
     }
   }

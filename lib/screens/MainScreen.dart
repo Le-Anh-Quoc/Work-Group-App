@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/screens/group/AddGroupScreen.dart';
@@ -5,7 +7,6 @@ import 'package:ruprup/screens/home/HomeScreen.dart';
 import 'package:ruprup/screens/search/SearchScreen.dart';
 import 'package:ruprup/screens/project/ProjectScreen.dart';
 import 'package:ruprup/screens/individual/MeScreen.dart';
-import 'package:ruprup/screens/task/TaskListScreen.dart';
 import 'package:ruprup/widgets/bottomNav/BottomNav.dart';
 
 class MainScreen extends StatefulWidget {
@@ -142,9 +143,9 @@ class _MainScreenState extends State<MainScreen> {
                     },
                   ),
                   // Mục vô hiệu hóa (không có hành động)
-                  Container(
+                  const SizedBox(
                     width: 30, // Đặt chiều rộng cho mục vô hiệu hóa
-                    child: const Icon(
+                    child: Icon(
                       null,
                       size: 24,
                       color: Colors.transparent, // Không hiển thị màu sắc

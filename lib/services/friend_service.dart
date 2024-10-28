@@ -40,13 +40,16 @@ class FriendService {
           return data;
         }).toList();
 
+        // ignore: avoid_print
         print('Friends List: $friendsList');
         return friendsList;
       } else {
+        // ignore: avoid_print
         print('No user document found for current user.');
         return [];
       }
     } catch (e) {
+      // ignore: avoid_print
       print('Error getting friends list: $e');
       return [];
     }
@@ -65,6 +68,7 @@ class FriendService {
         'acceptedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
+      // ignore: avoid_print
       print("có lỗi khi chấp nhận lời mời kết bạn: $e");
     }
   }
@@ -82,6 +86,7 @@ class FriendService {
         'acceptedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
+      // ignore: avoid_print
       print("có lỗi khi từ chối lời mời kết bạn: $e");
     }
   }
@@ -107,8 +112,10 @@ class FriendService {
         });
       });
 
+      // ignore: avoid_print
       print("Đã cập nhật danh sách bạn bè của 2 người thành công");
     } catch (e) {
+      // ignore: avoid_print
       print("đã có lỗi khi cập nhật danh sách bạn bè: $e");
     }
   }

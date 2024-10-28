@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/widgets/task/TypeTaskWidget.dart';
@@ -38,7 +40,7 @@ class BoardTypeTaskWidget extends StatelessWidget {
       shrinkWrap:
           true, // Cho phép GridView điều chỉnh kích thước theo nội dung
       physics:
-          NeverScrollableScrollPhysics(), // Ngăn cuộn nếu không cần thiết
+          const NeverScrollableScrollPhysics(), // Ngăn cuộn nếu không cần thiết
       crossAxisCount: 2,
       childAspectRatio: 1.3,
       children: taskTypes.map((task) {

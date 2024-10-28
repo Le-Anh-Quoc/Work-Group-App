@@ -31,6 +31,7 @@ class ActivityService {
         return ActivityLog.fromMap(docSnapshot.data()!);
       }
     } catch (e) {
+      // ignore: avoid_print
       print("Error getting activity log: $e");
     }
     return null;
@@ -51,6 +52,7 @@ class ActivityService {
           .map((doc) => ActivityLog.fromMap(doc.data()))
           .toList();
     } catch (e) {
+      // ignore: avoid_print
       print("Error getting all activity logs: $e");
     }
     return logs;
@@ -74,6 +76,7 @@ class ActivityService {
           .map((doc) => ActivityLog.fromMap(doc.data()))
           .toList();
     } catch (e) {
+      // ignore: avoid_print
       print("Error getting recent activity logs: $e");
     }
     return logs;
@@ -106,8 +109,10 @@ class ActivityService {
       logs = querySnapshot.docs
           .map((doc) => ActivityLog.fromMap(doc.data()))
           .toList();
+      // ignore: avoid_print
       print('logs: $logs');
     } catch (e) {
+      // ignore: avoid_print
       print("Error getting activity logs by date: $e");
     }
     return logs;
@@ -127,6 +132,7 @@ class ActivityService {
 
       await addActivityLog(newActivity, task.projectId);
     } catch (e) {
+      // ignore: avoid_print
       print("Error logging activity: $e");
     }
   }

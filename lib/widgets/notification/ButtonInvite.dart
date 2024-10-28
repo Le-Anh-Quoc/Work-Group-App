@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 
 // button chấp nhận hoặc từ chối lời mời kết bạn (false: từ chối, true: chấp nhận)

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, file_names, use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -65,14 +67,14 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
     print(selectedUsers);
     if (_groupNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter a group name")),
+        const SnackBar(content: Text("Please enter a group name")),
       );
       return;
     }
 
     if (selectedUsers.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Select at least 2 members")),
+        const SnackBar(content: Text("Select at least 2 members")),
       );
       return;
     }
@@ -147,7 +149,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                       style: TextStyle(
                           fontWeight: FontWeight.bold, color: Colors.blue))),
               Text("Numbers of member: ${selectedUsers.length - 1}",
-                  style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  style: const TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
           actions: [
@@ -178,7 +180,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                           )
                           : IconButton(
                             onPressed: _pickImage,
-                            icon: Icon(Icons.image),
+                            icon: const Icon(Icons.image),
                             color: Colors.blue,
                             iconSize: 35,
                           ),
@@ -233,7 +235,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                CustomSearchField(),
+                const CustomSearchField(),
                 const SizedBox(
                   height: 20,
                 ),
