@@ -7,6 +7,7 @@ import 'package:ruprup/services/project_service.dart';
 
 class Project with ChangeNotifier {
   final String projectId; // ID của dự án
+  final String groupId;
   final String projectName; // Tên dự án
   final String description; // Mô tả dự án
   final DateTime startDate; // Ngày bắt đầu
@@ -30,6 +31,7 @@ class Project with ChangeNotifier {
 
   Project(
       {required this.projectId,
+      required this.groupId,
       required this.projectName,
       required this.description,
       required this.startDate,
@@ -46,6 +48,7 @@ class Project with ChangeNotifier {
   Map<String, dynamic> toMap() {
     return {
       'projectId': projectId,
+      'groupId': groupId,
       'projectName': projectName,
       'description': description,
       'startDate': startDate.toIso8601String(),
@@ -64,6 +67,7 @@ class Project with ChangeNotifier {
   factory Project.fromMap(Map<String, dynamic> map) {
     return Project(
         projectId: map['projectId'],
+        groupId: map['groupId'],
         projectName: map['projectName'],
         description: map['description'],
         startDate: map['startDate'] is Timestamp
@@ -87,9 +91,9 @@ class Project with ChangeNotifier {
   List<Project> get projects => _projects;
 
   // Lấy danh sách Projects
-  Future<void> fetchProjects() async {
+  Future<void> fetchProjects({String? groupId}) async {
     try {
-      _projects = await _projectService.getAllProjectsForCurrentUser();
+      _projects = await _projectService.getAllProjectsForCurrentUser(groupId: groupId);
       notifyListeners(); // Cập nhật trạng thái để render lại Screen
     } catch (e) {
       // ignore: avoid_print
