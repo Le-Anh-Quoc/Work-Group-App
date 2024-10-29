@@ -1,8 +1,6 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/services/auth_service.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
