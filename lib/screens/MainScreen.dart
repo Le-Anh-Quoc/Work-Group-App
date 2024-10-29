@@ -36,13 +36,13 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
-        return const ListChatScreen();
-      case 1:
-        return const ListGroupScreen();
-      case 2:
         return const HomeScreen();
-      case 3:
+      case 1:
         return const ListProjectScreen();
+      case 2:
+        return const ListGroupScreen();
+      case 3:
+        return const ListChatScreen();
       case 4:
         return PersonalScreen(userId: currentUserId);
       default:
@@ -66,32 +66,32 @@ class _MainScreenState extends State<MainScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   BottomNavItem(
-                    icon: Icons.chat_outlined,
-                    label: 'Chat',
+                    icon: Icons.home_outlined,
+                    label: 'Home',
                     isSelected: _selectedIndex == 0,
                     onTap: () {
                       _onItemTapped(0);
                     },
                   ),
                   BottomNavItem(
-                    icon: Icons.groups_outlined,
-                    label: 'Group',
+                    icon: Icons.dashboard_outlined,
+                    label: 'Project',
                     isSelected: _selectedIndex == 1,
                     onTap: () {
                       _onItemTapped(1);
                     },
                   ),
                   BottomNavItem(
-                    icon: Icons.home_outlined,
-                    label: 'Home',
+                    icon: Icons.groups_outlined,
+                    label: 'Group',
                     isSelected: _selectedIndex == 2,
                     onTap: () {
                       _onItemTapped(2);
                     },
                   ),
                   BottomNavItem(
-                    icon: Icons.dashboard_outlined,
-                    label: 'Project',
+                    icon: Icons.chat_outlined,
+                    label: 'Chat',
                     isSelected: _selectedIndex == 3,
                     onTap: () {
                       _onItemTapped(3);
@@ -109,46 +109,6 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
           ),
-
-          //Centering the floating button with adequate spacing
-          // Positioned(
-          //   bottom: 30, // Distance from the bottom
-          //   left: MediaQuery.of(context).size.width / 2 - 30,
-          //   child: Container(
-          //     width: 60,
-          //     height: 60,
-          //     decoration: const BoxDecoration(
-          //       shape: BoxShape.circle,
-          //       color: Colors.blue,
-          //       boxShadow: [
-          //         BoxShadow(
-          //           color: Colors.black26,
-          //           blurRadius: 8.0,
-          //           offset: Offset(0, 4),
-          //         ),
-          //       ],
-          //     ),
-          //     child: ClipOval(
-          //       child: Material(
-          //         color: Colors.blue,
-          //         child: InkWell(
-          //           onTap: () {
-          //             Navigator.of(context).push(
-          //               MaterialPageRoute(
-          //                 builder: (_) => const AddGroupScreen(),
-          //               ),
-          //             );
-          //           },
-          //           child: const SizedBox(
-          //             width: 60,
-          //             height: 60,
-          //             child: Icon(Icons.add, size: 30, color: Colors.white),
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

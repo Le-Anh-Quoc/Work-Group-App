@@ -44,7 +44,7 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => const MainScreen(selectedIndex: 3),
+                    builder: (_) => const MainScreen(selectedIndex: 1),
                   ),
                 );
               },

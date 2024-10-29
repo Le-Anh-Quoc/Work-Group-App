@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
           });
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const MainScreen(selectedIndex: 2)),
+            MaterialPageRoute(builder: (_) => const MainScreen(selectedIndex: 0)),
           );
         } else {
           setState(() {
