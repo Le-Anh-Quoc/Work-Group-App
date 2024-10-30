@@ -87,4 +87,46 @@ class ProjectService {
 
     return projects;
   }
+
+  // 6.  Lấy 3 dự án được cập nhật activity gần nhất
+  Future<List<Project>> getRecentProjectsForCurrentUser() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      // Trường hợp người dùng chưa đăng nhập
+      throw Exception("No user is currently signed in.");
+    }
+    String currentUserId = currentUser.uid;
+
+    Query query = _firestore
+        .collection(collection)
+        .where('memberIds', arrayContains: currentUserId);
+
+    QuerySnapshot querySnapshot = await query.get();
+
+    // Danh sách để chứa các dự án có hoạt động gần đây nhất
+    List<Project> recentProjects = [];
+
+    // Duyệt qua từng dự án và tìm hoạt động gần đây nhất
+    for (var doc in querySnapshot.docs) {
+      // Lấy ID của dự án hiện tại
+      String projectId = doc.id;
+
+      // Truy vấn subcollection 'activityLogs' của dự án để tìm hoạt động gần đây nhất
+      QuerySnapshot activitySnapshot = await _firestore
+          .collection(collection)
+          .doc(projectId)
+          .collection('activityLogs')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
+
+      if (activitySnapshot.docs.isNotEmpty) {
+        // Nếu có ít nhất một hoạt động, thêm dự án vào danh sách recentProjects
+        recentProjects.add(Project.fromMap(doc.data() as Map<String, dynamic>));
+      }
+    }
+
+    // Lấy ra 3 dự án đầu tiên trong danh sách recentProjects (hoặc ít hơn nếu không đủ 3 dự án)
+    return recentProjects.take(3).toList();
+  }
 }
