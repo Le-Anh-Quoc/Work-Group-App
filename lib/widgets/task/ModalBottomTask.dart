@@ -179,7 +179,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Add Task success'), backgroundColor: Colors.green));
       Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => TaskDetailScreen(task: newTask)));
+          MaterialPageRoute(builder: (_) => TaskDetailScreen(task: newTask, sourceScreen: 'AddScreen',)));
     } else {
       Task task = Task(
           taskId: widget.task!.taskId,

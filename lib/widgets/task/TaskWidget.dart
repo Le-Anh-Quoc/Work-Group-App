@@ -14,7 +14,8 @@ import 'package:ruprup/widgets/task/ModalBottomTask.dart';
 
 class TaskWidget extends StatefulWidget {
   final Task task;
-  const TaskWidget({super.key, required this.task});
+  final bool isFromHome;
+  const TaskWidget({super.key, required this.task, required this.isFromHome});
 
   @override
   State<TaskWidget> createState() => _TaskWidgetState();
@@ -64,7 +65,7 @@ class _TaskWidgetState extends State<TaskWidget> {
     Project? currentProject =
         Provider.of<Project>(context, listen: false).currentProject;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       child: Slidable(
         key: ValueKey(widget.task.taskId),
         endActionPane: ActionPane(
@@ -147,7 +148,7 @@ class _TaskWidgetState extends State<TaskWidget> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => TaskDetailScreen(task: widget.task),
+                builder: (context) => TaskDetailScreen(task: widget.task, sourceScreen: widget.isFromHome ? 'HomeScreen' : 'ListTaskScreen'),
               ),
             );
           },
@@ -155,6 +156,10 @@ class _TaskWidgetState extends State<TaskWidget> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
+              // border: Border.all(
+              //   width: 1,
+              //   color: Colors.blue
+              // ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.2),

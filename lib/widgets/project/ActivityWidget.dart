@@ -107,7 +107,7 @@ class _ActivityWidgetState extends State<ActivityWidget> {
         } else {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => TaskDetailScreen(task: task),
+              builder: (_) => TaskDetailScreen(task: task, sourceScreen: 'ActivityScreen'),
             ),
           );
         }
