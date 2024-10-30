@@ -75,8 +75,9 @@ class TaskService {
     });
   }
 
-  // 5. Lấy danh sách các Task trong subcollection tasks của project
-  Future<List<Task>> getTasks(String idProject, TaskStatus status, {String? currentUserId}) async {
+  // 5. Lấy danh sách các Task trong subcollection tasks của project (theo Project)
+  Future<List<Task>> getTasks(String idProject, TaskStatus status,
+      {String? currentUserId}) async {
     final String sStatus =
         status.name; //chuyển thành kiểu String để truyền vào so sánh
 
@@ -89,7 +90,9 @@ class TaskService {
 
     // Kiểm tra xem currentUserId có được cung cấp hay không
     if (currentUserId != null) {
-        query = query.where('assigneeIds', arrayContains: currentUserId); // Giả sử trường userId lưu ID người dùng
+      query = query.where('assigneeIds',
+          arrayContains:
+              currentUserId); // Giả sử trường userId lưu ID người dùng
     }
 
     final taskSnapshot = await query.get();
@@ -97,7 +100,43 @@ class TaskService {
     return taskSnapshot.docs.map((doc) => Task.fromMap(doc.data())).toList();
   }
 
-  // 6. Hàm update tình trạng công việc
+  // 6. Lấy tất cả các Task của người dùng hiện tại không theo projectId
+  Future<List<Task>> getAllTasksForCurrentUser(
+      String currentUserId, TaskStatus status,
+      {int? limit}) async {
+    final String sStatus =
+        status.name; // Chuyển thành kiểu String để truyền vào so sánh
+    List<Task> allTasks = []; // Danh sách để lưu tất cả các nhiệm vụ
+
+    // Lấy danh sách tất cả các project (hoặc có thể là các project cụ thể mà người dùng có quyền truy cập)
+    final projectSnapshot = await _firestore.collection(parentCollection).get();
+
+    // Duyệt qua từng project để lấy nhiệm vụ
+    for (var projectDoc in projectSnapshot.docs) {
+      // Truy vấn các nhiệm vụ trong subcollection của từng project
+      var query = projectDoc.reference
+          .collection(collection)
+          .where('status', isEqualTo: sStatus)
+          .where('assigneeIds', arrayContains: currentUserId);
+
+      final taskSnapshot = await query.get();
+
+      // Thêm các nhiệm vụ vào danh sách
+      allTasks.addAll(taskSnapshot.docs.map((doc) => Task.fromMap(doc.data())));
+    }
+
+    // Sắp xếp các nhiệm vụ theo dueDate (giả sử dueDate là thuộc tính kiểu DateTime của Task)
+    allTasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+
+    // Nếu truyền vào giá trị `limit`, lấy `limit` nhiệm vụ gần nhất, nếu không thì lấy tất cả
+    if (limit != null) {
+      return allTasks.take(limit).toList();
+    } else {
+      return allTasks;
+    }
+  }
+
+  // 7. Hàm update tình trạng công việc
   Future<void> updateTaskStatus(
       String projectId, String taskId, TaskStatus newStatus) async {
     // Lấy document project
