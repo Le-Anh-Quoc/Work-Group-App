@@ -289,7 +289,7 @@ class TaskListWidget extends StatelessWidget {
               itemCount: tasks.length,
               itemBuilder: (context, index) {
                 final task = tasks[index];
-                return TaskWidget(task: task);
+                return TaskWidget(task: task, isFromHome: false);
               },
             ),
           ),

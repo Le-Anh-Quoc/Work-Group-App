@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/task_model.dart';
+import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 import 'package:ruprup/screens/task/TaskListScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
@@ -15,7 +16,9 @@ import 'package:path/path.dart' as path;
 
 class TaskDetailScreen extends StatefulWidget {
   final Task? task;
-  const TaskDetailScreen({super.key, required this.task});
+  final String sourceScreen;
+  const TaskDetailScreen(
+      {super.key, required this.task, required this.sourceScreen});
 
   @override
   State<TaskDetailScreen> createState() => _TaskDetailScreenState();
@@ -47,14 +50,28 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => TaskListScreen(
-                typeTask: widget.task!.status.name,
-                project: currentProject,
-              ),
-            ),
-          ),
+          onPressed: () {
+            if (widget.sourceScreen == 'HomeScreen') {
+              // Quay về HomeScreen
+              Navigator.pop(context);
+            } else if (widget.sourceScreen == 'ActivityScreen') {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => DetailProjectScreen(project: currentProject)
+                ),
+              );
+            } else {
+              // Quay về TaskListScreen
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TaskListScreen(
+                    typeTask: widget.task!.status.name,
+                    project: currentProject,
+                  ),
+                ),
+              );
+            }
+          },
           icon: const Icon(Icons.arrow_back_ios),
         ),
         title: const Text('Task', style: TextStyle(color: Colors.grey)),
