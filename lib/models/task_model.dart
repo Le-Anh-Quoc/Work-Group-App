@@ -88,6 +88,8 @@ class Task extends ChangeNotifier {
   static final TaskService _taskService = TaskService();
   static final ActivityService _activityService = ActivityService();
 
+  // danh sách cho team và cá nhân (có theo dự án)
+
   List<Task> _tasksToDo = [];
   List<Task> get tasksToDo => _tasksToDo;
 
@@ -99,6 +101,20 @@ class Task extends ChangeNotifier {
 
   List<Task> _tasksDone = [];
   List<Task> get tasksDone => _tasksDone;
+
+  // danh sách cho cá nhân (không theo dự án)
+
+  // List<Task> _tasksToDoMe = [];
+  // List<Task> get tasksToDoMe => _tasksToDoMe;
+
+  List<Task> _tasksInProgressMe = [];
+  List<Task> get tasksInProgressMe => _tasksInProgressMe;
+
+  // List<Task> _tasksInReviewMe = [];
+  // List<Task> get tasksInReviewMe => _tasksInReviewMe;
+
+  // List<Task> _tasksDoneMe = [];
+  // List<Task> get tasksDoneMe => _tasksDoneMe;
 
   // lấy danh sách Task
   // Future<void> fetchTasks(String idProject, TaskStatus status) async {
@@ -113,7 +129,7 @@ class Task extends ChangeNotifier {
   //   }
   // }
 
-  // lấy danh sách Task
+  // lấy danh sách Task (lọc theo project)
   Future<void> fetchTasksToDo(String idProject, {String? currentUserId}) async {
     try {
       _tasksToDo = await _taskService.getTasks(idProject, TaskStatus.toDo,
@@ -166,15 +182,33 @@ class Task extends ChangeNotifier {
     }
   }
 
-  Future<void> addTask(BuildContext context, String idProject, Task task, String actionUserId) async {
+  Future<String> countTaskInProgressMe(String currentUserId) async {
+    final equal = await _taskService.getAllTasksForCurrentUser(currentUserId, TaskStatus.inProgress);
+    return equal.length.toString();
+  }
+
+  // lấy danh sách task (không loc theo project)
+  Future<void> fetchTasksInProgressMe(String currentUserId, {int? limit}) async {
+    try {
+      _tasksInProgressMe = await _taskService.getAllTasksForCurrentUser(currentUserId, TaskStatus.inProgress, limit: 3);
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching tasks: $e');
+      // ignore: use_rethrow_when_possible
+      throw e;
+    }
+  }
+
+  Future<void> addTask(BuildContext context, String idProject, Task task,
+      String actionUserId) async {
     try {
       Task taskWithId = await _taskService.addTask(idProject, task);
       await fetchTasksToDo(idProject);
 
       // ignore: duplicate_ignore
       // ignore: use_build_context_synchronously
-      await _activityService.logTaskActivity(context, 'add', taskWithId, actionUserId);
-
+      await _activityService.logTaskActivity(
+          context, 'add', taskWithId, actionUserId);
     } catch (e) {
       print("Error creating task: $e");
     }
@@ -185,7 +219,8 @@ class Task extends ChangeNotifier {
     return task;
   }
 
-  Future<void> updateTask(BuildContext context, String idProject, Task task, String actionUserId) async {
+  Future<void> updateTask(BuildContext context, String idProject, Task task,
+      String actionUserId) async {
     try {
       await _taskService.updateTask(idProject, task);
       if (task.status == TaskStatus.toDo) {
@@ -193,37 +228,38 @@ class Task extends ChangeNotifier {
       } else {
         await fetchTasksInProgess(idProject);
       }
-      
-      await _activityService.logTaskActivity(context, 'update', task, actionUserId);
 
+      await _activityService.logTaskActivity(
+          context, 'update', task, actionUserId);
     } catch (e) {
       print("Error updating task: $e");
     }
   }
 
-  Future<void> deleteTask(BuildContext context, String idProject, String idTask, String actionUserId) async {
+  Future<void> deleteTask(BuildContext context, String idProject, String idTask,
+      String actionUserId) async {
     try {
       Task? task = await _taskService.getTask(idProject, idTask);
 
       await _taskService.deleteTask(idProject, idTask);
       await fetchTasksToDo(idProject);
 
-      await _activityService.logTaskActivity(context, 'delete', task!, actionUserId);
-
+      await _activityService.logTaskActivity(
+          context, 'delete', task!, actionUserId);
     } catch (e) {
       print("Error deleting task: $e");
     }
   }
 
-  Future<void> updateTaskStatus(
-      BuildContext context, String projectId, String taskId, TaskStatus status, String actionUserId) async {
+  Future<void> updateTaskStatus(BuildContext context, String projectId,
+      String taskId, TaskStatus status, String actionUserId) async {
     try {
       await _taskService.updateTaskStatus(projectId, taskId, status);
 
       Task? task = await _taskService.getTask(projectId, taskId);
 
-      await _activityService.logTaskActivity(context, 'update status', task!, actionUserId);
-
+      await _activityService.logTaskActivity(
+          context, 'update status', task!, actionUserId);
     } catch (e) {
       print('Error update task status: $e');
     }
