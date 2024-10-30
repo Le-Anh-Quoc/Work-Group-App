@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/screens/group/AddGroupScreen.dart';
+import 'package:ruprup/screens/group/EventCalendarScreen.dart';
 import 'package:ruprup/services/channel_service.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/group/GroupWidget.dart';
@@ -61,6 +62,7 @@ class _ListGroupScreenState extends State<ListGroupScreen>
     super.build(context);
     return Scaffold(
       appBar: CustomAppBar(
+        isHome: false,
         title: 'Groups',
         actions: [
           Container(
@@ -72,7 +74,12 @@ class _ListGroupScreenState extends State<ListGroupScreen>
             child: IconButton(
               icon: const Icon(Icons.calendar_month,
                   color: Colors.black, size: 30),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => const EventCalendarScreen()),
+                );
+              },
             ),
           )
         ],
@@ -98,7 +105,7 @@ class _ListGroupScreenState extends State<ListGroupScreen>
                           },
                         ),
                 ),
-                Positioned(
+          Positioned(
             bottom: 30, // Khoảng cách từ đáy
             right: 30, // Khoảng cách từ phải
             child: Container(
