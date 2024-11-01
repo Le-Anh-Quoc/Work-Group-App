@@ -11,9 +11,6 @@ class NotificationService {
     try {
       // Lấy uid của người dùng hiện tại
       String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      if (currentUserId == null) {
-        throw Exception("User is not logged in");
-      }
 
       // ignore: avoid_print
       print(currentUserId);

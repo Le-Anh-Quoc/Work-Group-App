@@ -6,9 +6,6 @@ class FriendService {
     try {
       // Lấy uid của người dùng hiện tại
       String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      if (currentUserId == null) {
-        throw Exception("User is not logged in");
-      }
 
       // Tham chiếu đến tài liệu người dùng hiện tại
       DocumentSnapshot userDoc = await FirebaseFirestore.instance

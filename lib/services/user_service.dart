@@ -86,9 +86,6 @@ class UserService {
     try {
       // Lấy uid của người dùng hiện tại
       String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      if (currentUserId == null) {
-        return null; // Người dùng không đăng nhập
-      }
 
       // Tham chiếu đến tài liệu của người dùng dựa vào uid
       DocumentSnapshot userDoc = await FirebaseFirestore.instance

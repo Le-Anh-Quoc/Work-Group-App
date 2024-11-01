@@ -2,11 +2,14 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 import 'package:ruprup/services/channel_service.dart';
+import 'package:ruprup/services/jitsi_meet_service.dart';
+import 'package:ruprup/widgets/group/NotificaJoinMeet.dart';
 import 'package:ruprup/widgets/group/PostWidget.dart';
 
 class GroupScreen extends StatefulWidget {
@@ -25,8 +28,20 @@ class _GroupScreenState extends State<GroupScreen> {
 
   final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-  late String idProject;
+  final JitsiMeetService jitsiMeetService= JitsiMeetService();
+  List<Map<String, dynamic>> meetings = [];
 
+
+  late String idProject;
+  createNewMeeting() async{
+    String roomName= "Room_${DateTime.now().millisecondsSinceEpoch}";
+    print("thanhcong");
+    jitsiMeetService.CreateMeeting(roomName: roomName, isAudioMuted: true, isVideoMuted: true);
+    setState(() {
+      meetings.add({'roomName': roomName}); // Thêm thông tin phòng vào danh sách
+    });
+  }
+  
   void _createProject(List<String> groupMemberIds) async {
     Project newProject = Project(
         projectId: '',
@@ -197,7 +212,7 @@ class _GroupScreenState extends State<GroupScreen> {
               color: Colors.blue,
               icon: const Icon(Icons.videocam_outlined),
               onPressed: () {
-                // Xử lý nút quay phim
+                createNewMeeting();
               },
             ),
             IconButton(
@@ -226,12 +241,12 @@ class _GroupScreenState extends State<GroupScreen> {
             unselectedLabelColor: Colors.black, // Màu văn bản chưa chọn
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
             // Nội dung của tab Bài Đăng
-            PostsTab(),
+            PostsTab(meetings: meetings,),
             // Nội dung của tab Tài Liệu
-            FilesTab(),
+            const FilesTab(),
           ],
         ),
       ),
@@ -240,8 +255,8 @@ class _GroupScreenState extends State<GroupScreen> {
 }
 
 class PostsTab extends StatelessWidget {
-  const PostsTab({super.key});
-
+  const PostsTab({super.key, required this.meetings});
+  final List<Map<String,dynamic>> meetings;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -250,8 +265,9 @@ class PostsTab extends StatelessWidget {
         ListView(
           padding:
               const EdgeInsets.symmetric(horizontal: 8, vertical: 8), // Để tạo khoảng trống cho nút
-          children: const [
-             PostWidget(),
+          children: [
+             const PostWidget(),
+             ...meetings.map((meeting) => JoinCallCard(roomName: meeting['roomName'])).toList(),
           ],
         ),
         // Nút thêm bài đăng
