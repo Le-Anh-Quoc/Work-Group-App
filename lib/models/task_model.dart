@@ -188,9 +188,9 @@ class Task extends ChangeNotifier {
   }
 
   // lấy danh sách task (không loc theo project)
-  Future<void> fetchTasksInProgressMe(String currentUserId, {int? limit}) async {
+  Future<void> fetchTasksInProgressMe(String currentUserId) async {
     try {
-      _tasksInProgressMe = await _taskService.getAllTasksForCurrentUser(currentUserId, TaskStatus.inProgress, limit: 3);
+      _tasksInProgressMe = await _taskService.getAllTasksForCurrentUser(currentUserId, TaskStatus.inProgress, limit: 4);
       notifyListeners();
     } catch (e) {
       print('Error fetching tasks: $e');
