@@ -170,7 +170,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
           taskName: _taskNameController.text,
           description: _descriptionController.text,
           assigneeIds: assigneeIds,
-          status: TaskStatus.toDo,
+          status: widget.task!.status,
           dueDate: endDateTime,
           createdAt: startDateTime,
           difficulty: _getDifficultyFromSelected());
@@ -187,7 +187,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
           taskName: _taskNameController.text,
           description: _descriptionController.text,
           assigneeIds: assigneeIds,
-          status: TaskStatus.toDo,
+          status: widget.task!.status,
           dueDate: endDateTime,
           createdAt: startDateTime,
           difficulty: _getDifficultyFromSelected());

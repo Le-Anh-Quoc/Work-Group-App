@@ -2,7 +2,6 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
@@ -15,7 +14,7 @@ class ChildProjectWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.only(right: 16.0),
       child: GestureDetector(
         onTap: () {
           Provider.of<Project>(context, listen: false)
@@ -28,7 +27,7 @@ class ChildProjectWidget extends StatelessWidget {
         },
         child: Container(
                 //height: 120,
-                width: 170,
+                width: 140,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -73,31 +72,31 @@ class ChildProjectWidget extends StatelessWidget {
                           )
                         ],
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CircularPercentIndicator(
-                          radius: 30,
-                          lineWidth: 8.0,
-                          percent: project.getTotalTask() > 0
-                              ? project.done / project.getTotalTask()
-                              : 0,
-                          center: Text(
-                            project.getTotalTask() > 0
-                                ? '${((project.done / project.getTotalTask()) * 100).toStringAsFixed(0)}%'
-                                : '0%',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15.0,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          progressColor: Colors.blue,
-                          backgroundColor: Colors.grey.shade200,
-                          circularStrokeCap:
-                              CircularStrokeCap.round, // Đảm bảo viền tròn
-                        ),
-                      ),
+                      // Positioned(
+                      //   bottom: 0,
+                      //   right: 0,
+                      //   child: CircularPercentIndicator(
+                      //     radius: 30,
+                      //     lineWidth: 8.0,
+                      //     percent: project.getTotalTask() > 0
+                      //         ? project.done / project.getTotalTask()
+                      //         : 0,
+                      //     center: Text(
+                      //       project.getTotalTask() > 0
+                      //           ? '${((project.done / project.getTotalTask()) * 100).toStringAsFixed(0)}%'
+                      //           : '0%',
+                      //       style: const TextStyle(
+                      //         fontWeight: FontWeight.bold,
+                      //         fontSize: 15.0,
+                      //         color: Colors.grey,
+                      //       ),
+                      //     ),
+                      //     progressColor: Colors.blue,
+                      //     backgroundColor: Colors.grey.shade200,
+                      //     circularStrokeCap:
+                      //         CircularStrokeCap.round, // Đảm bảo viền tròn
+                      //   ),
+                      // ),
                       if (currentUserId == project.ownerId)
                         const Positioned(
                             top: 0, right: 0, child: Icon(Icons.star, size: 20, color: Colors.amber))

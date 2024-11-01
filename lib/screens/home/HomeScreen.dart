@@ -11,7 +11,7 @@ import 'package:ruprup/services/auth_service.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/project/ChildProjectWidget.dart';
-import 'package:ruprup/widgets/task/TaskWidget.dart';
+import 'package:ruprup/widgets/task/FastTaskWidget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String _taskCount = '0'; // Biến để lưu trữ số lượng task
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
 
   Future<void> _fetchUserFullName() async {
     _fullName = await userService.getCurrentUserFullName();
@@ -37,7 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadTaskCount() async {
     // Lấy số lượng task từ Future và cập nhật trạng thái
-    String taskCount = await Provider.of<Task>(context, listen: false).countTaskInProgressMe(currentUserId);
+    String taskCount = await Provider.of<Task>(context, listen: false)
+        .countTaskInProgressMe(currentUserId);
     setState(() {
       _taskCount = taskCount;
       print('taskCount $taskCount');
@@ -48,8 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchUserFullName();
-    Provider.of<Task>(context, listen: false).fetchTasksInProgressMe(currentUserId);
     Provider.of<Project>(context, listen: false).fetchRecentProjects();
+    Provider.of<Task>(context, listen: false)
+        .fetchTasksInProgressMe(currentUserId);
     _loadTaskCount(); // Gọi hàm tải số lượng task
   }
 
@@ -90,8 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildDateCard(currentDay, currentMonth),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 _buildRecentProjectsSection(Provider.of<Project>(context)),
+                const SizedBox(height: 10),
                 _buildMyProgressTasksSection(),
                 _buildTaskList(Provider.of<Task>(context)),
               ],
@@ -141,11 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDateCard(int currentDay, String currentMonth) {
     return GestureDetector(
       onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const EventCalendarScreen()
-            ),
-          );
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const EventCalendarScreen()),
+        );
       },
       child: Container(
         decoration: BoxDecoration(
@@ -197,13 +197,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: Colors.black,
                       ),
                     ),
                     SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.event_outlined, color: Colors.black, size: 20),
+                        Icon(Icons.event_outlined,
+                            color: Colors.black, size: 20),
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -218,7 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.event_outlined, color: Colors.black, size: 20),
+                        Icon(Icons.event_outlined,
+                            color: Colors.black, size: 20),
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -245,9 +247,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Recent Projects',
-            style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text('Recent projects',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -267,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'My Progress tasks ($_taskCount)',
+          'Your tasks ($_taskCount)',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -286,12 +287,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Tạo danh sách Task
   Widget _buildTaskList(Task taskProvider) {
+  // Kiểm tra nếu tasksInProgressMe là null hoặc rỗng
+  if (taskProvider.tasksInProgressMe.isEmpty) {
+    return const Center(
+      child: Text('Data is empty'),
+    );
+  } else {
     return Column(
       children: taskProvider.tasksInProgressMe.map((task) {
-        return TaskWidget(task: task, isFromHome: true);
+        return FastTaskWidget(task: task, isFromHome: true);
       }).toList(),
     );
   }
+}
 
   // Hàm để xác định lời chào
   String getGreeting() {

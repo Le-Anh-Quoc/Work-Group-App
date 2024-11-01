@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unused_element
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -86,7 +86,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             children: [
               _buildTaskTitle(),
               const SizedBox(height: 16),
-              _buildCreaterRow(currentProject!.ownerId),
+              // _buildCreaterRow(currentProject!.ownerId),
               const SizedBox(height: 16),
               _buildTaskDescription(),
               const SizedBox(height: 16),
@@ -245,7 +245,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     } else if (task.status == TaskStatus.inProgress) {
       actions.addAll([
         _buildActionButton(Icons.replay, Colors.orange,
-            () => _updateTaskStatus(context, TaskStatus.inProgress)),
+            () => _updateTaskStatus(context, TaskStatus.toDo)),
         _buildActionButton(Icons.visibility, Colors.redAccent,
             () => _updateTaskStatus(context, TaskStatus.inReview)),
       ]);
