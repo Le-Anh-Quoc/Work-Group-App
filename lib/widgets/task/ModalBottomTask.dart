@@ -189,7 +189,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
     } else {
       Task task = Task(
           taskId: widget.task!.taskId,
-          projectId: currentProject!.projectId,
+          projectId: currentProject.projectId,
           taskName: _taskNameController.text,
           description: _descriptionController.text,
           assigneeIds: assigneeIds,

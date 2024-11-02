@@ -1,16 +1,16 @@
 
+// ignore_for_file: avoid_print, prefer_typing_uninitialized_variables
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
-import 'package:path/path.dart';
 
 class JitsiMeetService {
   final FirebaseAuth _auth= FirebaseAuth.instance;
-  final FirebaseStorage _firestore = FirebaseStorage.instance;
   final _jitsiMeetPlugin=JitsiMeet();
   List<String> participants = [];
   
+  // ignore: non_constant_identifier_names
   void CreateMeeting({
       required String roomName,
       required bool isAudioMuted,

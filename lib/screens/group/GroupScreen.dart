@@ -1,8 +1,7 @@
-// ignore_for_file: file_names, use_build_context_synchronously, sort_child_properties_last, avoid_print
+// ignore_for_file: file_names, use_build_context_synchronously, sort_child_properties_last, avoid_print, unnecessary_to_list_in_spreads
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:jitsi_meet_flutter_sdk/jitsi_meet_flutter_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/channel_model.dart';
 import 'package:ruprup/models/project_model.dart';
