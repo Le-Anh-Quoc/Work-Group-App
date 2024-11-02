@@ -964,10 +964,7 @@ packages:
       sha256: "69fe30f3a8b04a0be0c15ae6490fc859a78ef4c43ae2dd5e8a623d45bfcf9225"
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
-
-=======
-    version: "3.2.0"
+    version: "3.3.0+3"
   table_calendar:
     dependency: "direct main"
     description:
@@ -976,7 +973,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
->>>>>>> update/homescreen
   term_glyph:
     dependency: transitive
     description:
