@@ -87,4 +87,66 @@ class ProjectService {
 
     return projects;
   }
+
+  // 6.  Lấy 3 dự án được cập nhật activity gần nhất
+  Future<List<Project>> getRecentProjectsForCurrentUser() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      // Trường hợp người dùng chưa đăng nhập
+      throw Exception("No user is currently signed in.");
+    }
+    String currentUserId = currentUser.uid;
+
+    // Truy vấn để lấy các dự án mà người dùng là thành viên
+    Query query = _firestore
+        .collection(collection)
+        .where('memberIds', arrayContains: currentUserId);
+
+    QuerySnapshot querySnapshot = await query.get();
+
+    List<Map<String, dynamic>> projectsWithRecentActivity = [];
+
+    for (var doc in querySnapshot.docs) {
+      String projectId = doc.id;
+
+      // Truy vấn hoạt động gần đây nhất của dự án
+      QuerySnapshot activitySnapshot = await _firestore
+          .collection(collection)
+          .doc(projectId)
+          .collection('activityLogs')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
+
+      if (activitySnapshot.docs.isNotEmpty) {
+        var recentActivity = activitySnapshot.docs.first;
+
+        // Kiểm tra xem timestamp có phải là Timestamp không, nếu không thì chuyển đổi
+        DateTime recentTimestamp;
+        if (recentActivity['timestamp'] is Timestamp) {
+          recentTimestamp = (recentActivity['timestamp'] as Timestamp).toDate();
+        } else {
+          // Nếu timestamp là một chuỗi, có thể chuyển đổi nếu cần
+          recentTimestamp = DateTime.parse(recentActivity['timestamp']);
+        }
+
+        // Lưu thông tin dự án và thời gian hoạt động gần đây nhất
+        projectsWithRecentActivity.add({
+          'project': Project.fromMap(doc.data() as Map<String, dynamic>),
+          'recentTimestamp': recentTimestamp,
+        });
+      }
+    }
+
+    // Sắp xếp dự án theo thời gian hoạt động gần đây nhất
+    projectsWithRecentActivity.sort((a, b) =>
+        (b['recentTimestamp'] as DateTime).compareTo(a['recentTimestamp'] as DateTime));
+
+    // Lấy 3 dự án đầu tiên có hoạt động mới nhất
+    return projectsWithRecentActivity
+        .take(3)
+        .map((e) => e['project'] as Project)
+        .toList();
+  }
+
 }

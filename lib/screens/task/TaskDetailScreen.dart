@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unused_element
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/task_model.dart';
+import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 import 'package:ruprup/screens/task/TaskListScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
@@ -15,7 +16,9 @@ import 'package:path/path.dart' as path;
 
 class TaskDetailScreen extends StatefulWidget {
   final Task? task;
-  const TaskDetailScreen({super.key, required this.task});
+  final String sourceScreen;
+  const TaskDetailScreen(
+      {super.key, required this.task, required this.sourceScreen});
 
   @override
   State<TaskDetailScreen> createState() => _TaskDetailScreenState();
@@ -47,14 +50,28 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: IconButton(
-          onPressed: () => Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => TaskListScreen(
-                typeTask: widget.task!.status.name,
-                project: currentProject,
-              ),
-            ),
-          ),
+          onPressed: () {
+            if (widget.sourceScreen == 'HomeScreen') {
+              // Quay về HomeScreen
+              Navigator.pop(context);
+            } else if (widget.sourceScreen == 'ActivityScreen') {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => DetailProjectScreen(project: currentProject)
+                ),
+              );
+            } else {
+              // Quay về TaskListScreen
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => TaskListScreen(
+                    typeTask: widget.task!.status.name,
+                    project: currentProject,
+                  ),
+                ),
+              );
+            }
+          },
           icon: const Icon(Icons.arrow_back_ios),
         ),
         title: const Text('Task', style: TextStyle(color: Colors.grey)),
@@ -69,7 +86,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             children: [
               _buildTaskTitle(),
               const SizedBox(height: 16),
-              _buildCreaterRow(currentProject!.ownerId),
+              // _buildCreaterRow(currentProject!.ownerId),
               const SizedBox(height: 16),
               _buildTaskDescription(),
               const SizedBox(height: 16),
@@ -228,7 +245,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     } else if (task.status == TaskStatus.inProgress) {
       actions.addAll([
         _buildActionButton(Icons.replay, Colors.orange,
-            () => _updateTaskStatus(context, TaskStatus.inProgress)),
+            () => _updateTaskStatus(context, TaskStatus.toDo)),
         _buildActionButton(Icons.visibility, Colors.redAccent,
             () => _updateTaskStatus(context, TaskStatus.inReview)),
       ]);

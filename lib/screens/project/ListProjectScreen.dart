@@ -75,87 +75,85 @@ class _ListProjectScreenState extends State<ListProjectScreen> {
   Widget build(BuildContext context) {
     final projectProvider = Provider.of<Project>(context);
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: const CustomAppBar(title: 'Projects'),
-          backgroundColor: Colors.white,
-          body: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 56),
-            child: Column(children: [
-              // CustomSearchField(),
-              // const SizedBox(height: 15),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  DropdownButton<String>(
-                    value: _selectedGroupId,
-                    hint:
-                        const Text('All'), // Hiển thị khi không có lựa chọn nào
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedGroupId = newValue;
-                        _fetchProjects(newValue); // Cập nhật giá trị được chọn
-                      });
-                    },
-                    dropdownColor: Colors.white, // Làm nền dropdown trong suốt
-                    underline: const SizedBox(), // Loại bỏ đường gạch chân
-                    items: _groups.map<DropdownMenuItem<String>>((group) {
-                      return DropdownMenuItem<String>(
-                        value: group['id'],
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 12.0),
-                          decoration: BoxDecoration(
-                            color: Colors
-                                .transparent, // Làm nền của item trong suốt
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: Row(
-                            children: [
-                              if (group['name'] != 'All')
-                                const Icon(
-                                  Icons.groups_outlined,
-                                  color: Colors.blueAccent,
-                                ),
-                              const SizedBox(width: 8.0),
-                              Text(
-                                group['name']!,
-                                style: const TextStyle(
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w500,
-                                ),
+    return Scaffold(
+      appBar: const CustomAppBar(title: 'Projects', isHome: false),
+        backgroundColor: Colors.white,
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 56),
+          child: Column(children: [
+            // CustomSearchField(),
+            // const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                DropdownButton<String>(
+                  value: _selectedGroupId,
+                  hint:
+                      const Text('All'), // Hiển thị khi không có lựa chọn nào
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedGroupId = newValue;
+                      _fetchProjects(newValue); // Cập nhật giá trị được chọn
+                    });
+                  },
+                  dropdownColor: Colors.white, // Làm nền dropdown trong suốt
+                  underline: const SizedBox(), // Loại bỏ đường gạch chân
+                  items: _groups.map<DropdownMenuItem<String>>((group) {
+                    return DropdownMenuItem<String>(
+                      value: group['id'],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 12.0),
+                        decoration: BoxDecoration(
+                          color: Colors
+                              .transparent, // Làm nền của item trong suốt
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Row(
+                          children: [
+                            if (group['name'] != 'All')
+                              const Icon(
+                                Icons.groups_outlined,
+                                color: Colors.blueAccent,
                               ),
-                            ],
-                          ),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              group['name']!,
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    }).toList(),
-                  )
-                ],
-              ),
-              //const SizedBox(height: 15),
-              projectProvider.projects.isEmpty
-                  ? const Center(
-                      child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Currently, you don\'t have any projects.',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ))
-                  : Expanded(
-                      child: ListView.builder(
-                        itemCount: projectProvider.projects.length,
-                        itemBuilder: (context, index) {
-                          final project = projectProvider.projects[index];
-                          return ProjectWidget(project: project);
-                        },
                       ),
+                    );
+                  }).toList(),
+                )
+              ],
+            ),
+            //const SizedBox(height: 15),
+            projectProvider.projects.isEmpty
+                ? const Center(
+                    child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Currently, you don\'t have any projects.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ))
+                : Expanded(
+                    child: ListView.builder(
+                      itemCount: projectProvider.projects.length,
+                      itemBuilder: (context, index) {
+                        final project = projectProvider.projects[index];
+                        return ProjectWidget(project: project);
+                      },
                     ),
-            ]),
-          )),
-    );
+                  ),
+          ]),
+        ));
   }
 }

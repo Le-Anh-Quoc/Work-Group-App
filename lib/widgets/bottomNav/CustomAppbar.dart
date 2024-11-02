@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:ruprup/screens/notification/NotificationScreen.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Widget? leading;
   final String title;
   final List<Widget>? actions;
-  const CustomAppBar({super.key, required this.title, this.actions});
+  final bool isHome;
+  const CustomAppBar({super.key, required this.title, this.actions, this.leading, required this.isHome});
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +41,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
         automaticallyImplyLeading: false,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
-          child: GestureDetector(
-            onTap: () {
-              Scaffold.of(context).openDrawer();
-            },
-            child: const CircleAvatar(
-              backgroundImage:
-                  NetworkImage('https://picsum.photos/200/300?random=1'),
-            ),
-          ),
-        ),
+        leading: leading,
         title: Text(
           title,
-          style: const TextStyle(
-            fontSize: 18,
+          style: TextStyle(
+            fontSize: isHome ? 18 : 22,
             fontWeight: FontWeight.bold,
           ),
         ),

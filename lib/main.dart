@@ -6,6 +6,7 @@ import 'package:ruprup/models/activityProject_model.dart';
 import 'package:ruprup/models/project_model.dart';
 import 'package:ruprup/models/task_model.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/routes.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
 import 'package:ruprup/widgets/animation/hero.dart';
 
@@ -69,11 +70,11 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         navigatorObservers: [CustomHeroController()],
         //home: const GroupScreen(groupId: '3qF6vu37TuHpZQppFvlz',),
-        home: const LoginScreen()
-        //initialRoute: AppRoutes.home,
+        home: const LoginScreen(),
+        initialRoute: AppRoutes.home,
         //routes: AppRoutes.routes, // Sử dụng routes tĩnh
         // Hoặc bạn có thể sử dụng generateRoute
-        //onGenerateRoute: AppRoutes.generateRoute, // Sử dụng phương thức generateRoute
+        onGenerateRoute: AppRoutes.generateRoute, // Sử dụng phương thức generateRoute
         // Các thuộc tính khác
         );
   }

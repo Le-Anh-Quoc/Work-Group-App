@@ -13,7 +13,7 @@ class TaskListScreen extends StatefulWidget {
   final String typeTask;
   final Project? project;
   const TaskListScreen(
-      {super.key, required this.typeTask, required this.project});
+      {super.key, required this.typeTask, this.project});
 
   @override
   State<TaskListScreen> createState() => _TaskListScreenState();

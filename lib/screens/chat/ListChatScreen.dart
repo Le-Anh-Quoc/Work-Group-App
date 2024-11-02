@@ -31,6 +31,7 @@ class _ListChatScreenState extends State<ListChatScreen>
         context); // Cần thiết cho AutomaticKeepAliveClientMixin hoạt động
     return Scaffold(
       appBar: CustomAppBar(
+        isHome: false,
         title: 'Chats',
         actions: [
           Container(

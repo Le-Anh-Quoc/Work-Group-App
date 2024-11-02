@@ -31,7 +31,7 @@ class BottomNavItem extends StatelessWidget {
             Icon(
               icon,
               color: isSelected ? Colors.blue : Colors.grey,
-              size: 26,
+              size: 24,
             ),
             Text(
               label,

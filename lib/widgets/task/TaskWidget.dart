@@ -22,13 +22,12 @@ class TaskWidget extends StatefulWidget {
 
 class _TaskWidgetState extends State<TaskWidget> {
   final String actionUserId = FirebaseAuth.instance.currentUser!.uid;
-  late Task
-      _taskProvider; // Thay TaskProvider bằng tên provider thực tế của bạn
+  late Task _taskProvider;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _taskProvider = Provider.of<Task>(context); // Lưu tham chiếu đến provider
+    _taskProvider = Provider.of<Task>(context);
   }
 
   Color getDifficultyColor(Difficulty difficulty) {
@@ -40,8 +39,7 @@ class _TaskWidgetState extends State<TaskWidget> {
       case Difficulty.hard:
         return Colors.redAccent.withOpacity(0.2);
       default:
-        return Colors
-            .grey.shade200; // Màu mặc định nếu không xác định được độ khó
+        return Colors.grey.shade200;
     }
   }
 
@@ -54,9 +52,56 @@ class _TaskWidgetState extends State<TaskWidget> {
       case Difficulty.hard:
         return Colors.redAccent;
       default:
-        return Colors
-            .grey.shade600; // Màu mặc định nếu không xác định được độ khó
+        return Colors.grey.shade600;
     }
+  }
+
+  Color getIconColorByTerm(DateTime dueDate) {
+    final currentDate = DateTime.now();
+    final differenceInMinutes = dueDate.difference(currentDate).inMinutes;
+
+    if (differenceInMinutes > 2 * 24 * 60) {
+      return Colors.blue;
+    } else if (differenceInMinutes >= 0) {
+      return Colors.orangeAccent;
+    } else {
+      return Colors.red;
+    }
+  }
+
+  IconData _getStatusIcon(DateTime dueDate) {
+    final currentDate = DateTime.now();
+    final differenceInMinutes = dueDate.difference(currentDate).inMinutes;
+
+    if (differenceInMinutes > 2 * 24 * 60) {
+      return Icons.timeline;
+    } else if (differenceInMinutes >= 0) {
+      return Icons.timelapse;
+    } else {
+      return Icons.error;
+    }
+  }
+
+  void _showTaskStatusMessage(DateTime dueDate) {
+    final currentDate = DateTime.now();
+    final differenceInMinutes = dueDate.difference(currentDate).inMinutes;
+
+    String message;
+    if (differenceInMinutes > 2 * 24 * 60) {
+      message = "Task is still valid.";
+    } else if (differenceInMinutes >= 0) {
+      message = "Task is about to expire!";
+    } else {
+      message = "Task is overdue!";
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -64,7 +109,7 @@ class _TaskWidgetState extends State<TaskWidget> {
     Project? currentProject =
         Provider.of<Project>(context, listen: false).currentProject;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Slidable(
         key: ValueKey(widget.task.taskId),
         endActionPane: ActionPane(
@@ -105,14 +150,12 @@ class _TaskWidgetState extends State<TaskWidget> {
                               'Are you sure you want to delete ${widget.task.taskName}?'),
                           actions: <Widget>[
                             TextButton(
-                              onPressed: () =>
-                                  Navigator.of(context).pop(false), // Không xóa
+                              onPressed: () => Navigator.of(context).pop(false),
                               child: const Text('No',
                                   style: TextStyle(color: Colors.blue)),
                             ),
                             TextButton(
-                              onPressed: () =>
-                                  Navigator.of(context).pop(true), // Xóa
+                              onPressed: () => Navigator.of(context).pop(true),
                               child: const Text('Yes',
                                   style: TextStyle(color: Colors.blue)),
                             ),
@@ -121,7 +164,6 @@ class _TaskWidgetState extends State<TaskWidget> {
                       },
                     );
 
-                    // Nếu người dùng xác nhận xóa
                     if (confirmDelete == true) {
                       await _taskProvider.deleteTask(
                           context,
@@ -147,7 +189,8 @@ class _TaskWidgetState extends State<TaskWidget> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => TaskDetailScreen(task: widget.task),
+                builder: (context) => TaskDetailScreen(
+                    task: widget.task, sourceScreen: 'ListTaskScreen'),
               ),
             );
           },
@@ -160,7 +203,7 @@ class _TaskWidgetState extends State<TaskWidget> {
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 3,
                   blurRadius: 7,
-                  offset: const Offset(0, 3), // Shadow position
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -170,9 +213,8 @@ class _TaskWidgetState extends State<TaskWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -180,76 +222,89 @@ class _TaskWidgetState extends State<TaskWidget> {
                               widget.task.taskName,
                               style: const TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(
-                                height:
-                                    6), // Tạo khoảng cách giữa tên và độ khó
+                            const SizedBox(height: 10),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: getDifficultyColor(widget.task
-                                    .difficulty), // Hàm lấy màu dựa trên độ khó
+                                color: getDifficultyColor(
+                                    widget.task.difficulty),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 widget.task.difficulty
                                     .toString()
                                     .split('.')
-                                    .last, // Hiển thị độ khó
+                                    .last,
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: getTextColor(widget.task
-                                      .difficulty), // Hàm lấy màu chữ dựa trên độ khó
+                                  color: getTextColor(widget.task.difficulty),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // Danh sách avatar của người tham gia
-                      Row(
-                        children: [
-                          for (String uid in widget.task.assigneeIds)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4.0),
-                              child: InitialsAvatar(
-                                name: UserService().getFullNameByUid(uid),
-                                size: 45,
-                              ),
-                            )
-                        ],
-                      )
+                      if (widget.task.status != TaskStatus.done)
+                        GestureDetector(
+                          onTap: () {
+                            _showTaskStatusMessage(widget.task.dueDate);
+                          },
+                          child: Icon(
+                            _getStatusIcon(widget.task.dueDate),
+                            color: getIconColorByTerm(widget.task.dueDate),
+                            size: 28,
+                          ),
+                        ),
                     ],
                   ),
-                  const SizedBox(height: 12), // Tạo khoảng cách giữa nội dung
+                  const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today_outlined,
-                              color: Colors.grey, size: 18),
-                          const SizedBox(width: 5),
+                          const Icon(
+                            Icons.flag_outlined,
+                            color: Colors.grey,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
                           Text(
                             DateFormat('MMM dd, yyyy')
-                                .format(widget.task.createdAt),
-                            style: const TextStyle(color: Colors.grey),
+                                .format(widget.task.dueDate),
+                            style:
+                                const TextStyle(fontSize: 14, color: Colors.grey),
                           ),
                         ],
                       ),
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.attach_file, color: Colors.grey, size: 18),
-                          SizedBox(width: 5),
-                          Text(
+                          const Icon(Icons.attach_file,
+                              color: Colors.grey, size: 18),
+                          const SizedBox(width: 5),
+                          const Text(
                             '1', // Có thể thay bằng số lượng bình luận thực tế
                             style: TextStyle(color: Colors.grey),
+                          ),
+                          const SizedBox(width: 10),
+                          Row(
+                            children: [
+                              for (String uid in widget.task.assigneeIds)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4.0),
+                                  child: InitialsAvatar(
+                                    name: UserService().getFullNameByUid(uid),
+                                    size: 32,
+                                  ),
+                                )
+                            ],
                           ),
                         ],
                       ),

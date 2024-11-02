@@ -1,4 +1,4 @@
-// ignore_for_file: use_rethrow_when_possible
+// ignore_for_file: use_rethrow_when_possible, avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -90,15 +90,28 @@ class Project with ChangeNotifier {
   List<Project> _projects = [];
   List<Project> get projects => _projects;
 
+  List<Project> _recentProject = [];
+  List<Project> get recentProjects => _recentProject;
+
   // Lấy danh sách Projects
   Future<void> fetchProjects({String? groupId}) async {
     try {
-      _projects = await _projectService.getAllProjectsForCurrentUser(groupId: groupId);
+      _projects =
+          await _projectService.getAllProjectsForCurrentUser(groupId: groupId);
       notifyListeners(); // Cập nhật trạng thái để render lại Screen
     } catch (e) {
-      // ignore: avoid_print
       print('Error fetching projects: $e');
       throw e; // Ném lỗi để xử lý bên ngoài nếu cần
+    }
+  }
+
+  Future<void> fetchRecentProjects() async {
+    try {
+      _recentProject = await _projectService.getRecentProjectsForCurrentUser();
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching recent projects: $e');
+      throw e;
     }
   }
 
@@ -108,7 +121,6 @@ class Project with ChangeNotifier {
       await _projectService.createProject(project);
       await fetchProjects(); // Sau khi tạo, load lại danh sách
     } catch (e) {
-      // ignore: avoid_print
       print("Error creating project: $e");
     }
   }
@@ -120,7 +132,6 @@ class Project with ChangeNotifier {
       setCurrentProject(project);
       return project; // Trả về project
     } catch (e) {
-      // ignore: avoid_print
       print("Error getting project: $e");
       return null;
     }

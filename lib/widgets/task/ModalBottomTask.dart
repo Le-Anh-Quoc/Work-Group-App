@@ -159,6 +159,12 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
   void _createOrUpdateTask() async {
     Project? currentProject =
         Provider.of<Project>(context, listen: false).currentProject;
+    
+    if (currentProject == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Project không tồn tại'), backgroundColor: Colors.red));
+      return; // Kết thúc hàm nếu project là null
+    }
 
     assigneeIds = List<String>.from(tempAssigneeIds);
     // nếu tạo task thì cập nhật lại danh sách theo danh sách tạm
@@ -166,11 +172,11 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
     if (widget.isAdd) {
       Task newTask = Task(
           taskId: '',
-          projectId: currentProject!.projectId,
+          projectId: currentProject.projectId,
           taskName: _taskNameController.text,
           description: _descriptionController.text,
           assigneeIds: assigneeIds,
-          status: TaskStatus.toDo,
+          status: widget.task?.status ?? TaskStatus.toDo,
           dueDate: endDateTime,
           createdAt: startDateTime,
           difficulty: _getDifficultyFromSelected());
@@ -179,7 +185,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Add Task success'), backgroundColor: Colors.green));
       Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => TaskDetailScreen(task: newTask)));
+          MaterialPageRoute(builder: (_) => TaskDetailScreen(task: newTask, sourceScreen: 'AddScreen',)));
     } else {
       Task task = Task(
           taskId: widget.task!.taskId,
@@ -187,7 +193,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
           taskName: _taskNameController.text,
           description: _descriptionController.text,
           assigneeIds: assigneeIds,
-          status: TaskStatus.toDo,
+          status: widget.task!.status,
           dueDate: endDateTime,
           createdAt: startDateTime,
           difficulty: _getDifficultyFromSelected());
