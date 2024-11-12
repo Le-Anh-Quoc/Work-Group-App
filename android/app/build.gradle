@@ -10,6 +10,7 @@ dependencies {
   // Import the Firebase BoM
   implementation platform('com.google.firebase:firebase-bom:33.2.0')
   implementation 'com.google.firebase:firebase-appcheck-playintegrity'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 
 
   // TODO: Add the dependencies for Firebase products you want to use
@@ -22,7 +23,12 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    defaultConfig {
+        multiDexEnabled true
+    }
+
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }

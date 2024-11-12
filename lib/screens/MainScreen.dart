@@ -12,7 +12,7 @@ import 'package:ruprup/widgets/bottomNav/BottomNav.dart';
 class MainScreen extends StatefulWidget {
   final int selectedIndex;
   const MainScreen({super.key, required this.selectedIndex});
-
+  
   @override
   State<MainScreen> createState() => _MainScreenState();
 }

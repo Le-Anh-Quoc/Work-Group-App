@@ -1,5 +1,6 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/activityProject_model.dart';
@@ -8,6 +9,7 @@ import 'package:ruprup/models/task_model.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/routes.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
+import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/widgets/animation/hero.dart';
 
 Future main() async {
@@ -16,6 +18,8 @@ Future main() async {
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.playIntegrity,
   );
+  await FirebaseAPI().initNotifications();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(
@@ -54,7 +58,7 @@ Future main() async {
               timestamp: DateTime.now())),
       ChangeNotifierProvider(
           create: (context) =>
-              UserModel(userId: '12', fullname: '22', email: 'leanhquocit@gmail.com')),
+              UserModel(userId: '12', fullname: '22', email: 'leanhquocit@gmail.com',pushToken: '')),
       // Các Provider khác nếu có
     ],
     child: const MyApp(),
