@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/message_model.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/services/user_notification.dart';
 //import 'package:ruprup/services/user_notification.dart';
 //import 'package:ruprup/services/user_notification.dart';
 
@@ -54,14 +55,16 @@ class ChatService {
     }, SetOptions(merge: true));
 
 
-    // List<String> pushTokens = userModels.values
-    //     .map((user) => user.pushToken)
-    //     .where((token) => token.isNotEmpty)
-    //     .toList();
+    List<String> pushTokens = userModels.values
+        .map((user) => user.pushToken)
+        .where((token) => token.isNotEmpty)
+        .toList();
 
-    // if (pushTokens.isNotEmpty) {
-    //   await FirebaseAPI().sendPushNotification(pushTokens, message.content);
-    // }
+    if (pushTokens.isNotEmpty) {
+      for (String pushToken in pushTokens) {
+        await FirebaseAPI().sendPushNotification(pushToken, message.content);
+      }
+    }
   }
 
   // Hàm lấy tin nhắn mới nhất từ tài liệu của cuộc trò chuyện
