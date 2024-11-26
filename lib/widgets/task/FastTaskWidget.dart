@@ -3,7 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ruprup/models/task_model.dart';
+import 'package:ruprup/models/project/task_model.dart';
 import 'package:ruprup/screens/task/TaskDetailScreen.dart';
 
 class FastTaskWidget extends StatefulWidget {

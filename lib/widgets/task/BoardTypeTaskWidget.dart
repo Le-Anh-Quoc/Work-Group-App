@@ -1,7 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/project_model.dart';
+import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/widgets/task/TypeTaskWidget.dart';
 
 class BoardTypeTaskWidget extends StatelessWidget {

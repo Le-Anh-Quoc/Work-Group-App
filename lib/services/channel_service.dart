@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ruprup/models/channel_model.dart';
+import 'package:ruprup/models/channel/channel_model.dart';
 import 'package:ruprup/models/room_model.dart';
 
 class ChannelService {

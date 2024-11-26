@@ -3,8 +3,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/models/project_model.dart';
-import 'package:ruprup/models/task_model.dart';
+import 'package:ruprup/models/project/project_model.dart';
+import 'package:ruprup/models/project/task_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 import 'package:ruprup/widgets/task/ModalBottomTask.dart';
 import 'package:ruprup/widgets/task/TaskWidget.dart';

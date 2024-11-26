@@ -2,10 +2,11 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/channel_model.dart';
+import 'package:ruprup/models/channel/channel_model.dart';
 import 'package:ruprup/screens/group/AddGroupScreen.dart';
 import 'package:ruprup/screens/group/EventCalendarScreen.dart';
 import 'package:ruprup/services/channel_service.dart';
+import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/group/GroupWidget.dart';
 
@@ -20,7 +21,9 @@ class _ListGroupScreenState extends State<ListGroupScreen>
     with AutomaticKeepAliveClientMixin<ListGroupScreen> {
   final ChannelService _channelService = ChannelService();
   List<Channel> _userChannels = [];
+  final UserService userService = UserService();
   bool isLoading = true;
+  String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
   void initState() {
@@ -31,7 +34,7 @@ class _ListGroupScreenState extends State<ListGroupScreen>
   // Hàm để tải dữ liệu groups
   Future<void> _loadUserGroups() async {
     try {
-      String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+      //String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
       List<Channel> userChannels =
           await _channelService.getChannelsForCurrentUser(currentUserId!);
       // ignore: avoid_print
@@ -81,7 +84,8 @@ class _ListGroupScreenState extends State<ListGroupScreen>
                 );
               },
             ),
-          )
+          ),
+          
         ],
       ),
       backgroundColor: Colors.white,
@@ -98,10 +102,7 @@ class _ListGroupScreenState extends State<ListGroupScreen>
                           itemCount: _userChannels.length,
                           itemBuilder: (context, index) {
                             final channel = _userChannels[index];
-                            return Container(
-                              margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                              child: GroupWidget(channelId: channel.channelId),
-                            );
+                            return GroupWidget(channel: channel);
                           },
                         ),
                 ),
@@ -143,6 +144,27 @@ class _ListGroupScreenState extends State<ListGroupScreen>
               ),
             ),
           ),
+          // Positioned(
+          //   bottom: 30,
+          //   right: 90,
+          //   child: Container(
+          //     margin: const EdgeInsets.only(right: 10),
+          //     decoration: BoxDecoration(
+          //       shape: BoxShape.circle,
+          //       color: Colors.grey[50],
+          //     ),
+          //     child: IconButton(
+          //       icon: const Icon(Icons.call,
+          //           color: Colors.black, size: 30),
+          //       onPressed: () {
+          //         Navigator.of(context).push(
+          //           MaterialPageRoute(
+          //               builder: (_) => VideoConferencePage(roomID: 'Test123456', userId: currentUserId!, userName: _fullName)),
+          //         );
+          //       },
+          //     ),
+          //   ),
+          // ),
         ]),
       ),
     );

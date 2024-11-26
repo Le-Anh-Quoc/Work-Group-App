@@ -16,7 +16,7 @@ class FriendService {
       if (userDoc.exists) {
         // Lấy danh sách bạn bè từ tài liệu người dùng
         List<String> friendIds =
-            List<String>.from(userDoc.get('friends') ?? []);
+            List<String>.from(userDoc.get('friendList') ?? []);
 
         // Nếu không có bạn bè, trả về danh sách trống
         if (friendIds.isEmpty) {

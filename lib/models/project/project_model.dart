@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/task_model.dart';
+import 'package:ruprup/models/project/task_model.dart';
 import 'package:ruprup/services/project_service.dart';
 
 class Project with ChangeNotifier {

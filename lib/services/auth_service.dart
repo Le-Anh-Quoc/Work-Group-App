@@ -11,25 +11,30 @@ class AuthService {
 
   // đăng nhập
   Future<User?> logIn(String email, String password) async {
-    //FirebaseAuth _auth = FirebaseAuth.instance;
-
     try {
-      User? user = (await _auth.signInWithEmailAndPassword(
-              email: email, password: password))
-          .user;
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      User? user = userCredential.user;
 
       if (user != null) {
-        // ignore: avoid_print
-        print("Login Successful");
+        // Lấy token và lưu vào biến toàn cục
+        String? token = await user.getIdToken();
+        print('token: $token');
+
+        // Thông báo đăng nhập thành công
+        print("Login Successful. Token: $token");
         return user;
       } else {
-        // ignore: avoid_print
+        // Thông báo đăng nhập thất bại
         print("Login Failed");
-        return user;
+        return null;
       }
     } catch (e) {
-      // ignore: avoid_print
-      print(e);
+      // Xử lý lỗi và thông báo
+      print("Error: $e");
       return null;
     }
   }

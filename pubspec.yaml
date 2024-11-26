@@ -59,6 +59,9 @@ dependencies:
   intl: ^0.19.0
   jitsi_meet_flutter_sdk: ^10.2.1
   table_calendar: ^3.1.2
+  http: ^1.2.2
+  zego_uikit_prebuilt_video_conference: ^2.9.5
+  zego_express_engine: ^3.17.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

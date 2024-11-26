@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/models/activityProject_model.dart';
+import 'package:ruprup/models/project/activityProject_model.dart';
 import 'package:ruprup/widgets/project/ActivityWidget.dart';
 
 class ActivityScreen extends StatefulWidget {

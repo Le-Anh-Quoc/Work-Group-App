@@ -117,7 +117,8 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
       });
 
       // Upload ảnh lên Firebase Storage
-      _imageUrl = await _imageService.uploadImageToFirebaseStorage(_imageFile!, true);
+      _imageUrl =
+          await _imageService.uploadImageToFirebaseStorage(_imageFile!, true);
 
       // // Sau khi có URL ảnh, lưu vào Firestore (ví dụ như lưu vào tài liệu của group)
       // if (_imageUrl != null) {
@@ -174,16 +175,17 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                             color: Colors.blue[50], // Đặt màu nền xanh nhạt
                             shape: BoxShape.circle, // Giữ nút hình tròn
                           ),
-                          child: _imageFile != null ?
-                          ClipOval(
-                            child: Image.file(_imageFile!, width: 50, height: 50, fit: BoxFit.cover),
-                          )
-                          : IconButton(
-                            onPressed: _pickImage,
-                            icon: const Icon(Icons.image),
-                            color: Colors.blue,
-                            iconSize: 35,
-                          ),
+                          child: _imageFile != null
+                              ? ClipOval(
+                                  child: Image.file(_imageFile!,
+                                      width: 50, height: 50, fit: BoxFit.cover),
+                                )
+                              : IconButton(
+                                  onPressed: _pickImage,
+                                  icon: const Icon(Icons.image),
+                                  color: Colors.blue,
+                                  iconSize: 35,
+                                ),
                         ),
                         Positioned(
                           right: 0, // Vị trí góc phải
