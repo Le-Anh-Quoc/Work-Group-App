@@ -1,9 +1,11 @@
+// ignore_for_file: file_names
+
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/conference_screen.dart';
 import 'package:ruprup/models/channel/meeting_model.dart';
-import 'package:ruprup/services/jitsi_meet_service.dart';
+//import 'package:ruprup/services/jitsi_meet_service.dart';
 import 'package:ruprup/services/meeting_service.dart';
 import 'package:ruprup/services/user_service.dart';
 

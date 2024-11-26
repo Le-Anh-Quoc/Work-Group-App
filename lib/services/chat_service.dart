@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/message_model.dart';
-import 'package:ruprup/services/user_notification.dart';
+//import 'package:ruprup/services/user_notification.dart';
 
 class ChatService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:ruprup/const.dart';
 import 'package:ruprup/models/channel/meeting_model.dart';
