@@ -76,11 +76,11 @@ class FirebaseAPI {
    return credentials.accessToken.data;
   }
   Future<void> sendPushNotification(
-       UserModel chatUser, String msg) async {
+       String pushToken, String msg) async {
      try {
       final body = {
         "message": {
-          "token": chatUser.pushToken,
+          "token": pushToken,
           "notification": {
             "title": user.displayName, //our name should be send
             "body": msg,

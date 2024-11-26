@@ -131,7 +131,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     // Gửi tin nhắn
-    _chatService.sendMessage(newMessage, widget.roomChat.idRoom);
+    _chatService.sendMessage(newMessage, widget.roomChat.idRoom, userMap);
   }
 
   String _generateRandomId() => Random().nextInt(100000).toString();
