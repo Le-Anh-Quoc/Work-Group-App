@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:ruprup/services/user_service.dart';
 
 class UserModel extends ChangeNotifier{
-  final String userId;
-  final String fullname;
-  final String email;
-  final String? profilePictureUrl;
-  final List<String>? friendList;
-  final List<String>? groupIds;
+  late String userId;
+  late String fullname;
+  late String email;
+  late String? profilePictureUrl;
+  late List<String>? friendList;
+  late List<String>? groupIds;
+  late String pushToken;
 
   UserModel({
     required this.userId,
@@ -16,6 +17,7 @@ class UserModel extends ChangeNotifier{
     this.profilePictureUrl,
     this.friendList,
     this.groupIds,
+    required this.pushToken,
   });
 
   // Convert a User object to a map for Firestore
@@ -27,6 +29,7 @@ class UserModel extends ChangeNotifier{
       'profilePictureUrl': profilePictureUrl,
       'friendList': friendList,
       'groupIds': groupIds,
+      'pushToken':pushToken,
     };
   }
 
@@ -39,6 +42,7 @@ class UserModel extends ChangeNotifier{
       profilePictureUrl: map['profilePictureUrl'] ?? '',
       friendList: List<String>.from(map['friendList'] ?? []),
       groupIds: List<String>.from(map['groupIds'] ?? []),
+      pushToken: map['pushToken'] ??'',
     );
   }
 
@@ -53,7 +57,7 @@ class UserModel extends ChangeNotifier{
     final user = await _userService.readUser(id);
     return user;
   }
-
+  
   Future<List<Map<String, String>>> getListGroupForCurrentUser(
       String id) async {
     List<Map<String, String>> listGroup =

@@ -1,8 +1,9 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+//import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/conference_screen.dart';
+//import 'package:ruprup/conference_screen.dart';
 import 'package:ruprup/models/project/activityProject_model.dart';
 import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
@@ -10,6 +11,7 @@ import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/providers/channel_provider.dart';
 import 'package:ruprup/routes.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
+import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/widgets/animation/hero.dart';
 
 Future main() async {
@@ -18,6 +20,8 @@ Future main() async {
   await FirebaseAppCheck.instance.activate(
     androidProvider: AndroidProvider.playIntegrity,
   );
+  await FirebaseAPI().initNotifications();
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(
@@ -56,7 +60,7 @@ Future main() async {
               timestamp: DateTime.now())),
       ChangeNotifierProvider(
           create: (context) => UserModel(
-              userId: '12', fullname: '22', email: 'leanhquocit@gmail.com')),
+              userId: '12', fullname: '22', email: 'leanhquocit@gmail.com', pushToken: '')),
       ChangeNotifierProvider(create: (_) => ChannelProvider()),
       // Các Provider khác nếu có
     ],

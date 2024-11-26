@@ -4,12 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
+import 'package:ruprup/services/user_notification.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection('users');
   // đăng nhập
+  
   Future<User?> logIn(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -20,12 +23,8 @@ class AuthService {
       User? user = userCredential.user;
 
       if (user != null) {
-        // Lấy token và lưu vào biến toàn cục
-        String? token = await user.getIdToken();
-        print('token: $token');
-
-        // Thông báo đăng nhập thành công
-        print("Login Successful. Token: $token");
+        await FirebaseAPI().getFirebaseMessagingToken();
+        print("Login Successful");
         return user;
       } else {
         // Thông báo đăng nhập thất bại
@@ -114,7 +113,7 @@ class AuthService {
       }
 
       UserModel userModel =
-          UserModel(userId: user.uid, fullname: fullname, email: email);
+          UserModel(userId: user.uid, fullname: fullname, email: email,pushToken: '');
 
       // Lưu thông tin người dùng vào Firestore
       await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
