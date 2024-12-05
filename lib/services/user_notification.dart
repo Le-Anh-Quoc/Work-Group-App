@@ -6,12 +6,15 @@ import 'dart:io';
 
 
 //import 'package:googleapis/servicecontrol/v1.dart' as serviceControl;
+import 'package:googleapis/adsense/v2.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 //import 'package:path/path.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:http/http.dart' as http;
@@ -76,13 +79,13 @@ class FirebaseAPI {
    return credentials.accessToken.data;
   }
   Future<void> sendPushNotification(
-       String pushToken, String msg) async {
+       String pushToken, String msg,String User) async {
      try {
       final body = {
         "message": {
           "token": pushToken,
           "notification": {
-            "title": user.displayName, //our name should be send
+            "title": User, 
             "body": msg,
           },
         }
@@ -91,7 +94,6 @@ class FirebaseAPI {
     const projectID = 'ruprup-41858';
      
     final String bearerToken= await getAccessToken() ;
-    if (bearerToken == null) return;
        var res = await post(
          Uri.parse(
              'https://fcm.googleapis.com/v1/projects/$projectID/messages:send'),
@@ -181,4 +183,36 @@ class FirebaseAPI {
       payload: 'payload data', // dữ liệu đính kèm có thể xử lý khi click vào thông báo
     );
   }
+  Future scheduleNotification({
+    int id=0,
+    required String? title, 
+    required String? body ,
+    String? payload,
+    required DateTime eventTime}) async {
+      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        'calendar_channel',
+        'Calendar Notifications',
+        importance: Importance.high,
+        priority: Priority.high,
+      );
+      const NotificationDetails platformDetails = NotificationDetails(
+        android: androidDetails,
+      );
+
+  // Tính thời gian trước sự kiện 
+  final scheduledTime = eventTime.subtract(Duration(minutes: 30));
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+    id, // ID thông báo
+    'Reminder: $title',
+    body,
+    tz.TZDateTime.from(
+      scheduledTime,
+      tz.local
+    ), // Thời gian theo múi giờ
+    await NotificationDetails(),
+    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+  );
+}
 }

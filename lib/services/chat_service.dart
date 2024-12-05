@@ -1,15 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/message_model.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/services/user_notification.dart';
+import 'package:ruprup/services/user_service.dart';
 //import 'package:ruprup/services/user_notification.dart';
 //import 'package:ruprup/services/user_notification.dart';
 
 class ChatService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-
-  // lấy tin nhắn
+  FirebaseAuth  get _auth => FirebaseAuth.instance;
+  String name = '';
+  
+  // Future<void> _fetchUserFullName() async {
+  //   _fullName = await UserService().getCurrentUserFullName();
+  // }
+  
   Stream<List<MessageModel>> getMessages(String chatId) {
     return _db
         .collection('chats')
@@ -59,10 +66,10 @@ class ChatService {
         .map((user) => user.pushToken)
         .where((token) => token.isNotEmpty)
         .toList();
-
+    print(pushTokens);
     if (pushTokens.isNotEmpty) {
       for (String pushToken in pushTokens) {
-        await FirebaseAPI().sendPushNotification(pushToken, message.content);
+        await FirebaseAPI().sendPushNotification(pushToken, message.content,name);
       }
     }
   }
