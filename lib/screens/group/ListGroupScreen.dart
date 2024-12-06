@@ -1,12 +1,10 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, prefer_const_constructors
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ruprup/models/channel/channel_model.dart';
+import 'package:provider/provider.dart';
+import 'package:ruprup/providers/channel_provider.dart';
 import 'package:ruprup/screens/group/AddGroupScreen.dart';
 import 'package:ruprup/screens/group/EventCalendarScreen.dart';
-import 'package:ruprup/services/channel_service.dart';
-import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/group/GroupWidget.dart';
 
@@ -17,52 +15,13 @@ class ListGroupScreen extends StatefulWidget {
   State<ListGroupScreen> createState() => _ListGroupScreenState();
 }
 
-class _ListGroupScreenState extends State<ListGroupScreen>
-    with AutomaticKeepAliveClientMixin<ListGroupScreen> {
-  final ChannelService _channelService = ChannelService();
-  List<Channel> _userChannels = [];
-  final UserService userService = UserService();
-  bool isLoading = true;
-  String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserGroups();
-  }
-
-  // Hàm để tải dữ liệu groups
-  Future<void> _loadUserGroups() async {
-    try {
-      //String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-      List<Channel> userChannels =
-          await _channelService.getChannelsForCurrentUser(currentUserId!);
-      // ignore: avoid_print
-      print(userChannels);
-      setState(() {
-        _userChannels = userChannels;
-        isLoading = false;
-      });
-    } catch (e) {
-      // ignore: avoid_print
-      print('Error fetching groups: $e');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  // Hàm làm mới dữ liệu khi kéo từ trên xuống
-  Future<void> _refreshGroups() async {
-    setState(() {
-      isLoading = true; // Hiển thị loading trong lúc đang làm mới dữ liệu
-    });
-    await _loadUserGroups(); // Gọi lại hàm lấy dữ liệu
-  }
-
+class _ListGroupScreenState extends State<ListGroupScreen> {
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    final listChannelPersonal =
+        Provider.of<ChannelProvider>(context, listen: false)
+            .listChannelPersonal;
+
     return Scaffold(
       appBar: CustomAppBar(
         isHome: false,
@@ -85,26 +44,27 @@ class _ListGroupScreenState extends State<ListGroupScreen>
               },
             ),
           ),
-          
         ],
       ),
       backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 36),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 36),
         child: Stack(children: [
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : RefreshIndicator(
-                  onRefresh: _refreshGroups, // Kéo từ trên xuống để làm mới
-                  child: _userChannels.isEmpty
-                      ? const Center(child: Text("No groups found"))
-                      : ListView.builder(
-                          itemCount: _userChannels.length,
-                          itemBuilder: (context, index) {
-                            final channel = _userChannels[index];
-                            return GroupWidget(channel: channel);
-                          },
-                        ),
+          listChannelPersonal.isEmpty
+              ? const Center(child: Text("No groups found"))
+              : GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Số cột là 2
+                    crossAxisSpacing: 16.0, // Khoảng cách giữa các cột
+                    mainAxisSpacing: 16.0, // Khoảng cách giữa các hàng
+                    childAspectRatio:
+                        1.4, // Tỉ lệ chiều rộng/chiều cao của mỗi ô
+                  ),
+                  itemCount: listChannelPersonal.length,
+                  itemBuilder: (context, index) {
+                    final channel = listChannelPersonal[index];
+                    return GroupWidget(channel: channel);
+                  },
                 ),
           Positioned(
             bottom: 30, // Khoảng cách từ đáy
@@ -144,32 +104,8 @@ class _ListGroupScreenState extends State<ListGroupScreen>
               ),
             ),
           ),
-          // Positioned(
-          //   bottom: 30,
-          //   right: 90,
-          //   child: Container(
-          //     margin: const EdgeInsets.only(right: 10),
-          //     decoration: BoxDecoration(
-          //       shape: BoxShape.circle,
-          //       color: Colors.grey[50],
-          //     ),
-          //     child: IconButton(
-          //       icon: const Icon(Icons.call,
-          //           color: Colors.black, size: 30),
-          //       onPressed: () {
-          //         Navigator.of(context).push(
-          //           MaterialPageRoute(
-          //               builder: (_) => VideoConferencePage(roomID: 'Test123456', userId: currentUserId!, userName: _fullName)),
-          //         );
-          //       },
-          //     ),
-          //   ),
-          // ),
         ]),
       ),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

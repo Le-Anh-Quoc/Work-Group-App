@@ -48,15 +48,15 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
                   ),
                 );
               },
-              icon: const Icon(Icons.arrow_back_ios_new)),
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.blue)),
           title: const Text(
                       'Overview',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.blue),
                     ),
           centerTitle: true,
           actions: [
             if (currentUserId == widget.project!.ownerId)
-              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
+              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert, color: Colors.blue))
           ],
         ),
         body: SingleChildScrollView(
@@ -88,6 +88,7 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
                               0, 4), // Đặt bóng nhẹ nhàng phía dưới
                         ),
                       ],
+                      border: Border.all(width: 1, color: Colors.blue)
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),

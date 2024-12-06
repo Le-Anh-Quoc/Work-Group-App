@@ -142,7 +142,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.arrow_back_ios)),
+              icon: const Icon(Icons.arrow_back_ios, size: 25, color: Colors.blue)),
           title: Column(
             children: [
               const Center(
@@ -158,7 +158,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
                 onPressed: () {
                   _createGroup();
                 },
-                icon: const Icon(Icons.add, size: 27))
+                icon: const Icon(Icons.check, size: 25, color: Colors.blue))
           ],
         ),
         body: Padding(

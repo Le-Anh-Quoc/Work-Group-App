@@ -5,8 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
+import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 import 'package:ruprup/screens/task/TaskListScreen.dart';
 import 'package:ruprup/services/user_service.dart';
@@ -43,7 +43,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final currentProject =
-        Provider.of<Project>(context, listen: false).currentProject;
+        Provider.of<ProjectProvider>(context, listen: false).currentProject;
 
     return Scaffold(
       backgroundColor: Colors.white,

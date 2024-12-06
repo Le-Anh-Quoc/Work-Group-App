@@ -1,71 +1,55 @@
 // ignore_for_file: file_names, use_build_context_synchronously, sort_child_properties_last, avoid_print, unnecessary_to_list_in_spreads
 
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/conference_screen.dart';
+import 'package:ruprup/models/channel/file_model.dart';
+import 'package:ruprup/models/channel/folder_model.dart';
+import 'package:ruprup/providers/channel_provider.dart';
+import 'package:ruprup/providers/project_provider.dart';
+import 'package:ruprup/providers/user_provider.dart';
+import 'package:ruprup/screens/group/InformationGroupScreen.dart';
+import 'package:ruprup/screens/group/conference_screen.dart';
 import 'package:ruprup/models/channel/channel_model.dart';
 import 'package:ruprup/models/channel/meeting_model.dart';
 import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
-import 'package:ruprup/services/channel_service.dart';
-import 'package:ruprup/services/jitsi_meet_service.dart';
+import 'package:ruprup/services/file_service.dart';
+import 'package:ruprup/services/folder_service.dart';
 import 'package:ruprup/services/meeting_service.dart';
-import 'package:ruprup/services/user_service.dart';
+import 'package:ruprup/services/storage_service.dart';
 import 'package:ruprup/widgets/group/NotificaJoinMeet.dart';
+import 'package:open_file/open_file.dart';
 
 class GroupScreen extends StatefulWidget {
-  final String channelId;
-  final String channelName;
-  const GroupScreen(
-      {super.key, required this.channelName, required this.channelId});
+  const GroupScreen({super.key});
 
   @override
   State<GroupScreen> createState() => _GroupScreenState();
 }
 
 class _GroupScreenState extends State<GroupScreen> {
-  final ChannelService _channelService = ChannelService();
-  final UserService _userService = UserService();
   final MeetingService _meetingService = MeetingService();
-
-  String? _fullName = '';
 
   final TextEditingController _nameProjectController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
-  final JitsiMeetService jitsiMeetService = JitsiMeetService();
-  List<Map<String, dynamic>> meetings = [];
-
-  late String idProject;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUserFullName();
-  }
-
-  Future<void> _fetchUserFullName() async {
-    _fullName = await _userService.getCurrentUserFullName();
-    setState(() {}); // cập nhật lại giao diện
-  }
-
-  void _createProject(List<String> groupMemberIds) async {
+  void _createProject(Channel channel) async {
     Project newProject = Project(
         projectId: '',
-        groupId: widget.channelId,
+        groupId: channel.channelId,
         projectName: _nameProjectController.text,
         description: _descriptionController.text,
         startDate: DateTime.now(),
-        ownerId: currentUserId,
-        memberIds: groupMemberIds,
+        ownerId: channel.adminId,
+        memberIds: channel.memberIds,
         tasks: []);
 
-    await Provider.of<Project>(context, listen: false)
+    await Provider.of<ProjectProvider>(context, listen: false)
         .createProject(newProject);
 
     Navigator.of(context).push(
@@ -75,12 +59,9 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
-  void _showCreateProjectBottomSheet(BuildContext context) async {
-    Channel? groupData = await _channelService.getChannel(widget.channelId);
-
-    if (groupData != null && groupData.adminId == currentUserId) {
-      List<String> groupMemberIds = List<String>.from(groupData.memberIds);
-
+  void _showCreateProjectBottomSheet(
+      BuildContext context, String currentUserId, Channel channel) async {
+    if (channel.adminId == currentUserId) {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -185,7 +166,7 @@ class _GroupScreenState extends State<GroupScreen> {
                           },
                         );
                       } else {
-                        _createProject(groupMemberIds);
+                        _createProject(channel);
                       }
                     },
                     child: const Text('Create New Project'),
@@ -210,7 +191,7 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   void scheduleMeeting(
-      {required String meetingName, required DateTime startTime}) {
+      String currentChannelId, String meetingName, DateTime startTime) {
     Meeting meetingNow = Meeting(
         meetingId: startTime.microsecondsSinceEpoch.toString(),
         meetingTitle: meetingName,
@@ -218,32 +199,37 @@ class _GroupScreenState extends State<GroupScreen> {
         status: MeetingStatus.upcoming,
         participants: []);
 
-    _meetingService.createMeeting(widget.channelId, meetingNow);
+    _meetingService.createMeeting(currentChannelId, meetingNow);
   }
 
-  void createInstantMeeting() {
+  void createInstantMeeting(
+      String currentUserId, String currentUserName, String currentChannelId) {
     Meeting meetingNow = Meeting(
         meetingId: DateTime.now().microsecondsSinceEpoch.toString(),
-        meetingTitle: 'Meeting\'s $_fullName',
+        meetingTitle: 'Meeting\'s $currentUserName',
         startTime: DateTime.now(),
         status: MeetingStatus.ongoing,
         participants: [currentUserId]);
 
-    _meetingService.createMeeting(widget.channelId, meetingNow);
+    _meetingService.createMeeting(currentChannelId, meetingNow);
 
     Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => VideoConferencePage(
-              channelId: widget.channelId,
+              channelId: currentChannelId,
               meeting: meetingNow,
               userId: currentUserId,
-              userName: _fullName)),
+              userName: currentUserName)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentChannel =
+        Provider.of<ChannelProvider>(context, listen: false).selectedChannel;
+    final currentUser =
+        Provider.of<UserProvider>(context, listen: false).currentUser;
     return DefaultTabController(
       length: 2, // Số lượng tab
       child: Scaffold(
@@ -253,11 +239,13 @@ class _GroupScreenState extends State<GroupScreen> {
           leading: IconButton(
             onPressed: () {
               Navigator.pop(context);
+              Provider.of<ChannelProvider>(context, listen: false)
+                  .clearChannel();
             },
             icon: const Icon(Icons.arrow_back_ios),
             color: Colors.blue,
           ),
-          title: Text(widget.channelName,
+          title: Text(currentChannel!.channelName,
               style: const TextStyle(
                   fontWeight: FontWeight.bold, color: Colors.blue)),
           actions: [
@@ -266,7 +254,10 @@ class _GroupScreenState extends State<GroupScreen> {
               icon: const Icon(Icons.videocam_outlined, color: Colors.blue),
               onSelected: (value) {
                 if (value == 'instant') {
-                  createInstantMeeting(); // Gọi hàm tạo cuộc họp tức thì
+                  createInstantMeeting(
+                      currentUser!.userId,
+                      currentUser.fullname,
+                      currentChannel.channelId); // Gọi hàm tạo cuộc họp tức thì
                 } else if (value == 'schedule') {
                   showDialog(
                     context: context,
@@ -355,8 +346,9 @@ class _GroupScreenState extends State<GroupScreen> {
                                     // Tiến hành tạo cuộc họp
                                     Navigator.pop(context);
                                     scheduleMeeting(
-                                      meetingName: meetingNameController.text,
-                                      startTime: selectedDateTime,
+                                      currentChannel.channelId,
+                                      meetingNameController.text,
+                                      selectedDateTime,
                                     );
                                   }
                                 },
@@ -397,7 +389,8 @@ class _GroupScreenState extends State<GroupScreen> {
             ),
             IconButton(
                 onPressed: () {
-                  _showCreateProjectBottomSheet(context);
+                  _showCreateProjectBottomSheet(
+                      context, currentUser!.userId, currentChannel);
                 },
                 icon: const Icon(
                   Icons.star_outline,
@@ -407,7 +400,11 @@ class _GroupScreenState extends State<GroupScreen> {
               color: Colors.blue,
               icon: const Icon(Icons.more_vert),
               onPressed: () {
-                // Xử lý nút thêm
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          InformationGroup(channel: currentChannel)),
+                );
               },
             ),
           ],
@@ -425,9 +422,9 @@ class _GroupScreenState extends State<GroupScreen> {
         body: TabBarView(
           children: [
             // Nội dung của tab Bài Đăng
-            PostsTab(channelId: widget.channelId),
+            MeetingsTab(channel: currentChannel),
             // Nội dung của tab Tài Liệu
-            const FilesTab(),
+            FilesTab(channel: currentChannel),
           ],
         ),
       ),
@@ -435,15 +432,15 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 }
 
-class PostsTab extends StatefulWidget {
-  final String channelId;
-  const PostsTab({super.key, required this.channelId});
+class MeetingsTab extends StatefulWidget {
+  final Channel channel;
+  const MeetingsTab({super.key, required this.channel});
 
   @override
-  State<PostsTab> createState() => _PostsTabState();
+  State<MeetingsTab> createState() => _MeetingsTabState();
 }
 
-class _PostsTabState extends State<PostsTab> {
+class _MeetingsTabState extends State<MeetingsTab> {
   @override
   Widget build(BuildContext context) {
     final MeetingService meetingService = MeetingService();
@@ -453,15 +450,14 @@ class _PostsTabState extends State<PostsTab> {
         children: [
           // Danh sách bài đăng
           StreamBuilder<List<Meeting>>(
-            stream: meetingService.getAllMeetings(widget.channelId),
+            stream: meetingService.getAllMeetings(widget.channel.channelId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Center(child: Text("Lỗi: ${snapshot.error}"));
+                return Center(child: Text("Error: ${snapshot.error}"));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(
-                    child: Text("Không có cuộc họp nào đang diễn ra"));
+                return const Center(child: Text("No meetings"));
               }
 
               final allMeetings = snapshot.data!;
@@ -469,26 +465,14 @@ class _PostsTabState extends State<PostsTab> {
               return ListView(
                 children: allMeetings
                     .map((meeting) => JoinCallCard(
-                          channelId: widget.channelId,
+                          channelId: widget.channel.channelId,
+                          adminChannel: widget.channel.adminId,
                           meeting: meeting,
                         ))
                     .toList(),
               );
             },
           ),
-          // Nút thêm bài đăng
-          // Positioned(
-          //   bottom: 16.0,
-          //   right: 16.0,
-          //   child: FloatingActionButton(
-          //     backgroundColor: Colors.white,
-          //     onPressed: () {
-          //       // Xử lý khi nhấn nút
-          //       print("Nút thêm bài đăng được nhấn");
-          //     },
-          //     child: const Icon(Icons.add_card, color: Colors.blue),
-          //   ),
-          // ),
         ],
       ),
     );
@@ -496,19 +480,83 @@ class _PostsTabState extends State<PostsTab> {
 }
 
 class FilesTab extends StatefulWidget {
-  const FilesTab({super.key});
+  final Channel channel;
+  const FilesTab({super.key, required this.channel});
 
   @override
   State<FilesTab> createState() => _FilesTabState();
 }
 
 class _FilesTabState extends State<FilesTab> {
-  bool _showOptionsAdd = false;
 
-  void _toggleOptions() {
-    setState(() {
-      _showOptionsAdd = !_showOptionsAdd;
-    });
+  String currentFolderId = "Home";
+  List<Folder> listFolderNavi = [];
+
+  FolderService folderService = FolderService();
+  FileService fileService = FileService();
+  StorageService storageService = StorageService();
+
+// Lấy danh sách folder theo currentFolderId
+  Future<List<Folder>> _fetchFolders() async {
+    return await folderService.getFoldersByParentId(
+        widget.channel.channelId, currentFolderId);
+  }
+
+// Lấy danh sách file theo currentFolderId
+  Future<List<FileModel>> _fetchFiles() async {
+    return await fileService.getFilesByFolderId(
+        widget.channel.channelId, currentFolderId);
+  }
+
+  // Tạo folder
+  Future<void> _createFolder(String folderName) async {
+    await folderService.createFolder(
+        widget.channel.channelId,
+        Folder(
+          id: "", // Firebase sẽ tự động tạo ID
+          name: folderName,
+          parentFolderId: currentFolderId,
+          createdAt: DateTime.now(),
+          createdBy: FirebaseAuth.instance.currentUser!.uid,
+        ));
+  }
+
+// Tải file lên
+  Future<void> uploadFile() async {
+    // Chọn file từ thiết bị
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      String? filePath = result.files.single.path;
+      String fileName = result.files.single.name;
+
+      if (filePath != null) {
+        // Đọc file từ đường dẫn
+        final file = File(filePath);
+
+        // Tải file lên Firebase Storage
+        String downloadUrl = await storageService.uploadFileToFirebaseStorage(
+            file,
+            currentFolderId); // Thay thế 'your_folder_name' bằng tên thư mục mong muốn
+
+        // Lưu thông tin file vào Firestore (sử dụng fileService.createFile)
+        await fileService.createFile(
+            widget.channel.channelId,
+            FileModel(
+              id: "", // Firebase sẽ tự động tạo ID
+              name: fileName,
+              downloadUrl: downloadUrl,
+              folderId: currentFolderId,
+              createdAt: DateTime.now(),
+              createdBy: FirebaseAuth.instance.currentUser!.uid,
+            ));
+
+        // Làm mới UI
+        setState(() {});
+      }
+    } else {
+      print("User canceled file selection.");
+    }
   }
 
   void _showCreateFolderDialog() {
@@ -517,6 +565,7 @@ class _FilesTabState extends State<FilesTab> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text("Create folder"),
           content: TextField(
             onChanged: (value) {
@@ -530,17 +579,17 @@ class _FilesTabState extends State<FilesTab> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Đóng dialog
+                Navigator.pop(context);
               },
               child: const Text("Cancel"),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (folderName.isNotEmpty) {
-                  print("Folder created: $folderName");
-                  // Thực hiện logic tạo thư mục ở đây
+                  await _createFolder(folderName);
+                  setState(() {}); // Làm mới UI
                 }
-                Navigator.pop(context); // Đóng dialog
+                Navigator.pop(context);
               },
               child: const Text("Create"),
             ),
@@ -550,61 +599,186 @@ class _FilesTabState extends State<FilesTab> {
     );
   }
 
-  Future<void> _uploadFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      String? filePath = result.files.single.path;
-      print("Đã chọn tệp: $filePath");
-      // Thực hiện logic tải lên tệp ở đây
-    } else {
-      print("Người dùng hủy chọn tệp.");
-    }
-  }
+  // Future<void> _uploadFile() async {
+  //   FilePickerResult? result = await FilePicker.platform.pickFiles();
+  //   if (result != null) {
+  //     String? filePath = result.files.single.path;
+  //     print("Đã chọn tệp: $filePath");
+  //     // Thực hiện logic tải lên tệp ở đây
+  //   } else {
+  //     print("Người dùng hủy chọn tệp.");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (_showOptionsAdd)
-          Positioned(
-            bottom: 80.0,
-            right: 16.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FloatingActionButton.extended(
-                  backgroundColor: Colors.white,
-                  onPressed: _showCreateFolderDialog,
-                  label: const Text(
-                    "Create folder",
-                    style: TextStyle(color: Colors.blue),
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          // Thanh điều hướng folder (Breadcrumb)
+          Row(
+            children: [
+              TextButton(
+                child: const Text('Home',
+                    style: TextStyle(fontSize: 16, color: Colors.grey)),
+                onPressed: () {
+                  setState(() {
+                    listFolderNavi = [];
+                    currentFolderId = 'Home';
+                    print('current: $currentFolderId');
+                  });
+                },
+              ),
+              const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
+              if (listFolderNavi.isNotEmpty)
+                for (int i = 0; i < listFolderNavi.length; i++) ...[
+                  TextButton(
+                    child: Text(
+                      listFolderNavi[i].name,
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    onPressed: () {
+                      // Logic để chuyển đến folder tương ứng
+                      setState(() {
+                        currentFolderId =
+                            listFolderNavi[i].id; // Cập nhật folderId
+                        listFolderNavi = listFolderNavi.sublist(
+                            0, i + 1); // Điều chỉnh breadcrumb
+                      });
+                      print('Navigate to ${listFolderNavi[i]}');
+                    },
                   ),
-                  icon: const Icon(Icons.create_new_folder, color: Colors.blue),
-                ),
-                const SizedBox(height: 8.0),
-                FloatingActionButton.extended(
-                  backgroundColor: Colors.white,
-                  onPressed: _uploadFile,
-                  label: const Text("Upload file",
-                      style: TextStyle(color: Colors.blue)),
-                  icon: const Icon(Icons.upload_file, color: Colors.blue),
-                ),
-              ],
-            ),
+                  //if (i < listFolder.length - 1)
+                  const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
+                ],
+            ],
           ),
-        Positioned(
-          bottom: 16.0,
-          right: 16.0,
-          child: FloatingActionButton(
-            backgroundColor: Colors.white,
-            onPressed: _toggleOptions,
-            child: Icon(
-              _showOptionsAdd ? Icons.close : Icons.add,
-              color: Colors.blue,
-            ),
+
+          // Danh sách file và folder
+          Expanded(
+            child: _buildFolderAndFileList(),
           ),
-        ),
-      ],
+
+          // Nút thêm (Create Folder, Upload File)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FloatingActionButton.extended(
+                        backgroundColor: Colors.white,
+                        onPressed: _showCreateFolderDialog,
+                        label: const Text(
+                          "Create folder",
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                        icon: const Icon(Icons.create_new_folder,
+                            color: Colors.blue),
+                      ),
+                      const SizedBox(height: 8.0),
+                      FloatingActionButton.extended(
+                        backgroundColor: Colors.white,
+                        onPressed: uploadFile,
+                        label: const Text("Upload file",
+                            style: TextStyle(color: Colors.blue)),
+                        icon: const Icon(Icons.upload_file, color: Colors.blue),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.end,
+          //     children: [
+          //       FloatingActionButton(
+          //         backgroundColor: Colors.white,
+          //         onPressed: _toggleOptions,
+          //         child: Icon(
+          //           _showOptionsAdd ? Icons.close : Icons.add,
+          //           color: Colors.blue,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFolderAndFileList() {
+    return FutureBuilder(
+      future: Future.wait([_fetchFolders(), _fetchFiles()]),
+      builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text("Error: ${snapshot.error}"));
+        }
+
+        if (snapshot.hasData) {
+          final folders = snapshot.data![0] as List<Folder>;
+          final files = snapshot.data![1] as List<FileModel>;
+
+          return ListView(
+            //padding: const EdgeInsets.all(16.0),
+            children: [
+              ...folders.map((folder) => Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              color: Colors.blue, width: 0.5)), // Bo viền dưới
+                    ),
+                    child: ListTile(
+                      leading: const Icon(Icons.folder, color: Colors.blue),
+                      title: Text(folder.name),
+                      onTap: () {
+                        setState(() {
+                          currentFolderId = folder.id;
+                          print(currentFolderId);
+                          listFolderNavi.add(folder);
+                          print(listFolderNavi);
+                        });
+                      },
+                    ),
+                  )),
+              ...files.map((file) => Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              color: Colors.blue, width: 0.5)), // Bo viền dưới
+                    ),
+                    child: ListTile(
+                      leading: const Icon(Icons.insert_drive_file,
+                          color: Colors.grey),
+                      title: Text(file.name),
+                      onTap: () async {
+                        String filePath = file.downloadUrl;
+                        try {
+                          await OpenFile.open(filePath);
+                        } catch (e) {
+                          print('Error opening file: $e');
+                        }
+                      },
+                    ),
+                  )),
+            ],
+          );
+        }
+
+        return const Center(child: Text("No files or folders found."));
+      },
     );
   }
 }
