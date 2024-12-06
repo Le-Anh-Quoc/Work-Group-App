@@ -1,14 +1,14 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
-//import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-//import 'package:ruprup/conference_screen.dart';
 import 'package:ruprup/models/project/activityProject_model.dart';
-import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/providers/channel_provider.dart';
+import 'package:ruprup/providers/meeting_provider.dart';
+import 'package:ruprup/providers/project_provider.dart';
+import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/routes.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
 import 'package:ruprup/services/user_notification.dart';
@@ -24,20 +24,8 @@ Future main() async {
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(
-        create: (context) => Project(
-          projectId: '1', // Thay thế bằng giá trị thực tế nếu cần
-          groupId: 'group1',
-          projectName: 'Project 1',
-          description: 'Description of Project 1',
-          startDate: DateTime.now(),
-          ownerId: 'ownerId', // Thay thế bằng ID thực tế
-          memberIds: [
-            'memberId1',
-            'memberId2'
-          ], // Thay thế bằng danh sách ID thực tế
-        ),
-      ),
+      ChangeNotifierProvider(create: (_) => UserProvider()),
+      ChangeNotifierProvider(create: (_) => ProjectProvider()),
       ChangeNotifierProvider(
         create: (context) => Task(
             taskId: 'taskId', // Thay thế bằng ID thực tế
@@ -60,8 +48,12 @@ Future main() async {
               timestamp: DateTime.now())),
       ChangeNotifierProvider(
           create: (context) => UserModel(
-              userId: '12', fullname: '22', email: 'leanhquocit@gmail.com', pushToken: '')),
+              userId: '12',
+              fullname: '22',
+              email: 'leanhquocit@gmail.com',
+              pushToken: '')),
       ChangeNotifierProvider(create: (_) => ChannelProvider()),
+      ChangeNotifierProvider(create: (_) => MeetingProvider()),
       // Các Provider khác nếu có
     ],
     child: const MyApp(),
