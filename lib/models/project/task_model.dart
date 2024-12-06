@@ -182,15 +182,15 @@ class Task extends ChangeNotifier {
     }
   }
 
-  Future<String> countTaskInProgressMe(String currentUserId) async {
-    final equal = await _taskService.getAllTasksForCurrentUser(currentUserId, TaskStatus.inProgress);
+  Future<String> countTaskInProgressMe(String currentUserId, String idProject) async {
+    final equal = await _taskService.getAllTasksForCurrentUser(idProject, currentUserId, TaskStatus.inProgress);
     return equal.length.toString();
   }
 
   // lấy danh sách task (không loc theo project)
-  Future<void> fetchTasksInProgressMe(String currentUserId) async {
+  Future<void> fetchTasksInProgressMe(String currentUserId, String idProject) async {
     try {
-      _tasksInProgressMe = await _taskService.getAllTasksForCurrentUser(currentUserId, TaskStatus.inProgress, limit: 4);
+      _tasksInProgressMe = await _taskService.getAllTasksForCurrentUser(idProject, currentUserId, TaskStatus.inProgress, limit: 4);
       notifyListeners();
     } catch (e) {
       print('Error fetching tasks: $e');

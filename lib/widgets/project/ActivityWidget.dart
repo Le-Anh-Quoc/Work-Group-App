@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:ruprup/models/project/activityProject_model.dart';
 import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
+import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/task/TaskDetailScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 
@@ -88,7 +89,7 @@ class _ActivityWidgetState extends State<ActivityWidget> {
   @override
   Widget build(BuildContext context) {
     Project? currentProject =
-        Provider.of<Project>(context, listen: false).currentProject;
+        Provider.of<ProjectProvider>(context, listen: false).currentProject;
     return GestureDetector(
       onTap: () async {
         final Task? task = await Provider.of<Task>(context, listen: false)

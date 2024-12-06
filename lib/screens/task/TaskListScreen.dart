@@ -173,7 +173,7 @@ class _TaskListScreenState extends State<TaskListScreen>
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.group_outlined,
+                            Icon(Icons.groups_outlined,
                                 size: 30, color: Colors.blue),
                             SizedBox(width: 5),
                             Text('Team', style: TextStyle(color: Colors.blue))

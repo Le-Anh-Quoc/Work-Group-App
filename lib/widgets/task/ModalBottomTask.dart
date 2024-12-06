@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
+import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/task/TaskDetailScreen.dart';
 import 'package:ruprup/widgets/task/AssignPersonWidget.dart';
 import 'package:ruprup/widgets/task/DifficultyWidget.dart';
@@ -158,7 +159,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
 
   void _createOrUpdateTask() async {
     Project? currentProject =
-        Provider.of<Project>(context, listen: false).currentProject;
+        Provider.of<ProjectProvider>(context, listen: false).currentProject;
     
     if (currentProject == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -208,7 +209,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
   @override
   Widget build(BuildContext context) {
     Project? currentProject =
-        Provider.of<Project>(context, listen: false).currentProject;
+        Provider.of<ProjectProvider>(context, listen: false).currentProject;
     return Container(
       height: 700, // Chiều cao tùy chỉnh cho BottomModalSheet
       padding: EdgeInsets.only(

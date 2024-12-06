@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:ruprup/const.dart';
+import 'package:ruprup/const_meeting.dart';
 import 'package:ruprup/models/channel/meeting_model.dart';
 import 'package:ruprup/services/meeting_service.dart';
 import 'package:zego_uikit_prebuilt_video_conference/zego_uikit_prebuilt_video_conference.dart';

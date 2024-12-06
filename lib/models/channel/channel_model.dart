@@ -1,7 +1,7 @@
 class Channel {
   late final String channelId;
   final String groupChatId;
-  final String projectId;
+  final List<String> projectId;
   final String channelName;
   final String adminId;
   final List<String> memberIds;
@@ -22,7 +22,7 @@ class Channel {
     return {
       'channelId': channelId,
       'groupChatId': groupChatId,
-      'projectId': projectId,
+      'projectIds': projectId,
       'channelName': channelName,
       'adminId': adminId,
       'memberIds': memberIds,
@@ -36,7 +36,7 @@ class Channel {
     return Channel(
       channelId: map['channelId'] ?? '',
       groupChatId: map['groupChatId'] ?? '',
-      projectId: map['projectId'] ?? '',
+      projectId: List<String>.from(map['projectId'] ?? []),
       channelName: map['channelName'] ?? '',
       adminId: map['adminId'] ?? '',
       memberIds: List<String>.from(map['memberIds'] ?? []),

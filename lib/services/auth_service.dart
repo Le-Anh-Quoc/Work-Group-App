@@ -15,19 +15,25 @@ class AuthService {
       FirebaseFirestore.instance.collection('users');
   // đăng nhập
   
-  Future<User?> logIn(String email, String password) async {
+  Future<UserModel?> logIn(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      User? user = userCredential.user;
+      //User? user = userCredential.user;
 
-      if (user != null) {
+      // Lấy thông tin người dùng từ Firestore
+      DocumentSnapshot userDoc = await _firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (userDoc.exists) {
         await FirebaseAPI().getFirebaseMessagingToken();
         print("Login Successful");
-        return user;
+        return UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
       } else {
         // Thông báo đăng nhập thất bại
         print("Login Failed");

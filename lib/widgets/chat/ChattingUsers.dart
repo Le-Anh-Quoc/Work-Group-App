@@ -24,6 +24,23 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
   final ChatService _chatService = ChatService();
   String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
+  Color getColorFromCreatedAt(DateTime createdAt) {
+    // Danh sách 7 màu sắc cầu vồng
+    final List<Color> rainbowColors = [
+      Colors.red.shade300,
+      Colors.orange.shade300,
+      Colors.yellow.shade300,
+      Colors.green.shade300,
+      Colors.blue.shade300,
+      Colors.indigo.shade300,
+      Colors.purple.shade300,
+    ];
+
+    // Chuyển `createdAt` thành chỉ số trong khoảng từ 0 đến 6
+    final index = createdAt.millisecondsSinceEpoch % rainbowColors.length;
+    return rainbowColors[index];
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Map<String, dynamic>>(
@@ -66,10 +83,15 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        backgroundImage:
-                            NetworkImage('${widget.roomChat.imageUrl}'),
-                      ),
+                      if (widget.roomChat.imageUrl == null)
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundColor: getColorFromCreatedAt(createAt),
+                          child: const Icon(
+                            Icons.groups,
+                            color: Colors.white,
+                          ),
+                        ),
                       const SizedBox(width: 20),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,15 +131,15 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
                         style: TextStyle(fontSize: 15, color: Colors.grey[400]),
                       ),
                       const SizedBox(height: 4),
-                      if (4 > 0)
-                        const CircleAvatar(
-                          radius: 12,
-                          backgroundColor: Colors.red,
-                          child: Text(
-                            '4',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        ),
+                      // if (4 > 0)
+                      //   const CircleAvatar(
+                      //     radius: 12,
+                      //     backgroundColor: Colors.red,
+                      //     child: Text(
+                      //       '4',
+                      //       style: TextStyle(color: Colors.white, fontSize: 12),
+                      //     ),
+                      //   ),
                     ],
                   ),
                 ],

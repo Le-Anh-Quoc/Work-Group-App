@@ -106,27 +106,42 @@ class TaskService {
 
   // 6. Lấy tất cả các Task của người dùng hiện tại không theo projectId
   Future<List<Task>> getAllTasksForCurrentUser(
-      String currentUserId, TaskStatus status,
+      String idProject, String currentUserId, TaskStatus status,
       {int? limit}) async {
     final String sStatus =
         status.name; // Chuyển thành kiểu String để truyền vào so sánh
     List<Task> allTasks = []; // Danh sách để lưu tất cả các nhiệm vụ
 
-    // Lấy danh sách tất cả các project (hoặc có thể là các project cụ thể mà người dùng có quyền truy cập)
-    final projectSnapshot = await _firestore.collection(parentCollection).get();
+    if (idProject == 'All') {
+      final projectSnapshot =
+          await _firestore.collection(parentCollection).get();
 
-    // Duyệt qua từng project để lấy nhiệm vụ
-    for (var projectDoc in projectSnapshot.docs) {
-      // Truy vấn các nhiệm vụ trong subcollection của từng project
-      var query = projectDoc.reference
+      // Duyệt qua từng project để lấy nhiệm vụ
+      for (var projectDoc in projectSnapshot.docs) {
+        // Truy vấn các nhiệm vụ trong subcollection của từng project
+        var query = projectDoc.reference
+            .collection(collection)
+            .where('status', isEqualTo: sStatus)
+            .where('assigneeIds', arrayContains: currentUserId);
+
+        final taskSnapshot = await query.get();
+
+        // Thêm các nhiệm vụ vào danh sách
+        allTasks
+            .addAll(taskSnapshot.docs.map((doc) => Task.fromMap(doc.data())));
+      }
+    } else {
+      final projectSnapshot = await _firestore
+          .collection(parentCollection)
+          .doc(idProject)
           .collection(collection)
           .where('status', isEqualTo: sStatus)
-          .where('assigneeIds', arrayContains: currentUserId);
-
-      final taskSnapshot = await query.get();
+          .where('assigneeIds', arrayContains: currentUserId)
+          .get();
 
       // Thêm các nhiệm vụ vào danh sách
-      allTasks.addAll(taskSnapshot.docs.map((doc) => Task.fromMap(doc.data())));
+      allTasks
+          .addAll(projectSnapshot.docs.map((doc) => Task.fromMap(doc.data())));
     }
 
     // Sắp xếp các nhiệm vụ theo dueDate (giả sử dueDate là thuộc tính kiểu DateTime của Task)

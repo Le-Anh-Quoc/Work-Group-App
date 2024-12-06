@@ -1,6 +1,8 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, file_names
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/screens/authentication/SignUpScreen.dart';
 import 'package:ruprup/screens/MainScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
@@ -33,6 +35,9 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() {
             isLoading = false;
           });
+
+          Provider.of<UserProvider>(context, listen: false).setUser(user);
+          
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const MainScreen(selectedIndex: 0)),
@@ -141,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: const Text(
                             "Forgot password?",
                             style: TextStyle(
-                                color: Colors.red, fontWeight: FontWeight.bold),
+                                color: Colors.black, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
