@@ -66,6 +66,8 @@ dependencies:
   googleapis: ^13.2.0
   googleapis_auth: ^1.6.0
   flutter_local_notifications: ^18.0.1
+  url_launcher: ^6.3.1
+  open_file: ^3.5.10
 dev_dependencies:
   flutter_test:
     sdk: flutter
