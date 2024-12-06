@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project/project_model.dart';
+import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 
 class ChildProjectWidget extends StatelessWidget {
@@ -17,7 +18,7 @@ class ChildProjectWidget extends StatelessWidget {
       padding: const EdgeInsets.only(right: 16.0),
       child: GestureDetector(
         onTap: () {
-          Provider.of<Project>(context, listen: false)
+          Provider.of<ProjectProvider>(context, listen: false)
               .setCurrentProject(project);
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -26,7 +27,7 @@ class ChildProjectWidget extends StatelessWidget {
           );
         },
         child: Container(
-                //height: 120,
+                height: 110,
                 width: 140,
                 decoration: BoxDecoration(
                   color: Colors.white,

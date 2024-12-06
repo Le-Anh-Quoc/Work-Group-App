@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/project/project_model.dart';
+import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
@@ -21,7 +22,7 @@ class ProjectWidget extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16),
       child: GestureDetector(
         onTap: () {
-          Provider.of<Project>(context, listen: false)
+          Provider.of<ProjectProvider>(context, listen: false)
               .setCurrentProject(project);
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -51,6 +52,7 @@ class ProjectWidget extends StatelessWidget {
                   offset: const Offset(0, 4), // Đặt bóng nhẹ nhàng phía dưới
                 ),
               ],
+              border: Border.all(width: 1, color: Colors.blue)
             ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),

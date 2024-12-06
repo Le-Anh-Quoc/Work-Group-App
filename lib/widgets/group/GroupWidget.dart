@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/channel/channel_model.dart';
@@ -15,94 +14,72 @@ class GroupWidget extends StatelessWidget {
     required this.channel,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    // Danh sách mẫu các hình ảnh
-    final List<String> allMemberImages = [
-      'https://randomuser.me/api/portraits/men/1.jpg',
-      'https://randomuser.me/api/portraits/men/2.jpg',
-      'https://randomuser.me/api/portraits/men/3.jpg',
-      'https://randomuser.me/api/portraits/women/1.jpg',
-      'https://randomuser.me/api/portraits/women/2.jpg',
-      'https://randomuser.me/api/portraits/women/3.jpg',
+  Color getColorFromCreatedAt(DateTime createdAt) {
+    // Danh sách 7 màu sắc cầu vồng
+    final List<Color> rainbowColors = [
+      Colors.red.shade300,
+      Colors.orange.shade300,
+      Colors.yellow.shade700,
+      Colors.green.shade300,
+      Colors.blue.shade300,
+      Colors.indigo.shade300,
+      Colors.purple.shade300,
     ];
 
-    final random = Random();
-    final shuffledImages = List<String>.from(allMemberImages)..shuffle(random);
-    final displayedImages = shuffledImages.take(4).toList(); // Lấy tối đa 4 ảnh ngẫu nhiên
+    // Chuyển `createdAt` thành chỉ số trong khoảng từ 0 đến 6
+    final index = createdAt.millisecondsSinceEpoch % rainbowColors.length;
+    return rainbowColors[index];
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.read<ChannelProvider>().setChannel(channel);
-        
+        Provider.of<ChannelProvider>(context, listen: false)
+            .setChannel(channel);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => GroupScreen(channelId: channel.channelId, channelName: channel.channelName),
+            builder: (context) => const GroupScreen(),
           ),
         );
       },
       child: Container(
         padding: const EdgeInsets.all(16.0),
-        constraints: const BoxConstraints(
-          minHeight: 150, // Đặt chiều cao tối thiểu
-        ),
         decoration: BoxDecoration(
           color: Colors.white, // Đặt màu nền là trắng
           borderRadius: BorderRadius.circular(12.0), // Bo tròn các góc
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5), // Màu sắc bóng
-              spreadRadius: 1, // Độ lan tỏa của bóng
-              blurRadius: 5, // Độ mờ của bóng
+              spreadRadius: 2, // Độ lan tỏa của bóng
+              blurRadius: 10, // Độ mờ của bóng
               offset: const Offset(0, 3), // Vị trí của bóng (x,y)
             ),
           ],
+          //border: Border.all(width: 0.5),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(displayedImages[0]),
-                  radius: 22,
-                ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundImage: NetworkImage(displayedImages[1]),
-                  radius: 22,
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 45,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.blue, width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '+${displayedImages.length - 3}',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            CircleAvatar(
+              radius: 25,
+              backgroundColor: getColorFromCreatedAt(channel.createdAt),
+              child: const Icon(
+                Icons.groups,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              channel.channelName, // Sử dụng channelName từ đối tượng channel
-              style: const TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                channel.channelName, // Sử dụng channelName từ đối tượng channel
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

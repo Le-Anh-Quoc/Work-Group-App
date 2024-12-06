@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
 import 'package:intl/intl.dart';
+import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/task/TaskDetailScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
@@ -107,7 +108,7 @@ class _TaskWidgetState extends State<TaskWidget> {
   @override
   Widget build(BuildContext context) {
     Project? currentProject =
-        Provider.of<Project>(context, listen: false).currentProject;
+        Provider.of<ProjectProvider>(context, listen: false).currentProject;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Slidable(
