@@ -1,2 +1,0 @@
-const appId = 1041050876;
-const appSign = "4692c4b07067906ef3a2f5f67a030af83eee3e2b03ac086903670d1d4634edc6";
