@@ -28,8 +28,33 @@ class MeetingService {
           .doc(channelId)
           .collection('meetings')
           .snapshots() // Lắng nghe dữ liệu liên tục
-          .map((snapshot) =>
-              snapshot.docs.map((doc) => Meeting.fromMap(doc.data())).toList());
+          .map((snapshot) {
+        // Chuyển dữ liệu từ Firestore sang danh sách Meeting
+        final meetings =
+            snapshot.docs.map((doc) => Meeting.fromMap(doc.data())).toList();
+
+        // Sắp xếp danh sách dựa trên status và startTime
+        meetings.sort((a, b) {
+          const statusOrder = {
+            MeetingStatus.ongoing: 0,
+            MeetingStatus.upcoming: 1,
+            MeetingStatus.ended: 2,
+          };
+
+          // So sánh theo status trước
+          final statusComparison =
+              statusOrder[a.status]!.compareTo(statusOrder[b.status]!);
+
+          // Nếu status giống nhau, so sánh theo startTime
+          if (statusComparison == 0) {
+            return a.startTime.compareTo(b.startTime);
+          }
+
+          return statusComparison;
+        });
+
+        return meetings;
+      });
     } catch (e) {
       print("Error fetching meetings: $e");
       return const Stream.empty(); // Trả về Stream rỗng nếu có lỗi
@@ -75,7 +100,8 @@ class MeetingService {
     }
   }
 
-  Future<bool> addParticipant(String channelId, String meetingId, String userId) async {
+  Future<bool> addParticipant(
+      String channelId, String meetingId, String userId) async {
     try {
       // Truy vấn để tìm tài liệu có trường meetingId khớp với giá trị truyền vào
       final querySnapshot = await _firestore
@@ -114,6 +140,130 @@ class MeetingService {
     } catch (e) {
       print('Lỗi khi thêm người dùng vào danh sách participants: $e');
       throw Exception('Không thể thêm người dùng vào danh sách tham gia.');
+    }
+  }
+
+  Future<bool> updateMeetingStatus(
+      String channelId, String meetingId, MeetingStatus newStatus) async {
+    try {
+      // Lấy tất cả các tài liệu trong collection 'meetings' thuộc 'channel'
+      // với điều kiện meetingId khớp
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('channel')
+          .doc(channelId)
+          .collection('meetings')
+          .where('meetingId', isEqualTo: meetingId)
+          .get();
+
+      // Nếu tìm thấy ít nhất một tài liệu
+      if (querySnapshot.docs.isNotEmpty) {
+        // Lấy tài liệu đầu tiên (trường hợp meetingId là duy nhất)
+        final doc = querySnapshot.docs.first;
+
+        // Cập nhật trường 'status'
+        await FirebaseFirestore.instance
+            .collection('channel')
+            .doc(channelId)
+            .collection('meetings')
+            .doc(doc.id)
+            .update({'status': newStatus.toString().split('.').last});
+
+        return true;
+      } else {
+        // Nếu không tìm thấy tài liệu
+        print('Meeting not found.');
+        return false;
+      }
+    } catch (e) {
+      print('Error updating meeting status: $e');
+      return false;
+    }
+  }
+
+  Future<List<Meeting>> getUpcomingMeetings(List<String> channelIds) async {
+    try {
+      final List<Meeting> allMeetings = [];
+      final currentDateTime = DateTime.now();
+
+      // Lấy dữ liệu từ từng kênh
+      for (final channelId in channelIds) {
+        final snapshots = await _firestore
+            .collection('channel')
+            .doc(channelId)
+            .collection('meetings')
+            .get();
+
+        final meetings =
+            snapshots.docs.map((doc) => Meeting.fromMap(doc.data())).toList();
+
+        allMeetings.addAll(meetings); // Gộp tất cả các cuộc họp
+      }
+
+      // Lọc theo trạng thái upcoming
+      final upcomingMeetings = allMeetings
+          .where((meeting) =>
+              meeting.status == MeetingStatus.upcoming &&
+              meeting.startTime.isAfter(currentDateTime))
+          .toList();
+
+      // Sắp xếp theo startTime (tăng dần)
+      upcomingMeetings.sort((a, b) => a.startTime.compareTo(b.startTime));
+
+      // Lấy 2 cuộc họp đầu tiên
+      final recentUpcomingMeetings = upcomingMeetings.take(2).toList();
+
+      return recentUpcomingMeetings; // Trả về danh sách
+    } catch (e) {
+      print("Error fetching upcoming meetings: $e");
+      return []; // Trả về danh sách rỗng nếu lỗi
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getMeetingByDayWithChannelNames(
+      DateTime selectedDate, List<String> channelIds) async {
+    try {
+      final List<Map<String, dynamic>> meetingsWithChannelNames = [];
+
+      for (final channelId in channelIds) {
+        // Lấy thông tin của channel
+        final channelSnapshot =
+            await _firestore.collection('channel').doc(channelId).get();
+
+        if (!channelSnapshot.exists) continue;
+
+        final channelName =
+            channelSnapshot.data()?['channelName'] ?? 'Unknown Channel';
+
+        // Lấy danh sách các cuộc họp trong channel
+        final snapshots = await _firestore
+            .collection('channel')
+            .doc(channelId)
+            .collection('meetings')
+            .get();
+
+        final meetings = snapshots.docs.map((doc) {
+          final meeting = Meeting.fromMap(doc.data());
+          return {
+            'meeting': meeting,
+            'channelName': channelName, // Gắn tên channel vào mỗi meeting
+          };
+        }).toList();
+
+        meetingsWithChannelNames.addAll(meetings);
+      }
+
+      // Lọc các cuộc họp theo ngày
+      final filteredMeetings = meetingsWithChannelNames.where((entry) {
+        final meeting = entry['meeting'] as Meeting;
+        return meeting.startTime.year == selectedDate.year &&
+            meeting.startTime.month == selectedDate.month &&
+            meeting.startTime.day == selectedDate.day;
+      }).toList();
+
+      return filteredMeetings;
+    } catch (e) {
+      print("Error fetching meetings with channel names by date: $e");
+      return []; // Trả về danh sách rỗng nếu lỗi
     }
   }
 }

@@ -12,7 +12,7 @@ class ChannelService {
     Channel newChannel = Channel(
       channelId: '', // Sẽ tự sinh ID
       groupChatId: groupChatId, // ID của group liên kết với channel
-      projectId: '',
+      projectId: [],
       channelName: roomChat.nameRoom, // Sử dụng tên phòng từ roomChat
       adminId: roomChat.userIds[0], // Giả định người đầu tiên là admin
       memberIds: roomChat.userIds
