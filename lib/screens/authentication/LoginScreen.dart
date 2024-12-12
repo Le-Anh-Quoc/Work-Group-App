@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/providers/user_provider.dart';
+import 'package:ruprup/screens/authentication/ResetPasswordScreen.dart';
 import 'package:ruprup/screens/authentication/SignUpScreen.dart';
 import 'package:ruprup/screens/MainScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
@@ -37,10 +38,11 @@ class _LoginScreenState extends State<LoginScreen> {
           });
 
           Provider.of<UserProvider>(context, listen: false).setUser(user);
-          
+
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const MainScreen(selectedIndex: 0)),
+            MaterialPageRoute(
+                builder: (_) => const MainScreen(selectedIndex: 0)),
           );
         } else {
           setState(() {
@@ -141,23 +143,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         TextButton(
                           onPressed: () {
-                            // Add functionality for forgot password
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const ResetPasswordScreen(),
+                              ),
+                            );
                           },
                           child: const Text(
-                            "Forgot password?",
+                            "Forgot password ?",
                             style: TextStyle(
-                                color: Colors.black, fontWeight: FontWeight.bold),
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    //const SizedBox(height: 10),
                     ButtonWidget(nameButton: "Log in", onTap: _handleLogin),
                     const SizedBox(height: 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Don't have an account? "),
+                        const Text("Don't have an account? ", style: TextStyle(color: Colors.grey),),
                         GestureDetector(
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(

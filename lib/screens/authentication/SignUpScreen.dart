@@ -44,7 +44,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields correctly')),
       );
-      
     }
   }
 
@@ -54,7 +53,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(40.0),
+          padding: const EdgeInsets.fromLTRB(40, 40, 40, 0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -70,7 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       image: const DecorationImage(
                         image: NetworkImage(
                             'https://www.workingskills.net/wp-content/plugins/profilegrid-user-profiles-groups-and-communities/public/partials/images/default-group.png'), // Hình ảnh logo ngẫu nhiên
-                        fit: BoxFit.cover, // Chỉnh kích thước hình ảnh phù hợp với container
+                        fit: BoxFit
+                            .cover, // Chỉnh kích thước hình ảnh phù hợp với container
                       ),
                     ),
                   ),
@@ -139,10 +139,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   children: [
                     const Text("Already have an account? "),
                     GestureDetector(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const LoginScreen(),
-                        ),
+                      onTap: () => Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        (Route<dynamic> route) => false,
                       ),
                       child: const Text(
                         "Log in",
