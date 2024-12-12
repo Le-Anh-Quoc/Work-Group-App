@@ -1,4 +1,6 @@
-// ignore_for_file: file_names, avoid_print, prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
+// // ignore_for_file: file_names, avoid_print, prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
+
+import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/screens/group/EventCalendarScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
+import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/project/ChildProjectWidget.dart';
@@ -429,3 +432,75 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 }
+
+// class _HomeScreenState extends State<HomeScreen> {
+//   DateTime? _selectedDateTime;
+
+//   Future<void> _pickDateTime(BuildContext context) async {
+//     // Chọn ngày
+//     DateTime? pickedDate = await showDatePicker(
+//       context: context,
+//       initialDate: DateTime.now(),
+//       firstDate: DateTime(2000),
+//       lastDate: DateTime(2100),
+//     );
+
+//     if (pickedDate == null) return; // Người dùng hủy chọn ngày
+
+//     // Chọn thời gian
+//     TimeOfDay? pickedTime = await showTimePicker(
+//       context: context,
+//       initialTime: TimeOfDay.now(),
+//     );
+
+//     if (pickedTime == null) return; // Người dùng hủy chọn giờ
+   
+
+//     log("pickedTime" + pickedTime.hour.toString());
+//     log("_pickDateTime" + pickedDate.year.toString());
+//     // Kết hợp ngày và giờ
+//    DateTime  selectedDateTime = DateTime(
+//       pickedDate.year,
+//       pickedDate.month,
+//       pickedDate.day,
+//       pickedTime.hour,
+//       pickedTime.minute,
+//     );
+
+//     setState(() {
+//       _selectedDateTime = selectedDateTime;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text("Timer Picker Example")),
+//       body: Center(
+//         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+//           Text(
+//             _selectedDateTime != null
+//                 ? "Selected DateTime: $_selectedDateTime"
+//                 : "No DateTime selected",
+//           ),
+//           SizedBox(height: 20),
+//           ElevatedButton(
+//             onPressed: () async {
+//               await _pickDateTime(context);
+//               if (_selectedDateTime != null) {
+//                 print('Tạo thông báo tại thời điểm đã chọn');
+//                 FirebaseAPI().scheduleNotification(
+//                     title: 'Scheduled Notification',
+//                     body: '$_selectedDateTime',
+//                     scheduledTime: _selectedDateTime,
+//                     );
+//                 print(_selectedDateTime);
+//               }
+//             },
+//             child: Text("Pick & Schedule Notification"),
+//           ),
+//         ]),
+//       ),
+//     );
+//   }
+// }

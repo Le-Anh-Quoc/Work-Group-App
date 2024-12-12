@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/message_model.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/services/user_service.dart';
 //import 'package:ruprup/services/user_notification.dart';
@@ -11,12 +15,6 @@ import 'package:ruprup/services/user_service.dart';
 class ChatService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   FirebaseAuth  get _auth => FirebaseAuth.instance;
-  String name = '';
-  
-  // Future<void> _fetchUserFullName() async {
-  //   _fullName = await UserService().getCurrentUserFullName();
-  // }
-  
   Stream<List<MessageModel>> getMessages(String chatId) {
     return _db
         .collection('chats')
@@ -61,12 +59,14 @@ class ChatService {
       'timestamp': Timestamp.fromMillisecondsSinceEpoch(message.timestamp),
     }, SetOptions(merge: true));
 
-
+    DocumentSnapshot userDoc = await _db.collection('users').doc(_auth.currentUser!.uid).get();
+    String name= userDoc['fullname'];
+    print('ten nguoi dung hien tai $name');
     List<String> pushTokens = userModels.values
         .map((user) => user.pushToken)
-        .where((token) => token.isNotEmpty)
+        .where((token) => token.isNotEmpty) 
         .toList();
-    print(pushTokens);
+      print(pushTokens);
     if (pushTokens.isNotEmpty) {
       for (String pushToken in pushTokens) {
         await FirebaseAPI().sendPushNotification(pushToken, message.content,name);
@@ -76,6 +76,25 @@ class ChatService {
 
   // Hàm lấy tin nhắn mới nhất từ tài liệu của cuộc trò chuyện
   Stream<Map<String, dynamic>> getLastMessageStream(String chatId) {
+    return _db.collection('chats').doc(chatId).snapshots().map((snapshot) {
+      if (snapshot.exists) {
+        String? lastMessage = snapshot.get('lastMessage') as String?;
+        List<dynamic> userIds = snapshot.get('userIds') as List<dynamic>;
+        String nameRoom = snapshot.get('nameRoom');
+        int createAt = snapshot.get('createAt');
+        Timestamp lassTimeMessage= snapshot.get('timestamp');
+        return {
+          'lastMessage': lastMessage,
+          'userIds': userIds,
+          'createAt': createAt,
+          'nameRoom': nameRoom,
+          'timestamp':lassTimeMessage,
+        };
+      }
+      return {};
+    });
+  }
+  Stream<Map<String, dynamic>> getLastTimeChat(String chatId) {
     return _db.collection('chats').doc(chatId).snapshots().map((snapshot) {
       if (snapshot.exists) {
         String? lastMessage = snapshot.get('lastMessage') as String?;
@@ -223,3 +242,5 @@ class ChatService {
     });
   }
 }
+
+

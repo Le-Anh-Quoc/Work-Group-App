@@ -144,6 +144,8 @@ class UserService {
         });
         print('Friend request sent.');
         return true; // Thành công
+        
+
       } else {
         print("Friend request already exists.");
         return false; // Đã tồn tại

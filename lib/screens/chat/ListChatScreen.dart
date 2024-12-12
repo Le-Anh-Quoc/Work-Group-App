@@ -72,7 +72,7 @@ class _ListChatScreenState extends State<ListChatScreen>
           chatResults.sort((a, b) {
             int aTime = a.createAt;
             int bTime = b.createAt;
-            return (bTime).compareTo(aTime);
+            return (aTime).compareTo(bTime);
           });
 
           return chatResults.isEmpty

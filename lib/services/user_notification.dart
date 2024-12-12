@@ -3,33 +3,25 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
-
-//import 'package:googleapis/servicecontrol/v1.dart' as serviceControl;
-import 'package:googleapis/adsense/v2.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
+// ignore: depend_on_referenced_packages
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-//import 'package:path/path.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:http/http.dart' as http;
 class FirebaseAPI {
   static FirebaseAuth  get _auth => FirebaseAuth.instance;
   static User get user => _auth.currentUser!;
    final FirebaseFirestore _db = FirebaseFirestore.instance;
-  static UserModel me= UserModel(
-    userId: user.uid, 
-    fullname: user.displayName!, 
-    email:user.email! , 
-    pushToken: '',
-    );
+  
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+       
   FirebaseMessaging fMessaging = FirebaseMessaging.instance;
   Future<void> getFirebaseMessagingToken() async {
     await fMessaging.requestPermission();
@@ -115,17 +107,18 @@ class FirebaseAPI {
   Future<void> initNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-
+    
     final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
     );
-
+    tz.initializeTimeZones();
       await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
         // Xử lý khi người dùng nhấn vào thông báo
         print("Notification clicked with payload: ${response.payload}");
       },
+      
     );
 
     await fMessaging.requestPermission(
@@ -163,7 +156,7 @@ class FirebaseAPI {
       }
     });
   }
-   Future<void> showNotification(RemoteMessage message) async {
+  Future<void> showNotification(RemoteMessage message) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'your_channel_id',
@@ -183,36 +176,45 @@ class FirebaseAPI {
       payload: 'payload data', // dữ liệu đính kèm có thể xử lý khi click vào thông báo
     );
   }
-  Future scheduleNotification({
-    int id=0,
-    required String? title, 
-    required String? body ,
-    String? payload,
-    required DateTime eventTime}) async {
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'calendar_channel',
-        'Calendar Notifications',
-        importance: Importance.high,
-        priority: Priority.high,
-      );
-      const NotificationDetails platformDetails = NotificationDetails(
-        android: androidDetails,
-      );
-
-  // Tính thời gian trước sự kiện 
-  final scheduledTime = eventTime.subtract(Duration(minutes: 30));
-  await flutterLocalNotificationsPlugin.zonedSchedule(
-    id, // ID thông báo
-    'Reminder: $title',
-    body,
-    tz.TZDateTime.from(
-      scheduledTime,
-      tz.local
-    ), // Thời gian theo múi giờ
-    await NotificationDetails(),
-    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
-  );
-}
+  
+  Future<void> scheduleNotification(
+    // String? title,
+    // String? body,
+    // DateTime? scheduledTime,
+    {int id =0,
+    String? title,
+    String? body,
+    String? payLoad,
+    DateTime? scheduledTime}
+  ) async {
+    
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'your_channel_id',
+      'your_channel_name',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+    // Lên lịch thông báo
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id, // ID của thông báo
+      title,
+      body,
+      tz.TZDateTime.from(scheduledTime!, tz.local),
+      //tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+      platformChannelSpecifics,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+   
+    );
+    print("da thong bao");
+  }
+  // cancelAllNotifications() {
+  //   flutterLocalNotificationsPlugin.cancelAll();
+  // }
 }

@@ -5,9 +5,10 @@ import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/widgets/notification/ButtonInvite.dart';
 
 class NotificationWidget extends StatelessWidget {
+  final String body; // dùng để hiển thị nội dung thông báo
   final String notificationTypeString; // Biến này là để nhận giá trị từ Firebase
   late final NotificationType notificationType;
-  NotificationWidget({super.key, required this.notificationTypeString}) {
+  NotificationWidget({super.key,required this.body, required this.notificationTypeString}) {
     notificationType = NotificationTypeExtension.fromString(notificationTypeString);
   }
 
@@ -42,8 +43,8 @@ class NotificationWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Nội dung thông báo
-                    const Text(
-                      'John Doe đã gửi cho bạn một lời mời kết bạn!',
+                    Text(
+                      body,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -78,7 +79,17 @@ class NotificationWidget extends StatelessWidget {
 
 Widget _buildIcon(NotificationType type) {
   switch (type) {
-    case NotificationType.friend || NotificationType.friendInvite:
+    case NotificationType.friendInvite:
+      return const SizedBox(
+        width: 50,
+        height: 50,
+        child: CircleAvatar(
+          backgroundImage:
+              NetworkImage('https://picsum.photos/200/300?random=2'),
+          //radius: 25,
+        ),
+      );
+      case NotificationType.friend:
       return const SizedBox(
         width: 50,
         height: 50,
@@ -100,23 +111,6 @@ Widget _buildIcon(NotificationType type) {
           padding: const EdgeInsets.all(8),
           child: const Icon(
             Icons.group_outlined, // Icon cho nhóm
-            color: Colors.blue,
-            size: 25,
-          ),
-        ),
-      );
-      case NotificationType.groupMeeting:
-      return SizedBox(
-        width: 50,
-        height: 50,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.lightBlue.shade100, // Nền xanh nhạt
-          ),
-          padding: const EdgeInsets.all(8),
-          child: const Icon(
-            Icons.videocam_outlined, // Icon cho cuộc họp meeting
             color: Colors.blue,
             size: 25,
           ),

@@ -1,11 +1,54 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/services/user_service.dart';
 
 class NotificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   UserService user = UserService();
+  //Gui tin notificatu nguoi dung hien tại thực hiện đến người nhận
+  Future<void> createNotification(String useredId, NotificationUser notifica) async {
+    try {
+     DocumentReference NotiDocRef = await _firestore
+          .collection('users')
+          .doc(useredId)
+          .collection('notification')
+          .add(notifica.toMap());
+      print("Send notification successfully!");
+      String id = NotiDocRef.id;
+      await NotiDocRef.update({'id':id});
+    } catch (e) {
+      print("Error send notification: $e");
+    }
+  }
+  Stream<List<NotificationUser>> getAllNotifica(userId) {
+    try {
+      return _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('notification')
+          .snapshots() // Lắng nghe dữ liệu liên tục
+          .map((snapshot) {
+        // Chuyển dữ liệu từ Firestore sang danh sách Notifica
+        final notifications =
+            snapshot.docs.map((doc) => NotificationUser.fromMap(doc.data())).toList();
+        print("danh sach  $notifications");
+        //Sắp xếp danh sách dựa trên  startTime
+        notifications.sort((a, b) {
+          
+            int aTime = a.timestamp.millisecondsSinceEpoch;
+            int bTime = b.timestamp.millisecondsSinceEpoch;
+            return (aTime).compareTo(bTime);
+          ;
+        });
 
+        return notifications;
+      });
+    } catch (e) {
+      print("Error fetching notifications: $e");
+      return const Stream.empty(); // Trả về Stream rỗng nếu có lỗi
+    }
+  }
   // hàm này dùng để lấy tất cả các thông báo của người dùng hiện tại đang đăng nhập
   Future<List<Map<String, dynamic>>> getNotificationsOfCurrentUser() async {
     try {
@@ -40,7 +83,17 @@ class NotificationService {
       return [];
     }
   }
-
+//   Stream<List<Notification>> getUserNotifications(String userId) {
+//   return FirebaseFirestore.instance
+//       .collection('notifications')
+//       .where('userId', isEqualTo: userId)
+//       .orderBy('timestamp', descending: true)
+//       .snapshots()
+//       .map((snapshot) => snapshot.docs
+//           .map((doc) =>
+//               Notification.fromMap(doc.id, doc.data()))
+//           .toList());
+// }
   // hàm này dùng để tạo thông báo về lời mời kết bạn đến TargetUser
   Future<void> sendFriendRequestNotification(
       String currentUserId, String targetUserId) async {

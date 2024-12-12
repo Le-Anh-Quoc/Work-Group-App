@@ -1,11 +1,15 @@
 // ignore_for_file: unused_field, file_names, avoid_print
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/services/notification_service.dart';
 import 'package:ruprup/widgets/notification/NotificationWidget.dart';
 
 class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+  
+  final String userId;
+  NotificationScreen({required this.userId});
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -13,25 +17,26 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   NotificationService notification = NotificationService();
-  List<Map<String, dynamic>> _notificationResults = [];
+  //List<Map<String, dynamic>> _notificationResults = [];
 
-  @override
-  void initState() {
-    super.initState();
-    fetchNotifications();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   fetchNotifications();
+  // }
 
-  void fetchNotifications() async {
-    List<Map<String, dynamic>> notifications =
-        await notification.getNotificationsOfCurrentUser();
-    setState(() {
-      _notificationResults = notifications;
-    });
-    print('Notifications: $notifications');
-  }
+  // void fetchNotifications() async {
+  //   List<Map<String, dynamic>> notifications =
+  //       await notification.getNotificationsOfCurrentUser();
+  //   setState(() {
+  //     _notificationResults = notifications;
+  //   });
+  //   print('Notifications: $notifications');
+  // }
 
   @override
   Widget build(BuildContext context) {
+     final  NotificationService notificationService= NotificationService();
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -52,25 +57,37 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 icon: const Icon(Icons.delete_outline_outlined, size: 28))
           ],
         ),
-        // body: _notificationResults.isEmpty
-        //     ? const Center(child: Text('No notifications'))
-        //     : ListView.builder(
-        //         itemCount: _notificationResults.length,
-        //         itemBuilder: (context, index) {
-        //           return const NotificationWidget(isInvite: true);
-        //         },
-        //       ),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              NotificationWidget(notificationTypeString: 'friend'),
-              NotificationWidget(notificationTypeString: 'friendInvite'),
-              NotificationWidget(notificationTypeString: 'group'),
-              NotificationWidget(notificationTypeString: 'groupMeeting'),
-              NotificationWidget(notificationTypeString: 'task'),
-              NotificationWidget(notificationTypeString: 'project')
-            ],
+          child:
+        
+          // Danh sách bài đăng
+          StreamBuilder<List<NotificationUser>>(
+            stream: notificationService.getAllNotifica(widget.userId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text("No Notifications"));
+              }
+
+              final allNotifica = snapshot.data!;
+
+              return ListView.builder(
+              itemCount: allNotifica.length,
+              itemBuilder: (context, index) {
+              final notification = allNotifica[index];
+              return NotificationWidget(
+                body: notification.body, // Nội dung thông báo
+                notificationTypeString: notification.type.value, // Loại thông báo
+              );
+                          },
+              );
+            },
           ),
         ));
   }
+
+
 }

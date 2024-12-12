@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ruprup/models/channel/file_model.dart';
 import 'package:ruprup/models/channel/folder_model.dart';
+import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/providers/channel_provider.dart';
 import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/providers/user_provider.dart';
@@ -21,7 +23,9 @@ import 'package:ruprup/screens/project/DetailProjectScreen.dart';
 import 'package:ruprup/services/file_service.dart';
 import 'package:ruprup/services/folder_service.dart';
 import 'package:ruprup/services/meeting_service.dart';
+import 'package:ruprup/services/notification_service.dart';
 import 'package:ruprup/services/storage_service.dart';
+import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/widgets/group/NotificaJoinMeet.dart';
 import 'package:open_file/open_file.dart';
 
@@ -37,7 +41,8 @@ class _GroupScreenState extends State<GroupScreen> {
 
   final TextEditingController _nameProjectController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-
+  String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   void _createProject(Channel channel) async {
     Project newProject = Project(
         projectId: '',
@@ -51,7 +56,27 @@ class _GroupScreenState extends State<GroupScreen> {
 
     await Provider.of<ProjectProvider>(context, listen: false)
         .createProject(newProject);
-
+    //send notificaInApp
+    DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentUserId).get();
+    String names= userDoc['fullname'];
+    String title = _nameProjectController.text;
+    //Gửi cho những người được chọn để tạo group
+    for(String selectedUserss in channel.memberIds){
+      NotificationUser notification=NotificationUser(
+      id: '', 
+      useredId: currentUserId, 
+      body: '$names đã tạo một Project $title  mới', 
+      type: NotificationType.group, 
+      isRead: false, 
+      timestamp: DateTime.now());
+    if(selectedUserss != currentUserId){
+      await NotificationService().createNotification(selectedUserss, notification);
+    DocumentSnapshot userDoc = await _firestore.collection('users').doc(selectedUserss).get();
+    String pushToken = userDoc['pushToken'];
+    await FirebaseAPI().sendPushNotification(pushToken,'$names đã tạo một Project $title mới', names);
+    }
+    else continue;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => DetailProjectScreen(project: newProject),
