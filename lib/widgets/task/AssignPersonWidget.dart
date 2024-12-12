@@ -1,8 +1,8 @@
 // ignore_for_file: file_names
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:ruprup/services/user_service.dart';
+import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 
 class AssignPersonWidget extends StatefulWidget {
   final String memberId;
@@ -22,7 +22,7 @@ class AssignPersonWidget extends StatefulWidget {
 
 class _AssignPersonWidgetState extends State<AssignPersonWidget> {
   final UserService _userService = UserService();
-  String? nameMember;
+  String nameMember = '';
   //bool isSelected = false;
 
   @override
@@ -44,11 +44,6 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
     }
   }
 
-  int randomIndex() {
-    Random random = Random();
-    return random.nextInt(5) + 1; // Tạo số ngẫu nhiên từ 1 đến 5
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -59,20 +54,25 @@ class _AssignPersonWidgetState extends State<AssignPersonWidget> {
         alignment: Alignment.topRight,
         children: [
           SizedBox(
-            width: 120,
+            width: 80,
             height: 80,
             child: Column(
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    'https://randomuser.me/api/portraits/women/${randomIndex()}.jpg', // Ảnh ngẫu nhiên
-                  ),
-                  radius: 17,
-                ),
+                // CircleAvatar(
+                //   backgroundImage: NetworkImage(
+                //     'https://randomuser.me/api/portraits/women/${randomIndex()}.jpg', // Ảnh ngẫu nhiên
+                //   ),
+                //   radius: 17,
+                // ),
+                PersonalInitialsAvatar(name: nameMember),
                 const SizedBox(height: 8),
-                Text(
-                  nameMember ?? 'Loading...', // Hiển thị tên thành viên
-                  style: const TextStyle(color: Colors.grey, fontSize: 16),
+                Expanded(
+                  child: Text(
+                    nameMember, // Hiển thị tên thành viên
+                    style: const TextStyle(color: Colors.grey, fontSize: 16),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

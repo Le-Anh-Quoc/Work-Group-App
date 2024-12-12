@@ -26,11 +26,11 @@ class TaskService {
     await _firestore.collection(parentCollection).doc(idProject).update({
       'toDo': FieldValue.increment(1), // Tăng giá trị trường toDo lên 1
     });
-    await FirebaseAPI().scheduleNotification(
-      title: "Nhắc nhở hạn task", 
-      body: task.taskName,
-      eventTime: task.dueDate);
-    // Trả về Task mới đã được lưu vào Firestore
+    // await FirebaseAPI().scheduleNotification(
+    //   title: "Nhắc nhở hạn task", 
+    //   body: taskWithId.taskName,
+    //   eventTime: taskWithId.dueDate);
+    //Trả về Task mới đã được lưu vào Firestore
     return taskWithId;
   }
 
@@ -94,8 +94,8 @@ class TaskService {
 
     // Kiểm tra xem currentUserId có được cung cấp hay không
     if (currentUserId != null) {
-      query = query.where('assigneeIds',
-          arrayContains:
+      query = query.where('assigneeId',
+          isEqualTo: 
               currentUserId); // Giả sử trường userId lưu ID người dùng
     }
 
@@ -122,7 +122,7 @@ class TaskService {
         var query = projectDoc.reference
             .collection(collection)
             .where('status', isEqualTo: sStatus)
-            .where('assigneeIds', arrayContains: currentUserId);
+            .where('assigneeId', isEqualTo: currentUserId);
 
         final taskSnapshot = await query.get();
 
@@ -136,7 +136,7 @@ class TaskService {
           .doc(idProject)
           .collection(collection)
           .where('status', isEqualTo: sStatus)
-          .where('assigneeIds', arrayContains: currentUserId)
+          .where('assigneeId', isEqualTo: currentUserId)
           .get();
 
       // Thêm các nhiệm vụ vào danh sách

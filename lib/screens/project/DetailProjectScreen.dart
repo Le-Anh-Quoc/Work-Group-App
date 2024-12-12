@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/models/project/activityProject_model.dart';
 import 'package:ruprup/models/project/project_model.dart';
+import 'package:ruprup/providers/activity_provider.dart';
 import 'package:ruprup/screens/MainScreen.dart';
-import 'package:ruprup/screens/project/ActivityScreen.dart';
+import 'package:ruprup/screens/project/ActivityProjectScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 import 'package:ruprup/widgets/project/ActivityWidget.dart';
@@ -26,13 +26,13 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
   @override
   void initState() {
     super.initState();
-    final activityProvider = Provider.of<ActivityLog>(context, listen: false);
+    final activityProvider = Provider.of<ActivityProvider>(context, listen: false);
     activityProvider.fetchRecentActivities(widget.project!.projectId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final activityProvider = Provider.of<ActivityLog>(context);
+    final activityProvider = Provider.of<ActivityProvider>(context);
     final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
     return DefaultTabController(
       length: 4,
@@ -54,10 +54,10 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.blue),
                     ),
           centerTitle: true,
-          actions: [
-            if (currentUserId == widget.project!.ownerId)
-              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert, color: Colors.blue))
-          ],
+          // actions: [
+          //   if (currentUserId == widget.project!.ownerId)
+          //     IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert, color: Colors.blue))
+          // ],
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -243,7 +243,7 @@ class _DetailProjectScreenState extends State<DetailProjectScreen> {
                               onPressed: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => ActivityScreen(
+                                    builder: (_) => ActivityProjectScreen(
                                         projectId: widget.project!.projectId),
                                   ),
                                 );

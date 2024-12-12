@@ -36,8 +36,8 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
   late final TextEditingController _descriptionController;
 
   // Danh sách lưu ID người được giao việc
-  late List<String> assigneeIds = [];
-  late List<String> tempAssigneeIds = [];
+  late String assigneeId = '';
+  late String tempAssigneeId = '';
 
   Future<void> _selectDateTime(BuildContext context, bool isStart) async {
     DateTime? pickedDate = await showDatePicker(
@@ -76,29 +76,33 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
     });
   }
 
-  Difficulty _getDifficultyFromSelected() {
+  TaskPriority _getDifficultyFromSelected() {
     switch (selectedDifficulty.toLowerCase()) {
+      case 'none':
+        return TaskPriority.none;
       case 'low':
-        return Difficulty.low;
+        return TaskPriority.low;
       case 'medium':
-        return Difficulty.medium;
-      case 'hard':
-        return Difficulty.hard;
+        return TaskPriority.medium;
+      case 'high':
+        return TaskPriority.high;
       default:
-        return Difficulty.low; // Mặc định là Low nếu không chọn gì
+        return TaskPriority.none; // Mặc định là Low nếu không chọn gì
     }
   }
 
-  String _stringDifficulty(Difficulty difficulty) {
-    switch (difficulty) {
-      case Difficulty.low:
+  String _stringDifficulty(TaskPriority priority) {
+    switch (priority) {
+      case TaskPriority.none:
+        return 'NONE';
+      case TaskPriority.low:
         return 'LOW';
-      case Difficulty.medium:
+      case TaskPriority.medium:
         return 'MEDIUM';
-      case Difficulty.hard:
-        return 'HARD';
+      case TaskPriority.high:
+        return 'HIGH';
       default:
-        return 'LOW'; // Mặc định là Low nếu không chọn gì
+        return 'NONE'; // Mặc định là NONE nếu không chọn gì
     }
   }
 
@@ -124,11 +128,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
 
   void _onAssignPersonSelected(String memberId) {
     setState(() {
-      if (tempAssigneeIds.contains(memberId)) {
-        tempAssigneeIds.remove(memberId); // Bỏ người được giao nếu đã chọn
-      } else {
-        tempAssigneeIds.add(memberId); // Thêm người được giao
-      }
+      tempAssigneeId = memberId;
     });
   }
 
@@ -138,16 +138,15 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
     // Khởi tạo TextEditingController với tên task hiện tại
     _taskNameController =
         TextEditingController(text: widget.task?.taskName ?? '');
-    assigneeIds = widget.task?.assigneeIds ?? [];
+    assigneeId = widget.task?.assigneeId ?? '';
     startDateTime = widget.task?.createdAt ?? DateTime.now();
     endDateTime = widget.task?.dueDate ?? DateTime.now();
     _descriptionController =
         TextEditingController(text: widget.task?.description ?? '');
     selectedDifficulty =
-        _stringDifficulty(widget.task?.difficulty ?? Difficulty.low);
+        _stringDifficulty(widget.task?.priority ?? TaskPriority.none);
 
-    tempAssigneeIds = List<String>.from(
-        assigneeIds); // tạo danh sách tạm theo danh sách đã có
+    tempAssigneeId = assigneeId; // tạo danh sách tạm theo danh sách đã có
   }
 
   @override
@@ -160,14 +159,14 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
   void _createOrUpdateTask() async {
     Project? currentProject =
         Provider.of<ProjectProvider>(context, listen: false).currentProject;
-    
+
     if (currentProject == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Project không tồn tại'), backgroundColor: Colors.red));
       return; // Kết thúc hàm nếu project là null
     }
 
-    assigneeIds = List<String>.from(tempAssigneeIds);
+    assigneeId = tempAssigneeId;
     // nếu tạo task thì cập nhật lại danh sách theo danh sách tạm
 
     if (widget.isAdd) {
@@ -176,42 +175,46 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
           projectId: currentProject.projectId,
           taskName: _taskNameController.text,
           description: _descriptionController.text,
-          assigneeIds: assigneeIds,
+          assigneeId: assigneeId,
           status: widget.task?.status ?? TaskStatus.toDo,
           dueDate: endDateTime,
           createdAt: startDateTime,
-          difficulty: _getDifficultyFromSelected());
+          priority: _getDifficultyFromSelected());
       await Provider.of<Task>(context, listen: false)
           .addTask(context, currentProject.projectId, newTask, actionUserId);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Add Task success'), backgroundColor: Colors.green));
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => TaskDetailScreen(task: newTask, sourceScreen: 'AddScreen',)));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => TaskDetailScreen(
+                task: newTask,
+                sourceScreen: 'AddScreen',
+              )));
     } else {
       Task task = Task(
           taskId: widget.task!.taskId,
           projectId: currentProject.projectId,
           taskName: _taskNameController.text,
           description: _descriptionController.text,
-          assigneeIds: assigneeIds,
+          assigneeId: assigneeId,
           status: widget.task!.status,
           dueDate: endDateTime,
           createdAt: startDateTime,
-          difficulty: _getDifficultyFromSelected());
+          priority: _getDifficultyFromSelected());
       await Provider.of<Task>(context, listen: false)
           .updateTask(context, currentProject.projectId, task, actionUserId);
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Update task success'), backgroundColor: Colors.green));
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     Project? currentProject =
         Provider.of<ProjectProvider>(context, listen: false).currentProject;
     return Container(
-      height: 700, // Chiều cao tùy chỉnh cho BottomModalSheet
+      height: MediaQuery.of(context).size.height *
+          0.85, // Chiều cao tùy chỉnh cho BottomModalSheet
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
         left: 16,
@@ -263,7 +266,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
             const SizedBox(height: 10),
             SizedBox(
-              height: 65,
+              height: 75,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: currentProject!.memberIds.length,
@@ -273,7 +276,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                     padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                     child: AssignPersonWidget(
                         memberId: memberId,
-                        isSelected: tempAssigneeIds.contains(memberId),
+                        isSelected: tempAssigneeId == memberId,
                         onSelect: () => _onAssignPersonSelected(memberId)),
                   );
                 },
@@ -281,7 +284,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
             ),
             const SizedBox(height: 10),
             Row(
-              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +299,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
+                          border: Border.all(color: Colors.blue),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -320,10 +323,10 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                     GestureDetector(
                       onTap: () => _selectDateTime(context, false),
                       child: Container(
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
+                          border: Border.all(color: Colors.blue),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -364,7 +367,7 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
               ),
             ),
             const SizedBox(height: 16),
-            const Text('DIFFICULTY',
+            const Text('PRIORITY',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
             const SizedBox(height: 10),
@@ -374,6 +377,12 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                 //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   DifficultyTag(
+                    label: 'NONE',
+                    color: Colors.blueAccent,
+                    isSelected: selectedDifficulty == 'NONE',
+                    onSelect: () => _onDifficultySelected('NONE'),
+                  ),
+                  DifficultyTag(
                     label: 'LOW',
                     color: Colors.greenAccent,
                     isSelected: selectedDifficulty == 'LOW',
@@ -381,15 +390,15 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
                   ),
                   DifficultyTag(
                     label: 'MEDIUM',
-                    color: Colors.blueAccent,
+                    color: Colors.orangeAccent,
                     isSelected: selectedDifficulty == 'MEDIUM',
                     onSelect: () => _onDifficultySelected('MEDIUM'),
                   ),
                   DifficultyTag(
-                    label: 'HARD',
+                    label: 'HIGH',
                     color: Colors.redAccent,
-                    isSelected: selectedDifficulty == 'HARD',
-                    onSelect: () => _onDifficultySelected('HARD'),
+                    isSelected: selectedDifficulty == 'HIGH',
+                    onSelect: () => _onDifficultySelected('HIGH'),
                   ),
                 ],
               ),

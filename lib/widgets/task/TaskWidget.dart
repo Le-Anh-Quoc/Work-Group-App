@@ -11,6 +11,7 @@ import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/task/TaskDetailScreen.dart';
 import 'package:ruprup/services/user_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
+import 'package:ruprup/widgets/task/ActivityTask.dart';
 import 'package:ruprup/widgets/task/ModalBottomTask.dart';
 
 class TaskWidget extends StatefulWidget {
@@ -31,26 +32,30 @@ class _TaskWidgetState extends State<TaskWidget> {
     _taskProvider = Provider.of<Task>(context);
   }
 
-  Color getDifficultyColor(Difficulty difficulty) {
-    switch (difficulty) {
-      case Difficulty.low:
-        return Colors.greenAccent.withOpacity(0.2);
-      case Difficulty.medium:
+  Color getDifficultyColor(TaskPriority priority) {
+    switch (priority) {
+      case TaskPriority.none:
         return Colors.blueAccent.withOpacity(0.2);
-      case Difficulty.hard:
+      case TaskPriority.low:
+        return Colors.greenAccent.withOpacity(0.2);
+      case TaskPriority.medium:
+        return Colors.orangeAccent.withOpacity(0.2);
+      case TaskPriority.high:
         return Colors.redAccent.withOpacity(0.2);
       default:
         return Colors.grey.shade200;
     }
   }
 
-  Color getTextColor(Difficulty difficulty) {
-    switch (difficulty) {
-      case Difficulty.low:
-        return Colors.greenAccent;
-      case Difficulty.medium:
+  Color getTextColor(TaskPriority priority) {
+    switch (priority) {
+      case TaskPriority.none:
         return Colors.blueAccent;
-      case Difficulty.hard:
+      case TaskPriority.low:
+        return Colors.greenAccent;
+      case TaskPriority.medium:
+        return Colors.orangeAccent;
+      case TaskPriority.high:
         return Colors.redAccent;
       default:
         return Colors.grey.shade600;
@@ -133,8 +138,8 @@ class _TaskWidgetState extends State<TaskWidget> {
                       },
                     );
                   },
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.orange,
+                  backgroundColor: Colors.orangeAccent.withOpacity(0.2),
+                  foregroundColor: Colors.orangeAccent,
                   icon: Icons.edit_outlined,
                   padding: const EdgeInsets.all(5),
                 ),
@@ -177,11 +182,30 @@ class _TaskWidgetState extends State<TaskWidget> {
                       ));
                     }
                   },
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.red,
+                  backgroundColor: Colors.redAccent.withOpacity(0.2),
+                  foregroundColor: Colors.redAccent,
                   icon: Icons.delete,
                   padding: const EdgeInsets.all(5),
                 ),
+              SlidableAction(
+                onPressed: (context) {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(25.0)),
+                    ),
+                    builder: (BuildContext context) {
+                      return ActivityTask(currentProject: currentProject.projectId, currentTask: widget.task.taskId);
+                    },
+                  );
+                },
+                backgroundColor: Colors.blueAccent.withOpacity(0.2),
+                foregroundColor: Colors.blueAccent,
+                icon: Icons.history,
+                padding: const EdgeInsets.all(5),
+              )
             ]
           ],
         ),
@@ -194,6 +218,7 @@ class _TaskWidgetState extends State<TaskWidget> {
                     task: widget.task, sourceScreen: 'ListTaskScreen'),
               ),
             );
+            
           },
           child: Container(
             decoration: BoxDecoration(
@@ -233,19 +258,15 @@ class _TaskWidgetState extends State<TaskWidget> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: getDifficultyColor(
-                                    widget.task.difficulty),
+                                color: getDifficultyColor(widget.task.priority),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                widget.task.difficulty
-                                    .toString()
-                                    .split('.')
-                                    .last,
+                                widget.task.priority.toString().split('.').last,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: getTextColor(widget.task.difficulty),
+                                  color: getTextColor(widget.task.priority),
                                 ),
                               ),
                             ),
@@ -265,7 +286,7 @@ class _TaskWidgetState extends State<TaskWidget> {
                         ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -276,35 +297,51 @@ class _TaskWidgetState extends State<TaskWidget> {
                             color: Colors.grey,
                             size: 16,
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 5),
                           Text(
                             DateFormat('MMM dd, yyyy')
                                 .format(widget.task.dueDate),
-                            style:
-                                const TextStyle(fontSize: 14, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.grey),
                           ),
                         ],
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.attach_file,
-                              color: Colors.grey, size: 18),
-                          const SizedBox(width: 5),
-                          const Text(
-                            '1', // Có thể thay bằng số lượng bình luận thực tế
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          const SizedBox(width: 10),
+                          // const Row(
+                          //   children: [
+                          //     Icon(Icons.attach_file,
+                          //         color: Colors.grey, size: 18),
+                          //     SizedBox(width: 5),
+                          //     Text(
+                          //       '1', // Có thể thay bằng số lượng bình luận thực tế
+                          //       style: TextStyle(color: Colors.grey),
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(width: 10),
+                          // const Row(
+                          //   children: [
+                          //     Icon(Icons.comment_outlined,
+                          //         color: Colors.grey, size: 18),
+                          //     SizedBox(width: 5),
+                          //     Text(
+                          //       '1', // Có thể thay bằng số lượng bình luận thực tế
+                          //       style: TextStyle(color: Colors.grey),
+                          //     ),
+                          //   ],
+                          // ),
+                          // const SizedBox(width: 10),
                           Row(
                             children: [
-                              for (String uid in widget.task.assigneeIds)
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 4.0),
-                                  child: InitialsAvatar(
-                                    name: UserService().getFullNameByUid(uid),
-                                    size: 32,
-                                  ),
-                                )
+                              Padding(
+                                padding: const EdgeInsets.only(left: 4.0),
+                                child: InitialsAvatar(
+                                  name: UserService()
+                                      .getFullNameByUid(widget.task.assigneeId),
+                                  size: 32,
+                                ),
+                              )
                             ],
                           ),
                         ],

@@ -146,11 +146,12 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                     color: Colors.blue.withOpacity(0.8),
                     shape: BoxShape.circle,
                   ),
-                  todayDecoration: const BoxDecoration(
-                    color: Colors.blue,
+                  todayDecoration: BoxDecoration(
+                    color: Colors.white,
                     shape: BoxShape.circle,
+                    border: Border.all(color: Colors.blue, width: 1)
                   ),
-                  todayTextStyle: const TextStyle(color: Colors.white),
+                  todayTextStyle: const TextStyle(color: Colors.blue),
                   selectedTextStyle: const TextStyle(color: Colors.white),
                 ),
               ),

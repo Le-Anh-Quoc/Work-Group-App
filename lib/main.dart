@@ -2,12 +2,16 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/models/project/activityProject_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/providers/activity_provider.dart';
 import 'package:ruprup/providers/channel_provider.dart';
+import 'package:ruprup/providers/comment_provider.dart';
 import 'package:ruprup/providers/meeting_provider.dart';
 import 'package:ruprup/providers/project_provider.dart';
+import 'package:ruprup/providers/taskFileComment_provider.dart';
+import 'package:ruprup/providers/taskFile_provider.dart';
+import 'package:ruprup/providers/task_provider.dart';
 import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/routes.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
@@ -32,20 +36,17 @@ Future main() async {
             projectId: 'projectId', // Thay thế bằng ID thực tế
             taskName: 'Task Name',
             description: 'Task Description',
-            assigneeIds: ['assigneeId1', 'assigneeId2'], // Danh sách ID thực tế
+            assigneeId: '', // Danh sách ID thực tế
             status: TaskStatus.toDo, // Trạng thái ban đầu
             dueDate: DateTime.now(),
             createdAt: DateTime.now(),
-            difficulty: Difficulty.medium // Độ khó ban đầu
+            priority: TaskPriority.medium // Độ khó ban đầu
             ),
       ),
-      ChangeNotifierProvider(
-          create: (context) => ActivityLog(
-              taskId: 'taskId',
-              taskName: 'taskName',
-              action: 'action',
-              userActionId: 'userActionId',
-              timestamp: DateTime.now())),
+      ChangeNotifierProvider(create: (_) => TaskProvider()),
+      ChangeNotifierProvider(create: (_) => TaskFileProvider()),
+      ChangeNotifierProvider(create: (_) => CommentProvider()),
+      ChangeNotifierProvider(create: (_) => TaskFileCommentProvider()),
       ChangeNotifierProvider(
           create: (context) => UserModel(
               userId: '12',
@@ -54,6 +55,7 @@ Future main() async {
               pushToken: '')),
       ChangeNotifierProvider(create: (_) => ChannelProvider()),
       ChangeNotifierProvider(create: (_) => MeetingProvider()),
+      ChangeNotifierProvider(create: (_) => ActivityProvider())
       // Các Provider khác nếu có
     ],
     child: const MyApp(),

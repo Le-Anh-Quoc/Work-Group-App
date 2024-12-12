@@ -7,7 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:ruprup/models/channel/file_model.dart';
+import 'package:ruprup/models/file/file_folder.dart';
+import 'package:ruprup/models/file/file_model.dart';
 import 'package:ruprup/models/channel/folder_model.dart';
 import 'package:ruprup/providers/channel_provider.dart';
 import 'package:ruprup/providers/project_provider.dart';
@@ -18,7 +19,7 @@ import 'package:ruprup/models/channel/channel_model.dart';
 import 'package:ruprup/models/channel/meeting_model.dart';
 import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/screens/project/DetailProjectScreen.dart';
-import 'package:ruprup/services/file_service.dart';
+import 'package:ruprup/services/file_folder_service.dart';
 import 'package:ruprup/services/folder_service.dart';
 import 'package:ruprup/services/meeting_service.dart';
 import 'package:ruprup/services/storage_service.dart';
@@ -493,7 +494,7 @@ class _FilesTabState extends State<FilesTab> {
   List<Folder> listFolderNavi = [];
 
   FolderService folderService = FolderService();
-  FileService fileService = FileService();
+  FileFolderService fileFolderService = FileFolderService();
   StorageService storageService = StorageService();
 
 // Lấy danh sách folder theo currentFolderId
@@ -504,7 +505,7 @@ class _FilesTabState extends State<FilesTab> {
 
 // Lấy danh sách file theo currentFolderId
   Future<List<FileModel>> _fetchFiles() async {
-    return await fileService.getFilesByFolderId(
+    return await fileFolderService.getFilesByFolderId(
         widget.channel.channelId, currentFolderId);
   }
 
@@ -535,14 +536,14 @@ class _FilesTabState extends State<FilesTab> {
         final file = File(filePath);
 
         // Tải file lên Firebase Storage
-        String downloadUrl = await storageService.uploadFileToFirebaseStorage(
+        String downloadUrl = await storageService.uploadFileFolderToFirebaseStorage(
             file,
             currentFolderId); // Thay thế 'your_folder_name' bằng tên thư mục mong muốn
 
         // Lưu thông tin file vào Firestore (sử dụng fileService.createFile)
-        await fileService.createFile(
+        await fileFolderService.createFile(
             widget.channel.channelId,
-            FileModel(
+            FileFolder(
               id: "", // Firebase sẽ tự động tạo ID
               name: fileName,
               downloadUrl: downloadUrl,

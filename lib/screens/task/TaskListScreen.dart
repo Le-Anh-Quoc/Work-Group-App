@@ -142,50 +142,53 @@ class _TaskListScreenState extends State<TaskListScreen>
                 fontWeight: FontWeight.bold, fontSize: 24, color: Colors.blue),
           ),
           actions: [
-            GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isMe = !isMe;
-                    fetchTasks();
-                  });
-                },
-                child: isMe
-                    ? Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.person_outline,
-                                size: 30, color: Colors.blue),
-                            SizedBox(width: 5),
-                            Text('Me', style: TextStyle(color: Colors.blue))
-                          ],
-                        ),
-                      )
-                    : Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.groups_outlined,
-                                size: 30, color: Colors.blue),
-                            SizedBox(width: 5),
-                            Text('Team', style: TextStyle(color: Colors.blue))
-                          ],
-                        ),
-                      )),
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.more_vert,
-                  color: Colors.blue,
-                )),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      isMe = !isMe;
+                      fetchTasks();
+                    });
+                  },
+                  child: isMe
+                      ? Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.person_outline,
+                                  size: 30, color: Colors.blue),
+                              SizedBox(width: 5),
+                              Text('Me', style: TextStyle(color: Colors.blue))
+                            ],
+                          ),
+                        )
+                      : Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.groups_outlined,
+                                  size: 30, color: Colors.blue),
+                              SizedBox(width: 5),
+                              Text('Team', style: TextStyle(color: Colors.blue))
+                            ],
+                          ),
+                        )),
+            ),
+            // IconButton(
+            //     onPressed: () {},
+            //     icon: const Icon(
+            //       Icons.more_vert,
+            //       color: Colors.blue,
+            //     )),
           ],
           bottom: TabBar(
             controller: _tabController, // Link the controller
@@ -218,7 +221,7 @@ class _TaskListScreenState extends State<TaskListScreen>
           children: [
             TaskListWidget(
               tasks: taskProvider.tasksToDo,
-              backgroundColor: Colors.yellowAccent.withOpacity(0.1),
+              backgroundColor: Colors.orangeAccent.withOpacity(0.1),
             ),
             TaskListWidget(
               tasks: taskProvider.tasksInProgess,
@@ -282,18 +285,21 @@ class TaskListWidget extends StatelessWidget {
         ),
       );
     } else {
-      return Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                return TaskWidget(task: task);
-              },
+      return Container(
+        decoration: BoxDecoration(color: backgroundColor),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  return TaskWidget(task: task);
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
   }

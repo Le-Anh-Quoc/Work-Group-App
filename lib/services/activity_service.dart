@@ -118,6 +118,45 @@ class ActivityService {
     return logs;
   }
 
+  Future<List<ActivityLog>> getActivityLogsByTaskandDate(
+      String projectId, String taskId, DateTime selectedDate) async {
+    print(projectId);
+    print(taskId);
+    print(selectedDate);
+    List<ActivityLog> logs = [];
+    try {
+      // Lấy thời điểm bắt đầu và kết thúc của ngày được chọn
+      DateTime startOfDay =
+          DateTime(selectedDate.year, selectedDate.month, selectedDate.day);
+      DateTime endOfDay = DateTime(selectedDate.year, selectedDate.month,
+          selectedDate.day, 23, 59, 59, 999);
+
+      // Chuyển đổi thành chuỗi ISO 8601
+      String startOfDayString = startOfDay.toIso8601String();
+      String endOfDayString = endOfDay.toIso8601String();
+
+      final querySnapshot = await _firestore
+          .collection(parentCollection)
+          .doc(projectId)
+          .collection(collection)
+          .where('timestamp', isGreaterThanOrEqualTo: startOfDayString)
+          .where('timestamp', isLessThanOrEqualTo: endOfDayString)
+          .where('taskId', isEqualTo: taskId)
+          .orderBy('timestamp', descending: true) // Sắp xếp theo thời gian
+          .get();
+
+      logs = querySnapshot.docs
+          .map((doc) => ActivityLog.fromMap(doc.data()))
+          .toList();
+      // ignore: avoid_print
+      print('logs: $logs');
+    } catch (e) {
+      // ignore: avoid_print
+      print("Error getting activity logs by task and date: $e");
+    }
+    return logs;
+  }
+
   // hàm sử dụng chung
   Future<void> logTaskActivity(BuildContext context, String action, Task task,
       String actionUserId) async {

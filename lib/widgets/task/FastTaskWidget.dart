@@ -19,26 +19,30 @@ class FastTaskWidget extends StatefulWidget {
 class _FastTaskWidgetState extends State<FastTaskWidget> {
   final String actionUserId = FirebaseAuth.instance.currentUser!.uid;
 
-  Color getDifficultyColor(Difficulty difficulty) {
-    switch (difficulty) {
-      case Difficulty.low:
-        return Colors.greenAccent.withOpacity(0.2);
-      case Difficulty.medium:
+  Color getDifficultyColor(TaskPriority priority) {
+    switch (priority) {
+      case TaskPriority.none:
         return Colors.blueAccent.withOpacity(0.2);
-      case Difficulty.hard:
+      case TaskPriority.low:
+        return Colors.greenAccent.withOpacity(0.2);
+      case TaskPriority.medium:
+        return Colors.orangeAccent.withOpacity(0.2);
+      case TaskPriority.high:
         return Colors.redAccent.withOpacity(0.2);
       default:
         return Colors.grey.shade200;
     }
   }
 
-  Color getTextColor(Difficulty difficulty) {
-    switch (difficulty) {
-      case Difficulty.low:
-        return Colors.green;
-      case Difficulty.medium:
+  Color getTextColor(TaskPriority priority) {
+    switch (priority) {
+      case TaskPriority.none:
         return Colors.blue;
-      case Difficulty.hard:
+      case TaskPriority.low:
+        return Colors.green;
+      case TaskPriority.medium:
+        return Colors.orange;
+      case TaskPriority.high:
         return Colors.red;
       default:
         return Colors.grey.shade600;
@@ -99,16 +103,16 @@ class _FastTaskWidgetState extends State<FastTaskWidget> {
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TaskDetailScreen(
-                task: widget.task,
-                sourceScreen:
-                    widget.isFromHome ? 'HomeScreen' : 'ListTaskScreen',
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TaskDetailScreen(
+                  task: widget.task,
+                  sourceScreen:
+                      widget.isFromHome ? 'HomeScreen' : 'ListTaskScreen',
+                ),
               ),
-            ),
-          );
+            );
         },
         child: Container(
           decoration: BoxDecoration(
@@ -151,15 +155,15 @@ class _FastTaskWidgetState extends State<FastTaskWidget> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: getDifficultyColor(widget.task.difficulty),
+                              color: getDifficultyColor(widget.task.priority),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              widget.task.difficulty.toString().split('.').last,
+                              widget.task.priority.toString().split('.').last,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: getTextColor(widget.task.difficulty),
+                                color: getTextColor(widget.task.priority),
                               ),
                             ),
                           ),
@@ -200,16 +204,16 @@ class _FastTaskWidgetState extends State<FastTaskWidget> {
                         ),
                       ],
                     ),
-                    const Row(
-                      children: [
-                        Icon(Icons.attach_file, color: Colors.grey, size: 18),
-                        SizedBox(width: 5),
-                        Text(
-                          '1', // Placeholder for attachment count
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
-                        ),
-                      ],
-                    ),
+                    // const Row(
+                    //   children: [
+                    //     Icon(Icons.attach_file, color: Colors.grey, size: 18),
+                    //     SizedBox(width: 5),
+                    //     Text(
+                    //       '1', // Placeholder for attachment count
+                    //       style: TextStyle(color: Colors.grey, fontSize: 14),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ],

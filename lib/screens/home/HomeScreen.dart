@@ -30,8 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final AuthService authService = AuthService();
   String _taskCount = '0'; // Biến để lưu trữ số lượng task
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   List<String> channelsCurrentUser = [];
 
   String _selectedProjectId = "All";
@@ -87,7 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeData() async {
     if (mounted) {
       await Future.wait([
-        Provider.of<ProjectProvider>(context, listen: false).fetchRecentProjects(),
+        Provider.of<ProjectProvider>(context, listen: false)
+            .fetchRecentProjects(),
         Provider.of<ProjectProvider>(context, listen: false).fetchProjects(),
         Provider.of<Task>(context, listen: false)
             .fetchTasksInProgressMe(currentUserId, _selectedProjectId),
@@ -104,39 +103,82 @@ class _HomeScreenState extends State<HomeScreen> {
     String greeting = getGreeting(); // lời chào
     final currentUser = Provider.of<UserProvider>(context).currentUser;
 
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        key: _scaffoldKey,
-        drawer: _buildDrawer(currentUser!),
-        appBar: CustomAppBar(
-          isHome: true,
-          title: '$greeting, ${currentUser.fullname}',
-          leading: Padding(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      drawer: _buildDrawer(currentUser!),
+      appBar: CustomAppBar(
+        isHome: true,
+        title: '$greeting, ${currentUser.fullname}',
+        leading: PopupMenuButton<String>(
+          color: Colors.white,
+          onSelected: (value) {
+            if (value == 'info') {
+              // Gọi hàm tạo cuộc họp tức thì
+            } else if (value == 'achievement') {
+            } else {
+              authService.logOut(context);
+            }
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            const PopupMenuItem<String>(
+              value: 'info',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.person,
+                    color: Colors.blue,
+                  ),
+                  SizedBox(width: 10),
+                  Text('Information'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'achievement',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.emoji_events, color: Colors.blue),
+                  SizedBox(width: 10),
+                  Text('Achievement'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'logout',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.logout, color: Colors.blue),
+                  SizedBox(width: 10),
+                  Text('Log out'),
+                ],
+              ),
+            ),
+          ],
+          child: Padding(
             padding: const EdgeInsets.only(left: 12),
-            child: GestureDetector(
-                onTap: () {
-                  _scaffoldKey.currentState?.openDrawer();
-                },
-                child: PersonalInitialsAvatar(
-                    name: currentUser.fullname, size: 40)),
+            child: PersonalInitialsAvatar(name: currentUser.fullname),
           ),
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 64),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildDateCard(),
-                const SizedBox(height: 15),
-                _buildRecentProjectsSection(),
-                const SizedBox(height: 10),
-                _buildMyProgressTasksSection(),
-                _buildTaskList(),
-              ],
-            ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 64),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDateCard(),
+              const SizedBox(height: 15),
+              _buildRecentProjectsSection(),
+              const SizedBox(height: 10),
+              _buildMyProgressTasksSection(),
+              _buildTaskList(),
+            ],
           ),
         ),
       ),

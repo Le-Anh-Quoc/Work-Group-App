@@ -7,18 +7,18 @@ import 'package:ruprup/services/task_service.dart';
 
 enum TaskStatus { toDo, inProgress, inReview, done }
 
-enum Difficulty { low, medium, hard }
+enum TaskPriority { none, low, medium, high }
 
 class Task extends ChangeNotifier {
-  late final String taskId;
+  String taskId;
   final String projectId;
   final String taskName;
   final String description;
-  final List<String> assigneeIds;
+  final String assigneeId;
   final TaskStatus status;
   final DateTime dueDate;
   final DateTime createdAt;
-  final Difficulty difficulty;
+  final TaskPriority priority;
   final List<File> files;
 
   Task({
@@ -26,11 +26,11 @@ class Task extends ChangeNotifier {
     required this.projectId, //
     required this.taskName,
     required this.description,
-    required this.assigneeIds,
+    required this.assigneeId,
     required this.status,
     required this.dueDate,
     required this.createdAt,
-    required this.difficulty,
+    required this.priority,
     this.files = const [],
   });
 
@@ -40,11 +40,11 @@ class Task extends ChangeNotifier {
           this.taskId, // Nếu không cung cấp taskId mới, sử dụng taskId hiện tại
       taskName: taskName,
       description: description,
-      assigneeIds: assigneeIds,
+      assigneeId: assigneeId,
       status: status,
       dueDate: dueDate,
       createdAt: createdAt,
-      difficulty: difficulty, projectId: projectId,
+      priority: priority, projectId: projectId,
       files: files ?? this.files,
     );
   }
@@ -56,11 +56,11 @@ class Task extends ChangeNotifier {
       'projectId': projectId,
       'taskName': taskName,
       'description': description,
-      'assigneeIds': assigneeIds,
+      'assigneeId': assigneeId,
       'status': status.name,
       'dueDate': dueDate.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
-      'difficulty': difficulty.name,
+      'priority': priority.name,
       'files': files,
     };
   }
@@ -72,16 +72,16 @@ class Task extends ChangeNotifier {
         projectId: map['projectId'] ?? '',
         taskName: map['taskName'] ?? '',
         description: map['description'] ?? '',
-        assigneeIds: List<String>.from(map['assigneeIds'] ?? []),
+        assigneeId: map['assigneeId'] ?? '',
         status: TaskStatus.values.firstWhere((e) => e.name == map['status'],
             orElse: () => TaskStatus.toDo),
         dueDate:
             DateTime.parse(map['dueDate'] ?? DateTime.now().toIso8601String()),
         createdAt: DateTime.parse(
             map['createdAt'] ?? DateTime.now().toIso8601String()),
-        difficulty: Difficulty.values.firstWhere(
-            (e) => e.name == map['difficulty'],
-            orElse: () => Difficulty.medium),
+        priority: TaskPriority.values.firstWhere(
+            (e) => e.name == map['priority'],
+            orElse: () => TaskPriority.medium),
         files: List<File>.from(map['files'] ?? []));
   }
 
@@ -182,15 +182,20 @@ class Task extends ChangeNotifier {
     }
   }
 
-  Future<String> countTaskInProgressMe(String currentUserId, String idProject) async {
-    final equal = await _taskService.getAllTasksForCurrentUser(idProject, currentUserId, TaskStatus.inProgress);
+  Future<String> countTaskInProgressMe(
+      String currentUserId, String idProject) async {
+    final equal = await _taskService.getAllTasksForCurrentUser(
+        idProject, currentUserId, TaskStatus.inProgress);
     return equal.length.toString();
   }
 
   // lấy danh sách task (không loc theo project)
-  Future<void> fetchTasksInProgressMe(String currentUserId, String idProject) async {
+  Future<void> fetchTasksInProgressMe(
+      String currentUserId, String idProject) async {
     try {
-      _tasksInProgressMe = await _taskService.getAllTasksForCurrentUser(idProject, currentUserId, TaskStatus.inProgress, limit: 4);
+      _tasksInProgressMe = await _taskService.getAllTasksForCurrentUser(
+          idProject, currentUserId, TaskStatus.inProgress,
+          limit: 4);
       notifyListeners();
     } catch (e) {
       print('Error fetching tasks: $e');
@@ -207,10 +212,11 @@ class Task extends ChangeNotifier {
 
       // ignore: duplicate_ignore
       // ignore: use_build_context_synchronously
+      print(taskWithId);
       await _activityService.logTaskActivity(
           context, 'add', taskWithId, actionUserId);
     } catch (e) {
-      print("Error creating task: $e");
+      print("Error creating taskkkkk: $e");
     }
   }
 

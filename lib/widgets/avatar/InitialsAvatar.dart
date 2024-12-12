@@ -60,7 +60,7 @@ class PersonalInitialsAvatar extends StatelessWidget {
   const PersonalInitialsAvatar({
     super.key,
     required this.name,
-    this.size = 50.0,
+    this.size = 40.0,
   });
 
   @override
