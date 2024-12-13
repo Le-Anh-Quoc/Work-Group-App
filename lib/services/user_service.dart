@@ -198,70 +198,99 @@ class UserService {
   }
 
   // 11. tìm kiếm người dùng khác
+  // Future<List<UserModel>> searchUsers(String keyword) async {
+  //   //keyword = keyword.toLowerCase();
+
+  //   Map<String, Map<String, dynamic>> userMap = {};
+
+  //   // Tham chiếu tới collection "User"
+  //   CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+  //   // Tìm kiếm các người dùng có 'email' hoặc 'fullname' chứa từ khóa
+  //   QuerySnapshot emailQuery = await users
+  //       .where('email', isGreaterThanOrEqualTo: keyword)
+  //       .where('email', isLessThan: '$keyword\uf8ff')
+  //       .where('email', isEqualTo: keyword)
+  //       .get();
+
+  //   for (var doc in emailQuery.docs) {
+  //     userMap[doc.id] = doc.data() as Map<String, dynamic>;
+  //   }
+
+  //   QuerySnapshot nameQuery = await users
+  //       .where('fullname', isGreaterThanOrEqualTo: keyword)
+  //       .where('fullname', isLessThan: '$keyword\uf8ff')
+  //       .where('fullname', isEqualTo: keyword)
+  //       .get();
+
+  //   for (var doc in nameQuery.docs) {
+  //     userMap[doc.id] = doc.data() as Map<String, dynamic>;
+  //   }
+
+  //   // Chuyển đổi map thành danh sách UserModel sử dụng hàm fromMap
+  //   List<UserModel> userList = userMap.values.map((userData) {
+  //     return UserModel.fromMap(userData);
+  //   }).toList();
+
+  //   return userList;
+  // }
+
   Future<List<UserModel>> searchUsers(String keyword) async {
-    //keyword = keyword.toLowerCase();
+    keyword = keyword.toLowerCase();
 
-    Map<String, Map<String, dynamic>> userMap = {};
+    // Tham chiếu tới collection "users"
+    QuerySnapshot query;
 
-    // Tham chiếu tới collection "User"
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-    // Tìm kiếm các người dùng có 'email' hoặc 'fullname' chứa từ khóa
-    QuerySnapshot emailQuery = await users
-        .where('email', isGreaterThanOrEqualTo: keyword)
-        .where('email', isLessThan: '$keyword\uf8ff')
-        .where('email', isEqualTo: keyword)
-        .get();
-
-    for (var doc in emailQuery.docs) {
-      userMap[doc.id] = doc.data() as Map<String, dynamic>;
+    // Kiểm tra nếu keyword là email (có dấu "@")
+    if (keyword.contains('@')) {
+      // Tìm kiếm theo email
+      query = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: keyword)
+          .get();
+    } else {
+      // Tìm kiếm theo các từ khóa liên quan
+      query = await FirebaseFirestore.instance
+          .collection('users')
+          .where('searchKeywords', arrayContains: keyword)
+          .get();
     }
 
-    QuerySnapshot nameQuery = await users
-        .where('fullname', isGreaterThanOrEqualTo: keyword)
-        .where('fullname', isLessThan: '$keyword\uf8ff')
-        .where('fullname', isEqualTo: keyword)
-        .get();
-
-    for (var doc in nameQuery.docs) {
-      userMap[doc.id] = doc.data() as Map<String, dynamic>;
-    }
-
-    // Chuyển đổi map thành danh sách UserModel sử dụng hàm fromMap
-    List<UserModel> userList = userMap.values.map((userData) {
-      return UserModel.fromMap(userData);
+    // Chuyển đổi dữ liệu từ Firebase thành danh sách UserModel
+    List<UserModel> users = query.docs.map((doc) {
+      return UserModel.fromMap(doc.data() as Map<String, dynamic>);
     }).toList();
 
-    return userList;
-
-    // Hợp nhất kết quả từ email và fullname
-    // Set<Map<String, dynamic>> resultsSet = {};
-    // Set<String> uniqueEmails = {}; // Set để theo dõi email đã được thêm vào
-
-    // // Thêm kết quả từ emailQuery
-    // for (var doc in emailQuery.docs) {
-    //   var data = doc.data() as Map<String, dynamic>;
-    //   String email = data['email']; // Lấy email
-    //   // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
-    //   if (!uniqueEmails.contains(email)) {
-    //     resultsSet.add(data);
-    //     uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
-    //   }
-    // }
-
-    // // Thêm kết quả từ nameQuery
-    // for (var doc in nameQuery.docs) {
-    //   var data = doc.data() as Map<String, dynamic>;
-    //   String email = data['email']; // Lấy email
-    //   // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
-    //   if (!uniqueEmails.contains(email)) {
-    //     resultsSet.add(data);
-    //     uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
-    //   }
-    // }
-
-    // return resultsSet.toList();
+    return users;
   }
+
+  // Hợp nhất kết quả từ email và fullname
+  // Set<Map<String, dynamic>> resultsSet = {};
+  // Set<String> uniqueEmails = {}; // Set để theo dõi email đã được thêm vào
+
+  // // Thêm kết quả từ emailQuery
+  // for (var doc in emailQuery.docs) {
+  //   var data = doc.data() as Map<String, dynamic>;
+  //   String email = data['email']; // Lấy email
+  //   // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
+  //   if (!uniqueEmails.contains(email)) {
+  //     resultsSet.add(data);
+  //     uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
+  //   }
+  // }
+
+  // // Thêm kết quả từ nameQuery
+  // for (var doc in nameQuery.docs) {
+  //   var data = doc.data() as Map<String, dynamic>;
+  //   String email = data['email']; // Lấy email
+  //   // Chỉ thêm nếu email chưa có trong danh sách uniqueEmails
+  //   if (!uniqueEmails.contains(email)) {
+  //     resultsSet.add(data);
+  //     uniqueEmails.add(email); // Thêm email vào danh sách đã thấy
+  //   }
+  // }
+
+  // return resultsSet.toList();
 
   // Hàm tìm kiếm người dùng dựa vào fullName hoặc email và trả về list ModelUser
   // Future<List<UserModel>> searchUsers(String keyword) async {

@@ -51,7 +51,8 @@ Future main() async {
               userId: '12',
               fullname: '22',
               email: 'leanhquocit@gmail.com',
-              pushToken: '')),
+              pushToken: '',
+              searchKeywords: [])),
       ChangeNotifierProvider(create: (_) => ChannelProvider()),
       ChangeNotifierProvider(create: (_) => MeetingProvider()),
       // Các Provider khác nếu có

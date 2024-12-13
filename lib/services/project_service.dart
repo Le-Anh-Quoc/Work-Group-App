@@ -149,4 +149,20 @@ class ProjectService {
         .toList();
   }
 
+  Future<List<Project>> searchProjects(String keyword) async {
+    keyword = keyword.toLowerCase();
+
+    // Tham chiếu tới collection "users"
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('projects')
+        .where('searchKeywords', arrayContains: keyword)
+        .get();
+
+    // Chuyển đổi dữ liệu từ Firebase thành danh sách UserModel
+    List<Project> users = query.docs.map((doc) {
+      return Project.fromMap(doc.data() as Map<String, dynamic>);
+    }).toList();
+
+    return users;
+  }
 }

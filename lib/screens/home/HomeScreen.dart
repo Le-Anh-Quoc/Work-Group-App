@@ -12,6 +12,7 @@ import 'package:ruprup/providers/meeting_provider.dart';
 import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/screens/group/EventCalendarScreen.dart';
+import 'package:ruprup/screens/search/SearchScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
@@ -87,7 +88,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeData() async {
     if (mounted) {
       await Future.wait([
-        Provider.of<ProjectProvider>(context, listen: false).fetchRecentProjects(),
+        Provider.of<ProjectProvider>(context, listen: false)
+            .fetchRecentProjects(),
         Provider.of<ProjectProvider>(context, listen: false).fetchProjects(),
         Provider.of<Task>(context, listen: false)
             .fetchTasksInProgressMe(currentUserId, _selectedProjectId),
@@ -130,6 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildDateCard(),
+                const SizedBox(height: 15),
+                _buildSearch(),
                 const SizedBox(height: 15),
                 _buildRecentProjectsSection(),
                 const SizedBox(height: 10),
@@ -292,6 +296,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   ],
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearch() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => SearchScreen()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey[100], // Màu nền nhẹ
+          borderRadius: BorderRadius.circular(20), // Bo tròn các góc
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.search,
+              color: Colors.blue, // Màu biểu tượng
+              size: 24, // Kích thước biểu tượng
+            ),
+            const SizedBox(width: 10), // Khoảng cách giữa biểu tượng và văn bản
+            Text(
+              'Search for people, projects, channels',
+              style: TextStyle(
+                color: Colors.grey, // Màu chữ
+                fontSize: 14, // Kích thước chữ
               ),
             ),
           ],

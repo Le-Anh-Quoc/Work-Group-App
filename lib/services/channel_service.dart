@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ruprup/models/channel/channel_model.dart';
 import 'package:ruprup/models/room_model.dart';
+import 'package:ruprup/utils/searchKeyWord.dart';
 
 class ChannelService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -10,16 +11,16 @@ class ChannelService {
   Future<void> createChannel(RoomChat roomChat, String groupChatId) async {
     // Tạo đối tượng Channel từ roomChat
     Channel newChannel = Channel(
-      channelId: '', // Sẽ tự sinh ID
-      groupChatId: groupChatId, // ID của group liên kết với channel
-      projectId: [],
-      channelName: roomChat.nameRoom, // Sử dụng tên phòng từ roomChat
-      adminId: roomChat.userIds[0], // Giả định người đầu tiên là admin
-      memberIds: roomChat.userIds
-          .map((user) => user)
-          .toList(), // Lấy danh sách ID người dùng
-      createdAt: DateTime.now(), // Thời gian tạo
-    );
+        channelId: '', // Sẽ tự sinh ID
+        groupChatId: groupChatId, // ID của group liên kết với channel
+        projectId: [],
+        channelName: roomChat.nameRoom, // Sử dụng tên phòng từ roomChat
+        adminId: roomChat.userIds[0], // Giả định người đầu tiên là admin
+        memberIds: roomChat.userIds
+            .map((user) => user)
+            .toList(), // Lấy danh sách ID người dùng
+        createdAt: DateTime.now(), // Thời gian tạo
+        searchKeywords: generateSearchKeywords(roomChat.nameRoom));
 
     // Thêm channel vào Firestore và lấy DocumentReference
     DocumentReference docRef =
@@ -92,5 +93,34 @@ class ChannelService {
       print('Error fetching channels: $e');
       return []; // Trả về danh sách rỗng trong trường hợp lỗi
     }
+  }
+
+  Future<List<Channel>> searchChannels(
+      String keyword, String currentUserId) async {
+    keyword = keyword.toLowerCase();
+
+    // Truy vấn các kênh mà currentUserId là thành viên
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('channel')
+        .where('memberIds', arrayContains: currentUserId)
+        .get();
+
+    // Lọc kết quả theo keyword trong 'searchKeywords'
+    List<Channel> channels = query.docs.where((doc) {
+      var data = doc.data() as Map<String, dynamic>;
+
+      // Kiểm tra xem trường 'searchKeywords' có tồn tại và không phải là null
+      var searchKeywords = data['searchKeywords'];
+      if (searchKeywords == null || !(searchKeywords is List)) {
+        return false; // Nếu 'searchKeywords' không phải là một List, bỏ qua tài liệu này
+      }
+
+      // Lọc những kênh mà 'searchKeywords' chứa keyword
+      return (searchKeywords as List).contains(keyword);
+    }).map((doc) {
+      return Channel.fromMap(doc.data() as Map<String, dynamic>);
+    }).toList();
+
+    return channels;
   }
 }

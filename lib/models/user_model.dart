@@ -9,6 +9,7 @@ class UserModel extends ChangeNotifier{
   late List<String>? friendList;
   late List<String>? groupIds;
   late String pushToken;
+  late List<String> searchKeywords;
 
   UserModel({
     required this.userId,
@@ -18,6 +19,7 @@ class UserModel extends ChangeNotifier{
     this.friendList,
     this.groupIds,
     required this.pushToken,
+    required this.searchKeywords
   });
 
   // Convert a User object to a map for Firestore
@@ -30,6 +32,7 @@ class UserModel extends ChangeNotifier{
       'friendList': friendList,
       'groupIds': groupIds,
       'pushToken':pushToken,
+      'searchKeywords': searchKeywords
     };
   }
 
@@ -43,6 +46,7 @@ class UserModel extends ChangeNotifier{
       friendList: List<String>.from(map['friendList'] ?? []),
       groupIds: List<String>.from(map['groupIds'] ?? []),
       pushToken: map['pushToken'] ??'',
+      searchKeywords: List<String>.from(map['searchKeywords'] ?? [])
     );
   }
 

@@ -31,6 +31,7 @@ class _ListProjectScreenState extends State<ListProjectScreen> {
       adminId: 'someAdminId', // Thay bằng giá trị thích hợp
       memberIds: [], // Thêm danh sách các thành viên
       createdAt: DateTime.now(),
+      searchKeywords: []
     ),
   ];
 

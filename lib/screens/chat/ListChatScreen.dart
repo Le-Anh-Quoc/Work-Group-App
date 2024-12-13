@@ -33,26 +33,26 @@ class _ListChatScreenState extends State<ListChatScreen>
       appBar: CustomAppBar(
         isHome: false,
         title: 'Chats',
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 10),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.grey[50],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.search_rounded,
-                  color: Colors.black, size: 30),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const SearchScreen(),
-                  ),
-                );
-              },
-            ),
-          )
-        ],
+        // actions: [
+        //   Container(
+        //     margin: const EdgeInsets.only(right: 10),
+        //     decoration: BoxDecoration(
+        //       shape: BoxShape.circle,
+        //       color: Colors.grey[50],
+        //     ),
+        //     child: IconButton(
+        //       icon: const Icon(Icons.search_rounded,
+        //           color: Colors.black, size: 30),
+        //       onPressed: () {
+        //         Navigator.of(context).push(
+        //           MaterialPageRoute(
+        //             builder: (_) => const SearchScreen(),
+        //           ),
+        //         );
+        //       },
+        //     ),
+        //   )
+        // ],
       ),
       backgroundColor: Colors.white,
       body: StreamBuilder<List<RoomChat>>(
