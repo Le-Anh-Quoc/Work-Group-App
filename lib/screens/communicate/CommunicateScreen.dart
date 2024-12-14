@@ -180,7 +180,7 @@ class _CommunicateScreenState extends State<CommunicateScreen>
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const NotificationScreen(),
+                      builder: (_) =>  NotificationScreen(userId: '4Xuld149DRUZWuO9lRF2NXqaGfj1'),
                     ),
                   );
                 },

@@ -6,6 +6,7 @@ enum MeetingStatus { upcoming, ongoing, ended }
 class Meeting {
   final String meetingId;
   final String meetingTitle;
+
   final DateTime startTime;
   final DateTime? endTime;
   final MeetingStatus status; // Thay isOngoing bằng MeetingStatus
@@ -15,6 +16,7 @@ class Meeting {
     required this.meetingId,
     required this.meetingTitle,
     required this.startTime,
+  
     this.endTime,
     required this.status,
     this.participants = const [],
@@ -25,6 +27,7 @@ class Meeting {
     return Meeting(
       meetingId: map['meetingId'],
       meetingTitle: map['meetingTitle'] ?? '',
+      
       startTime: (map['startTime'] as Timestamp).toDate(),
       endTime: map['endTime'] != null ? (map['endTime'] as Timestamp).toDate() : null,
       status: _statusFromString(map['status'] ?? 'upcoming'),

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ruprup/models/project/task_model.dart';
-import 'package:ruprup/services/user_notification.dart';
 
 class TaskService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -28,9 +27,9 @@ class TaskService {
     });
     // await FirebaseAPI().scheduleNotification(
     //   title: "Nhắc nhở hạn task", 
-    //   body: taskWithId.taskName,
-    //   eventTime: taskWithId.dueDate);
-    //Trả về Task mới đã được lưu vào Firestore
+    //   body: task.taskName,
+    //   eventTime: task.dueDate);
+    // Trả về Task mới đã được lưu vào Firestore
     return taskWithId;
   }
 

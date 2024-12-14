@@ -1,5 +1,8 @@
 // ignore_for_file: file_names
 
+import 'dart:ffi';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -61,14 +64,30 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
         String senderId = userIds.isNotEmpty ? userIds[0] : '';
         String messagePrefix = (senderId == currentUserId) ? "You: " : "";
         String nameRoom = snapshot.data!['nameRoom'] ?? '';
+        Timestamp lassTimeMessage = snapshot.data!['timestamp'];
+        
+    
+          DateTime createAt = lassTimeMessage.toDate();
+          //lay time hien tai
+          DateTime now = DateTime.now();
+          // định dạng là hh:mm nếu tin nhắn trong ngày nếu ngày trước thì định dạng dd:mm
 
-        int createAtTimestamp = snapshot.data!['createAt'];
-        DateTime createAt =
-            DateTime.fromMillisecondsSinceEpoch(createAtTimestamp);
+          String formattedTime; 
+          if (createAt.year == now.year && createAt.month == now.month && createAt.day == now.day) {
+              // Nếu cùng ngày, định dạng hh:mm
+              formattedTime = DateFormat('hh:mm a').format(createAt);
+            } else {
+              // Nếu khác ngày, định dạng MM/dd
+              formattedTime = DateFormat('dd/MM').format(createAt);
+            }
+        
+    
+        //hien dang hien thi thoi gian tao phong
+        // int createAtTimestamp = snapshot.data!['createAt'];
+        //  DateTime createAt =
+        //      DateTime.fromMillisecondsSinceEpoch(createAtTimestamp);
 
-        // Định dạng thời gian
-        String formattedTime = DateFormat('hh:mm a').format(createAt);
-
+        //  String formattedTime = DateFormat('hh:mm a').format(createAt);
         return GestureDetector(
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),

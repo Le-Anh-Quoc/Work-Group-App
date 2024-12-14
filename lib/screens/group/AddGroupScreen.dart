@@ -2,14 +2,18 @@
 
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ruprup/models/room_model.dart';
+import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/screens/chat/ChatScreen.dart';
 import 'package:ruprup/services/friend_service.dart';
 import 'package:ruprup/services/image_service.dart';
+import 'package:ruprup/services/notification_service.dart';
 import 'package:ruprup/services/roomchat_service.dart';
+import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/widgets/group/FieldWidget.dart';
 import 'package:ruprup/widgets/group/NewMemberWidget.dart';
 import 'package:ruprup/widgets/search/SearchWidget.dart';
@@ -32,7 +36,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
   final RoomChatService _roomChatService = RoomChatService();
   List<Map<String, dynamic>> _friendResults = [];
   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ImagePicker _picker = ImagePicker();
   File? _imageFile; // Biến để lưu tệp ảnh đã chọn
   String? _imageUrl; // Biến để lưu URL của ảnh sau khi upload
@@ -91,12 +95,28 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
       imageUrl: _imageUrl,
       createAt: DateTime.now().millisecondsSinceEpoch,
     );
-
     RoomChat roomChat = await _roomChatService.createRoomChat(newRoomChat);
-
-    setState(() {
-      isLoading = false;
-    });
+    //send notificaInApp
+    DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentUserId).get();
+    String names= userDoc['fullname'];
+    String title = _groupNameController.text;
+    //Gửi cho những người được chọn để tạo group
+    for(String selectedUserss in selectedUsers){
+      NotificationUser notification=NotificationUser(
+      id: '', 
+      useredId: currentUserId, 
+      body: '$names đã tạo một Group $title mới', 
+      type: NotificationType.group, 
+      isRead: false, 
+      timestamp: DateTime.now());
+    if(selectedUserss != currentUserId){
+      await NotificationService().createNotification(selectedUserss, notification);
+    DocumentSnapshot userDoc = await _firestore.collection('users').doc(selectedUserss).get();
+    String pushToken = userDoc['pushToken'];
+    await FirebaseAPI().sendPushNotification(pushToken,'$names đã tạo một Group $title mới', names);
+    }
+    else continue;
+    }
 
     // ScaffoldMessenger.of(context).showSnackBar(
     //   SnackBar(content: Text("Group chat created!")),

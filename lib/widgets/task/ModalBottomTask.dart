@@ -1,13 +1,17 @@
 // ignore_for_file: use_build_context_synchronously, unused_element, file_names, unnecessary_null_comparison
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
 import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/screens/task/TaskDetailScreen.dart';
+import 'package:ruprup/services/notification_service.dart';
+import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/widgets/task/AssignPersonWidget.dart';
 import 'package:ruprup/widgets/task/DifficultyWidget.dart';
 
@@ -23,6 +27,7 @@ class ModalBottomTask extends StatefulWidget {
 
 class _ModalBottomTaskState extends State<ModalBottomTask> {
   final String actionUserId = FirebaseAuth.instance.currentUser!.uid;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   late DateTime startDateTime;
   late DateTime endDateTime;
@@ -182,6 +187,30 @@ class _ModalBottomTaskState extends State<ModalBottomTask> {
           priority: _getDifficultyFromSelected());
       await Provider.of<Task>(context, listen: false)
           .addTask(context, currentProject.projectId, newTask, actionUserId);
+
+      //send notificaInApp
+      DocumentSnapshot userDoc =
+          await _firestore.collection('users').doc(actionUserId).get();
+      String names = userDoc['fullname'];
+      String title = _taskNameController.text;
+      //Gửi cho những người được chọn để tạo group
+        NotificationUser notification = NotificationUser(
+            id: '',
+            useredId: actionUserId,
+            body: '$names đã tạo một Task mới cho bạn $title',
+            type: NotificationType.group,
+            isRead: false,
+            timestamp: DateTime.now());
+        if (assigneeId != actionUserId) {
+          await NotificationService()
+              .createNotification(assigneeId, notification);
+          DocumentSnapshot userDoc =
+              await _firestore.collection('users').doc(assigneeId).get();
+          String pushToken = userDoc['pushToken'];
+          await FirebaseAPI().sendPushNotification(
+              pushToken, '$names đã tạo một Task mới cho bạn $title', names);
+        }
+
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Add Task success'), backgroundColor: Colors.green));
       Navigator.of(context).push(MaterialPageRoute(
