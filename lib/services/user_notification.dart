@@ -27,6 +27,7 @@ class FirebaseAPI {
     fullname: user.displayName!, 
     email:user.email! , 
     pushToken: '',
+    searchKeywords: []
     );
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/screens/authentication/LoginScreen.dart';
 import 'package:ruprup/services/user_notification.dart';
+import 'package:ruprup/utils/searchKeyWord.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -121,7 +122,7 @@ class AuthService {
       }
 
       UserModel userModel =
-          UserModel(userId: user.uid, fullname: fullname, email: email,pushToken: '');
+          UserModel(userId: user.uid, fullname: fullname, email: email,pushToken: '', searchKeywords: generateSearchKeywords(fullname));
 
       // Lưu thông tin người dùng vào Firestore
       await _firestore.collection('users').doc(user.uid).set(userModel.toMap());

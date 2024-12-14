@@ -23,6 +23,7 @@ import 'package:ruprup/services/file_folder_service.dart';
 import 'package:ruprup/services/folder_service.dart';
 import 'package:ruprup/services/meeting_service.dart';
 import 'package:ruprup/services/storage_service.dart';
+import 'package:ruprup/utils/searchKeyWord.dart';
 import 'package:ruprup/widgets/group/NotificaJoinMeet.dart';
 import 'package:open_file/open_file.dart';
 
@@ -48,7 +49,8 @@ class _GroupScreenState extends State<GroupScreen> {
         startDate: DateTime.now(),
         ownerId: channel.adminId,
         memberIds: channel.memberIds,
-        tasks: []);
+        tasks: [],
+        searchKeywords: generateSearchKeywords(_nameProjectController.text));
 
     await Provider.of<ProjectProvider>(context, listen: false)
         .createProject(newProject);
@@ -489,7 +491,6 @@ class FilesTab extends StatefulWidget {
 }
 
 class _FilesTabState extends State<FilesTab> {
-
   String currentFolderId = "Home";
   List<Folder> listFolderNavi = [];
 
@@ -613,7 +614,6 @@ class _FilesTabState extends State<FilesTab> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -663,38 +663,38 @@ class _FilesTabState extends State<FilesTab> {
           ),
 
           // Nút thêm (Create Folder, Upload File)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FloatingActionButton.extended(
-                        backgroundColor: Colors.white,
-                        onPressed: _showCreateFolderDialog,
-                        label: const Text(
-                          "Create folder",
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                        icon: const Icon(Icons.create_new_folder,
-                            color: Colors.blue),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FloatingActionButton.extended(
+                      backgroundColor: Colors.white,
+                      onPressed: _showCreateFolderDialog,
+                      label: const Text(
+                        "Create folder",
+                        style: TextStyle(color: Colors.blue),
                       ),
-                      const SizedBox(height: 8.0),
-                      FloatingActionButton.extended(
-                        backgroundColor: Colors.white,
-                        onPressed: uploadFile,
-                        label: const Text("Upload file",
-                            style: TextStyle(color: Colors.blue)),
-                        icon: const Icon(Icons.upload_file, color: Colors.blue),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      icon: const Icon(Icons.create_new_folder,
+                          color: Colors.blue),
+                    ),
+                    const SizedBox(height: 8.0),
+                    FloatingActionButton.extended(
+                      backgroundColor: Colors.white,
+                      onPressed: uploadFile,
+                      label: const Text("Upload file",
+                          style: TextStyle(color: Colors.blue)),
+                      icon: const Icon(Icons.upload_file, color: Colors.blue),
+                    ),
+                  ],
+                ),
+              ],
             ),
+          ),
           // Padding(
           //   padding: const EdgeInsets.all(16.0),
           //   child: Row(

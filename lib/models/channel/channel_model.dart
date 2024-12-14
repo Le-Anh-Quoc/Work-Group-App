@@ -6,6 +6,7 @@ class Channel {
   final String adminId;
   final List<String> memberIds;
   final DateTime createdAt;
+  final List<String> searchKeywords;
 
   Channel({
     required this.channelId,
@@ -15,6 +16,7 @@ class Channel {
     required this.adminId,
     required this.memberIds,
     required this.createdAt,
+    required this.searchKeywords
   });
 
   // Convert a Group object to a map for Firestore
@@ -27,6 +29,7 @@ class Channel {
       'adminId': adminId,
       'memberIds': memberIds,
       'createdAt': createdAt.toIso8601String(),
+      'searchKeywords': searchKeywords
       //'tasks': tasks,
     };
   }
@@ -41,6 +44,7 @@ class Channel {
       adminId: map['adminId'] ?? '',
       memberIds: List<String>.from(map['memberIds'] ?? []),
       createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+      searchKeywords: List<String>.from(map['searchKeywords'] ?? []),
     );
   }
 

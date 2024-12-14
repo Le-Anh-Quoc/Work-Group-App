@@ -17,6 +17,7 @@ class Project {
   int inReview; // Công việc đang được đánh giá
   int done; // Công việc đã hoàn thành
   final List<Task>? tasks; // danh sách các công việc trong dự án
+  final List<String> searchKeywords;
 
   Project(
       {required this.projectId,
@@ -31,7 +32,8 @@ class Project {
       this.inProgress = 0, // Giá trị mặc định là 0
       this.inReview = 0, // Giá trị mặc định là 0
       this.done = 0, // Giá trị mặc định là 0
-      this.tasks});
+      this.tasks,
+      required this.searchKeywords});
 
   // Phương thức để chuyển đổi đối tượng thành Map (có thể sử dụng để lưu vào Firestore)
   Map<String, dynamic> toMap() {
@@ -48,7 +50,8 @@ class Project {
       'inProgress': inProgress,
       'inReview': inReview,
       'done': done,
-      'tasks': tasks?.map((task) => task.toMap()).toList()
+      'tasks': tasks?.map((task) => task.toMap()).toList(),
+      'searchKeywords': searchKeywords
     };
   }
 
@@ -71,7 +74,8 @@ class Project {
         done: map['done'] ?? 0,
         tasks: map['tasks'] != null
             ? List<Task>.from(map['tasks'].map((task) => Task.fromMap(task)))
-            : null);
+            : null,
+        searchKeywords: List<String>.from(map['searchKeywords']));
   }
 
   int getTotalTask() {

@@ -1,9 +1,17 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ruprup/models/channel/channel_model.dart';
+import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/providers/user_provider.dart';
+import 'package:ruprup/services/channel_service.dart';
+import 'package:ruprup/services/project_service.dart';
 import 'package:ruprup/services/user_service.dart';
+import 'package:ruprup/widgets/search/ChannelWidget.dart';
 import 'package:ruprup/widgets/search/PeopleWidget.dart';
+import 'package:ruprup/widgets/search/ProjectWidget.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -14,88 +22,72 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final UserService _userService = UserService(); // Instance of UserService
-  List<UserModel> _searchResults = [];
+  List<UserModel> _searchUserResults = [];
+  List<Channel> _searchChannelResults = [];
+  List<Project> _searchProjectResults = [];
+  String _selectedCategory = 'people'; // Default selected category
 
-  // void _searchUser(String email) async {
-  //   String Querry= _searchController.text.trim();
-  // if (Querry.isEmpty) return;
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchTextChanged);
+  }
 
-  //   setState(() {
-  //     _isLoading =true;
-  //   });
-  //   try {
-  //   List<UserModel> results = await _userService.searchUsers(Querry);
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-  //   setState(() {
-  //     _searchResults = results;
-  //   });
+  void _onSearchTextChanged() {
+    final searchText = _searchController.text.trim();
+    if (searchText.isNotEmpty) {
+      switch (_selectedCategory) {
+        case 'people':
+          _searchPeople(searchText);
+          break;
+        case 'channel':
+          _searchChannels(searchText);
+          break;
+        case 'project':
+          _searchProjects(searchText);
+          break;
+      }
+    } else {
+      setState(() {
+        _searchUserResults = [];
+        _searchChannelResults = [];
+        _searchProjectResults = [];
+      });
+    }
+  }
 
-  //   if (results.isEmpty) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Không tìm thấy người dùng!')),
-  //     );
-  //   }
-  // } catch (e) {
-  //   // Xử lý lỗi khi tìm kiếm thất bại
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(content: Text('Đã xảy ra lỗi: $e')),
-  //   );
-  // } finally {
-  //   setState(() {
-  //     _isLoading = false; // Tắt trạng thái loading
-  //   });
-  // }
-
-  // }
-  void _searchUser(String email) async {
-    if (_searchController.text.isEmpty) return;
-
-    List<UserModel> results =
-        await _userService.searchUsers(_searchController.text);
-
+  Future<void> _searchPeople(String query) async {
+    final results = await UserService().searchUsers(query); // Tìm người
     setState(() {
-      _searchResults = results;
+      _searchUserResults = results;
     });
   }
-  // Đợi người dùng ngừng nhập khoảng 1s rồi mới thực hiện tìm kiếm
-  // void _onSearchChanged() {
-  //   if (_searchController.text.isEmpty) {
-  //     setState(() {
-  //       _searchResults.clear();
-  //     });
-  //     return;
-  //   }
 
-  //   Future.delayed(const Duration(seconds: 1), () async {
-  //     if (_searchController.text.isNotEmpty) {
-  //       setState(() {
-  //         _isLoading = true;
-  //       });
+  Future<void> _searchChannels(String query) async {
+    // Gọi hàm tìm kiếm channels
+    final currentUser =
+        Provider.of<UserProvider>(context, listen: false).currentUser;
+    final results = await ChannelService()
+        .searchChannels(query, currentUser!.userId); // Tìm channels
+    setState(() {
+      _searchChannelResults = results;
+    });
+  }
 
-  //       List<UserModel> results =
-  //           await _userService.searchUsers(_searchController.text.trim());
-
-  //       setState(() {
-  //         _searchResults = results;
-  //         _isLoading = false;
-  //       });
-  //     }
-  //   });
-  // }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _searchController.addListener(_onSearchChanged);
-  // }
-
-  // @override
-  // void dispose() {
-  //   _searchController.removeListener(_onSearchChanged);
-  //   _searchController.dispose();
-  //   super.dispose();
-  // }
+  Future<void> _searchProjects(String query) async {
+    // Gọi hàm tìm kiếm projects
+    final results =
+        await ProjectService().searchProjects(query); // Tìm projects
+    setState(() {
+      _searchProjectResults = results;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,8 +97,6 @@ class _SearchScreenState extends State<SearchScreen> {
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            // crossAxisAlignment:
-            //     CrossAxisAlignment.start, // Align children to the start
             children: [
               TextField(
                 controller: _searchController,
@@ -114,41 +104,111 @@ class _SearchScreenState extends State<SearchScreen> {
                   filled: true,
                   fillColor: Colors.grey[100], // Lighter grey background
                   labelStyle: const TextStyle(color: Colors.grey),
-                  hintText: 'Search',
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.search, color: Colors.blueAccent),
-                    onPressed: () => _searchUser(_searchController.text.trim()),
+                  hintText: 'Search for people, projects, channels',
+                  hintStyle: TextStyle(color: Colors.grey),
+                  prefixIcon: Icon(
+                    Icons.search, color: Colors.blue,
+                    //onPressed: () => _searchUser(_searchController.text.trim()),
                   ),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
                     borderSide: const BorderSide(
-                        color: Colors.blueAccent,
-                        width: 2), // Focused border color
+                        color: Colors.blue, width: 1), // Focused border color
                   ),
                 ),
               ),
               const SizedBox(height: 10),
-              // Search Results
-              Expanded(
-                child: _searchResults.isEmpty
-                    ? const Center(
-                        child: Text('No users found.',
-                            style: TextStyle(fontSize: 16, color: Colors.grey)))
-                    : ListView.builder(
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          UserModel user = _searchResults[index];
-                          return PeopleWidget(
-                              targetUserId: user.userId);
-                        },
-                      ),
+
+              Row(
+                //mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildCategoryChip('people'),
+                  const SizedBox(width: 10),
+                  _buildCategoryChip('channel'),
+                  const SizedBox(width: 10),
+                  _buildCategoryChip('project'),
+                ],
               ),
+
+              // Search Results
+              if (_selectedCategory == 'people')
+                Expanded(
+                  child: _searchUserResults.isEmpty
+                      ? const Center(
+                          child: Text('No data found.',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey)))
+                      : ListView.builder(
+                          itemCount: _searchUserResults.length,
+                          itemBuilder: (context, index) {
+                            UserModel user = _searchUserResults[index];
+                            return PeopleWidget(people: user);
+                          },
+                        ),
+                ),
+              if (_selectedCategory == 'channel')
+                Expanded(
+                  child: _searchChannelResults.isEmpty
+                      ? const Center(
+                          child: Text('No data found.',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey)))
+                      : ListView.builder(
+                          itemCount: _searchChannelResults.length,
+                          itemBuilder: (context, index) {
+                            Channel channel = _searchChannelResults[index];
+                            return ChannelWidget(channel: channel);
+                          },
+                        ),
+                ),
+              if (_selectedCategory == 'project')
+                Expanded(
+                  child: _searchProjectResults.isEmpty
+                      ? const Center(
+                          child: Text('No data found.',
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.grey)))
+                      : ListView.builder(
+                          itemCount: _searchProjectResults.length,
+                          itemBuilder: (context, index) {
+                            Project project = _searchProjectResults[index];
+                            return ProjectWidget(
+                                project: project);
+                          },
+                        ),
+                ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String category) {
+    bool isSelected = _selectedCategory == category;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedCategory = category;
+        });
+        _onSearchTextChanged();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          category,
+          style: TextStyle(
+              color: isSelected ? Colors.white : Colors.grey[700],
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal),
         ),
       ),
     );

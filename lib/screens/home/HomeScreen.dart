@@ -12,6 +12,7 @@ import 'package:ruprup/providers/meeting_provider.dart';
 import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/screens/group/EventCalendarScreen.dart';
+import 'package:ruprup/screens/search/SearchScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
@@ -107,65 +108,64 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       drawer: _buildDrawer(currentUser!),
       appBar: CustomAppBar(
-        isHome: true,
-        title: '$greeting, ${currentUser.fullname}',
-        leading: PopupMenuButton<String>(
-          color: Colors.white,
-          onSelected: (value) {
-            if (value == 'info') {
-              // Gọi hàm tạo cuộc họp tức thì
-            } else if (value == 'achievement') {
-            } else {
-              authService.logOut(context);
-            }
-          },
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            const PopupMenuItem<String>(
-              value: 'info',
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.person,
-                    color: Colors.blue,
-                  ),
-                  SizedBox(width: 10),
-                  Text('Information'),
-                ],
-              ),
+          isHome: true,
+          title: '$greeting, ${currentUser.fullname}',
+          leading: PopupMenuButton<String>(
+            color: Colors.white,
+            onSelected: (value) {
+              if (value == 'info') {
+                // Gọi hàm tạo cuộc họp tức thì
+              } else if (value == 'achievement') {
+              } else {
+                authService.logOut(context);
+              }
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const PopupMenuItem<String>(
-              value: 'achievement',
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(Icons.emoji_events, color: Colors.blue),
-                  SizedBox(width: 10),
-                  Text('Achievement'),
-                ],
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'info',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.person,
+                      color: Colors.blue,
+                    ),
+                    SizedBox(width: 10),
+                    Text('Information'),
+                  ],
+                ),
               ),
-            ),
-            const PopupMenuItem<String>(
-              value: 'logout',
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(Icons.logout, color: Colors.blue),
-                  SizedBox(width: 10),
-                  Text('Log out'),
-                ],
+              const PopupMenuItem<String>(
+                value: 'achievement',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(Icons.emoji_events, color: Colors.blue),
+                    SizedBox(width: 10),
+                    Text('Achievement'),
+                  ],
+                ),
               ),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(Icons.logout, color: Colors.blue),
+                    SizedBox(width: 10),
+                    Text('Log out'),
+                  ],
+                ),
+              ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: PersonalInitialsAvatar(name: currentUser.fullname),
             ),
-          ],
-          child: Padding(
-            padding: const EdgeInsets.only(left: 12),
-            child: PersonalInitialsAvatar(name: currentUser.fullname),
-          ),
-        ),
-      ),
+          )),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 64),
@@ -173,6 +173,8 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildDateCard(),
+              const SizedBox(height: 15),
+              _buildSearch(),
               const SizedBox(height: 15),
               _buildRecentProjectsSection(),
               const SizedBox(height: 10),
@@ -334,6 +336,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   ],
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearch() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => SearchScreen()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey[100], // Màu nền nhẹ
+          borderRadius: BorderRadius.circular(20), // Bo tròn các góc
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.search,
+              color: Colors.blue, // Màu biểu tượng
+              size: 24, // Kích thước biểu tượng
+            ),
+            const SizedBox(width: 10), // Khoảng cách giữa biểu tượng và văn bản
+            Text(
+              'Search for people, projects, channels',
+              style: TextStyle(
+                color: Colors.grey, // Màu chữ
+                fontSize: 14, // Kích thước chữ
               ),
             ),
           ],
