@@ -73,20 +73,20 @@ class TaskIndivi extends StatelessWidget {
               color: color.withOpacity(0.6), // Màu chữ nhạt hơn
             ),
           ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Container(
-              padding: const EdgeInsets.all(8.0), // Điều chỉnh khoảng cách bên trong
-              decoration: BoxDecoration(
-                color: color, // Màu nền
-                borderRadius: BorderRadius.circular(8.0), // Bo góc
-              ),
-              child: const Icon(
-                Icons.arrow_forward,
-                color: Colors.white,
-              ),
-            ),
-          ),
+          // Align(
+          //   alignment: Alignment.bottomRight,
+          //   child: Container(
+          //     padding: const EdgeInsets.all(8.0), // Điều chỉnh khoảng cách bên trong
+          //     decoration: BoxDecoration(
+          //       color: color, // Màu nền
+          //       borderRadius: BorderRadius.circular(8.0), // Bo góc
+          //     ),
+          //     child: const Icon(
+          //       Icons.arrow_forward,
+          //       color: Colors.white,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
