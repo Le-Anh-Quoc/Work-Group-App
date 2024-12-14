@@ -2,6 +2,8 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/screens/chat/ListChatScreen.dart';
 import 'package:ruprup/screens/group/ListGroupScreen.dart';
 import 'package:ruprup/screens/home/HomeScreen.dart';
@@ -34,6 +36,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildBody() {
+    final currentUser = Provider.of<UserProvider>(context, listen: false).currentUser;
     switch (_selectedIndex) {
       case 0:
         return const HomeScreen();
@@ -44,7 +47,7 @@ class _MainScreenState extends State<MainScreen> {
       case 3:
         return const ListChatScreen();
       case 4:
-        return PersonalScreen(userId: currentUserId);
+        return PersonalScreen(profileUser: currentUser!);
       default:
         return Container();
     }

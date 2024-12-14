@@ -16,13 +16,13 @@ class PeopleWidget extends StatelessWidget {
     NotificationService notification = NotificationService();
 
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => PersonalScreen(userId: people.userId),
-          ),
-        );
-      },
+      // onTap: () {
+      //   Navigator.of(context).push(
+      //                   MaterialPageRoute(
+      //                     builder: (_) => PersonalScreen(userId: targetUserId),
+      //                   ),
+      //                 );
+      // },
       child: Card(
         color: Colors.white,
         shape:
