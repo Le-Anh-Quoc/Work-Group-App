@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:ruprup/screens/notification/NotificationScreen.dart';
@@ -19,8 +19,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         color: Colors.grey[50],
       ),
       child: IconButton(
-        icon: const Icon(Icons.notifications_none_rounded,
-            color: Colors.black, size: 30),
+        icon: const Icon(Icons.notifications_none_rounded, size: 30),
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(

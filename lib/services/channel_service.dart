@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_is_not_operator, unnecessary_cast
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ruprup/models/channel/channel_model.dart';
 import 'package:ruprup/models/room_model.dart';

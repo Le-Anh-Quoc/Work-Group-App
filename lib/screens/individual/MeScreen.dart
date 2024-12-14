@@ -7,8 +7,8 @@ import 'package:ruprup/screens/individual/EditMeScreen.dart';
 import 'package:ruprup/widgets/me/TaskWidget.dart';
 
 class PersonalScreen extends StatefulWidget {
-  final UserModel profileUser;
-  const PersonalScreen({super.key, required this.profileUser});
+  final UserModel? profileUser;
+  const PersonalScreen({super.key, this.profileUser});
 
   @override
   State<PersonalScreen> createState() => _PersonalScreenState();
@@ -21,18 +21,16 @@ class _PersonalScreenState extends State<PersonalScreen> {
         Provider.of<UserProvider>(context, listen: false).currentUser;
     bool isCurrentUser = currentUser!.userId ==
         widget.profileUser
-            .userId; // kiểm tra xem userId truyền vào có phải người dùng hiện tại không
+            ?.userId; // kiểm tra xem userId truyền vào có phải người dùng hiện tại không
 
     return Scaffold(
       appBar: AppBar(
-        leading: !isCurrentUser
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-                onPressed: () {
-                  Navigator.pop(context); // Quay lại khi nhấn nút
-                },
-              )
-            : null,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.blue),
+          onPressed: () {
+            Navigator.pop(context); // Quay lại khi nhấn nút
+          },
+        ),
         title: const Text(
           'Profile',
           style: TextStyle(
@@ -85,7 +83,7 @@ class _PersonalScreenState extends State<PersonalScreen> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                     builder: (_) => EditMeScreen(
-                                          profileUser: widget.profileUser,
+                                          profileUser: currentUser,
                                         )),
                               );
                             },

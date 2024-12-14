@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/room_model.dart';
-import 'package:ruprup/screens/search/SearchScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
 import 'package:ruprup/services/roomchat_service.dart';
 import 'package:ruprup/services/user_service.dart';
@@ -30,7 +29,7 @@ class _ListChatScreenState extends State<ListChatScreen>
     super.build(
         context); // Cần thiết cho AutomaticKeepAliveClientMixin hoạt động
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         isHome: false,
         title: 'Chats',
         // actions: [
@@ -76,7 +75,36 @@ class _ListChatScreenState extends State<ListChatScreen>
           });
 
           return chatResults.isEmpty
-              ? const Center(child: Text("Không có cuộc trò chuyện nào"))
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.chat_bubble_outline,
+                        size: 80,
+                        color: Colors.blue,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No conversations yet!',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Start a new chat and connect with your team.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               : ListView.builder(
                   itemCount: chatResults.length,
                   itemBuilder: (context, index) {

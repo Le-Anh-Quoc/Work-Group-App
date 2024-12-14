@@ -8,7 +8,6 @@ import 'package:ruprup/screens/chat/ListChatScreen.dart';
 import 'package:ruprup/screens/group/ListGroupScreen.dart';
 import 'package:ruprup/screens/home/HomeScreen.dart';
 import 'package:ruprup/screens/project/ListProjectScreen.dart';
-import 'package:ruprup/screens/individual/MeScreen.dart';
 import 'package:ruprup/widgets/bottomNav/BottomNav.dart';
 
 class MainScreen extends StatefulWidget {
@@ -46,8 +45,6 @@ class _MainScreenState extends State<MainScreen> {
         return const ListGroupScreen();
       case 3:
         return const ListChatScreen();
-      case 4:
-        return PersonalScreen(profileUser: currentUser!);
       default:
         return Container();
     }
@@ -98,14 +95,6 @@ class _MainScreenState extends State<MainScreen> {
                     isSelected: _selectedIndex == 3,
                     onTap: () {
                       _onItemTapped(3);
-                    },
-                  ),
-                  BottomNavItem(
-                    icon: Icons.person_outline,
-                    label: 'Me',
-                    isSelected: _selectedIndex == 4,
-                    onTap: () {
-                      _onItemTapped(4);
                     },
                   ),
                 ],

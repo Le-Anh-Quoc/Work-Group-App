@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/user_model.dart';
-import 'package:ruprup/screens/individual/MeScreen.dart';
 import 'package:ruprup/services/notification_service.dart';
 import 'package:ruprup/services/user_service.dart';
 

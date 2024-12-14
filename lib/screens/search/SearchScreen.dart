@@ -108,7 +108,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   hintStyle: TextStyle(color: Colors.grey),
                   prefixIcon: Icon(
                     Icons.search, color: Colors.blue,
-                    //onPressed: () => _searchUser(_searchController.text.trim()),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -117,14 +116,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: const BorderSide(
-                        color: Colors.blue, width: 1), // Focused border color
+                        color: Colors.blue, width: 1),
                   ),
                 ),
               ),
               const SizedBox(height: 10),
 
               Row(
-                //mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   _buildCategoryChip('people'),
                   const SizedBox(width: 10),
@@ -138,10 +136,7 @@ class _SearchScreenState extends State<SearchScreen> {
               if (_selectedCategory == 'people')
                 Expanded(
                   child: _searchUserResults.isEmpty
-                      ? const Center(
-                          child: Text('No data found.',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.grey)))
+                      ? _buildNoDataFound(Icons.person_outline, 'No people found.')
                       : ListView.builder(
                           itemCount: _searchUserResults.length,
                           itemBuilder: (context, index) {
@@ -153,10 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
               if (_selectedCategory == 'channel')
                 Expanded(
                   child: _searchChannelResults.isEmpty
-                      ? const Center(
-                          child: Text('No data found.',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.grey)))
+                      ? _buildNoDataFound(Icons.groups, 'No channels found.')
                       : ListView.builder(
                           itemCount: _searchChannelResults.length,
                           itemBuilder: (context, index) {
@@ -168,22 +160,34 @@ class _SearchScreenState extends State<SearchScreen> {
               if (_selectedCategory == 'project')
                 Expanded(
                   child: _searchProjectResults.isEmpty
-                      ? const Center(
-                          child: Text('No data found.',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.grey)))
+                      ? _buildNoDataFound(Icons.dashboard_outlined, 'No projects found.')
                       : ListView.builder(
                           itemCount: _searchProjectResults.length,
                           itemBuilder: (context, index) {
                             Project project = _searchProjectResults[index];
-                            return ProjectWidget(
-                                project: project);
+                            return ProjectWidget(project: project);
                           },
                         ),
                 ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoDataFound(IconData icon, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 80, color: Colors.blue),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }

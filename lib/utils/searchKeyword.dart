@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 List<String> generateSearchKeywords(String text) {
   final List<String> keywords = [];
   final String lowerText = text.toLowerCase();

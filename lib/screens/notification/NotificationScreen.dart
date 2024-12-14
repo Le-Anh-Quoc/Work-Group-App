@@ -1,6 +1,6 @@
 // ignore_for_file: unused_field, file_names, avoid_print
 
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/notification_model.dart';
 import 'package:ruprup/services/notification_service.dart';
@@ -9,7 +9,7 @@ import 'package:ruprup/widgets/notification/NotificationWidget.dart';
 class NotificationScreen extends StatefulWidget {
   
   final String userId;
-  NotificationScreen({required this.userId});
+  const NotificationScreen({super.key, required this.userId});
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -41,21 +41,21 @@ class _NotificationScreenState extends State<NotificationScreen> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios,
-                color: Colors.black, size: 28), // Custom icon here
+            icon: const Icon(Icons.arrow_back_ios_new,
+                color: Colors.blue, size: 28), // Custom icon here
             onPressed: () {
               Navigator.of(context).pop(); // Handles back navigation
             },
           ),
           backgroundColor: Colors.white,
           title: const Text("Notifications",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.blue)),
           centerTitle: true,
-          actions: [
-            IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.delete_outline_outlined, size: 28))
-          ],
+          // actions: [
+          //   IconButton(
+          //       onPressed: () {},
+          //       icon: const Icon(Icons.delete_outline_outlined, size: 28, color: Colors.blue,))
+          // ],
         ),
         body: SingleChildScrollView(
           child:

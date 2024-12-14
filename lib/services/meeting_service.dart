@@ -1,14 +1,14 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, non_constant_identifier_names
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:googleapis/transcoder/v1.dart';
+// import 'package:googleapis/transcoder/v1.dart';
 import 'package:ruprup/models/channel/meeting_model.dart';
 import 'package:ruprup/services/user_notification.dart';
 
 class MeetingService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  FirebaseAuth  get _auth => FirebaseAuth.instance;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
   // Tạo cuộc họp mới
   Future<void> createMeeting(String channelId, Meeting meeting) async {
     try {
@@ -21,44 +21,42 @@ class MeetingService {
     } catch (e) {
       print("Error creating meeting: $e");
     }
-    String name='Đã tạo một cuộc họp';
-    DocumentSnapshot docSnapShot= await _firestore
-    .collection('channel')
-    .doc(channelId)
-    .get();
+    String name = 'Đã tạo một cuộc họp';
+    DocumentSnapshot docSnapShot =
+        await _firestore.collection('channel').doc(channelId).get();
     String GroupChatId;
     GroupChatId = docSnapShot['groupChatId'];
-    DocumentSnapshot docPushToken= await _firestore
-    .collection('chats')
-    .doc(GroupChatId)
-    .get();
+    DocumentSnapshot docPushToken =
+        await _firestore.collection('chats').doc(GroupChatId).get();
     List<dynamic> userIds = docPushToken['userIds'];
-    String currentId= _auth.currentUser!.uid;
-    DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentId).get();
-    String names= userDoc['fullname'];
-      for (String userId in userIds) {
-         print('userid: $userId  và it hien tai $currentId');
-        if(userId == _auth.currentUser!.uid){
-          print('userid: $userId  và it hien tai $currentId');
-          continue;
-        }
-        try{
-          //Lấy thông tin user từ collection 'users' theo userId
-        DocumentSnapshot userDoc = await _firestore.collection('users').doc(userId).get();
+    String currentId = _auth.currentUser!.uid;
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(currentId).get();
+    String names = userDoc['fullname'];
+    for (String userId in userIds) {
+      print('userid: $userId  và it hien tai $currentId');
+      if (userId == _auth.currentUser!.uid) {
+        print('userid: $userId  và it hien tai $currentId');
+        continue;
+      }
+      try {
+        //Lấy thông tin user từ collection 'users' theo userId
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(userId).get();
         // if(userId == _auth.currentUser!.uid) return;
         // else{
-          if (userDoc.exists) {
+        if (userDoc.exists) {
           // Lấy trường pushToken từ document của user
           String pushToken = userDoc['pushToken'];
-          
-            await FirebaseAPI().sendPushNotification(pushToken,name,names);
+
+          await FirebaseAPI().sendPushNotification(pushToken, name, names);
           // In ra pushToken của user
           print('Push Token for $userId: $pushToken');
-        } 
-        }catch (e)  {
-          print('User not found: $userId');
         }
+      } catch (e) {
+        print('User not found: $userId');
       }
+    }
   }
 
   // Lấy tất cả các cuộc họp của một kênh
@@ -124,7 +122,6 @@ class MeetingService {
     } catch (e) {
       print("Error updating meeting: $e");
     }
-    
   }
 
   // Xóa cuộc họp

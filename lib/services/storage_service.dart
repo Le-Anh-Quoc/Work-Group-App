@@ -1,11 +1,12 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 
 class StorageService {
-  String _file = 'file';
+  final String _file = 'file';
   // Lấy tất cả file và folder theo folderId
   // Future<Map<String, dynamic>> getFolderContents(String folderId) async {
   //   final folders = await folderService.getFoldersByParentId(folderId);
@@ -18,7 +19,6 @@ class StorageService {
   // }
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String> uploadFileFolderToFirebaseStorage(
       File file, String folderName) async {

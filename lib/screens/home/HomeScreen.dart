@@ -1,6 +1,7 @@
 // // ignore_for_file: file_names, avoid_print, prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables
 
-import 'dart:developer';
+
+// ignore_for_file: file_names, avoid_print
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +15,9 @@ import 'package:ruprup/providers/meeting_provider.dart';
 import 'package:ruprup/providers/project_provider.dart';
 import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/screens/group/EventCalendarScreen.dart';
+import 'package:ruprup/screens/individual/MeScreen.dart';
 import 'package:ruprup/screens/search/SearchScreen.dart';
 import 'package:ruprup/services/auth_service.dart';
-import 'package:ruprup/services/user_notification.dart';
 import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 import 'package:ruprup/widgets/bottomNav/CustomAppbar.dart';
 import 'package:ruprup/widgets/project/ChildProjectWidget.dart';
@@ -117,8 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.white,
             onSelected: (value) {
               if (value == 'info') {
-                // Gọi hàm tạo cuộc họp tức thì
-              } else if (value == 'achievement') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (_) => PersonalScreen(profileUser: currentUser)),
+                );
               } else {
                 authService.logOut(context);
               }
@@ -141,17 +144,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const PopupMenuItem<String>(
-                value: 'achievement',
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.emoji_events, color: Colors.blue),
-                    SizedBox(width: 10),
-                    Text('Achievement'),
-                  ],
-                ),
-              ),
+              // const PopupMenuItem<String>(
+              //   value: 'achievement',
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.start,
+              //     children: [
+              //       Icon(Icons.emoji_events, color: Colors.blue),
+              //       SizedBox(width: 10),
+              //       Text('Achievement'),
+              //     ],
+              //   ),
+              // ),
               const PopupMenuItem<String>(
                 value: 'logout',
                 child: Row(
@@ -176,11 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildDateCard(),
-              const SizedBox(height: 15),
               _buildSearch(),
-              const SizedBox(height: 15),
               _buildRecentProjectsSection(),
-              const SizedBox(height: 10),
               _buildMyProgressTasksSection(),
               _buildTaskList(),
             ],
@@ -236,14 +236,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => EventCalendarScreen()),
+          MaterialPageRoute(builder: (_) => const EventCalendarScreen()),
         );
       },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: Colors.white,
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 20,
@@ -253,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
           //border: Border.all(width: 0.5, color: Colors.blue)
         ),
         padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 15),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -320,9 +321,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           : [
                               const SizedBox(
                                   height: 10), // Khoảng cách bên trên
-                              Column(
+                              const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
+                                children: [
                                   Center(
                                     child: Icon(Icons.event_busy,
                                         color: Colors.grey, size: 35),
@@ -351,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => SearchScreen()),
+          MaterialPageRoute(builder: (_) => const SearchScreen()),
         );
       },
       child: Container(
@@ -360,14 +361,14 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Colors.grey[100], // Màu nền nhẹ
           borderRadius: BorderRadius.circular(20), // Bo tròn các góc
         ),
-        child: Row(
+        child: const Row(
           children: [
             Icon(
               Icons.search,
               color: Colors.blue, // Màu biểu tượng
               size: 24, // Kích thước biểu tượng
             ),
-            const SizedBox(width: 10), // Khoảng cách giữa biểu tượng và văn bản
+            SizedBox(width: 10), // Khoảng cách giữa biểu tượng và văn bản
             Text(
               'Search for people, projects, channels',
               style: TextStyle(
@@ -387,17 +388,29 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Recent projects',
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
+        // const Text('Recent projects',
+        //     style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
+        // const SizedBox(height: 10),
         projectProvider.recentProjects.isEmpty
-            ? Text("You don't have any project")
+            // ? const Center(
+            //     child: Text("Currently you have not active projects"))
+            ? const SizedBox()
             : SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: projectProvider.recentProjects.map((project) {
-                    return ChildProjectWidget(project: project);
-                  }).toList(),
+                child: Column(
+                  children: [
+                    const Text('Recent projects',
+                        style: TextStyle(
+                            fontSize: 19, fontWeight: FontWeight.bold)),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        children: projectProvider.recentProjects.map((project) {
+                          return ChildProjectWidget(project: project);
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
       ],
@@ -491,13 +504,34 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTaskList() {
     final taskProvider = Provider.of<Task>(context);
     if (taskProvider.tasksInProgressMe.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              height: 80,
+            const Icon(
+              Icons.emoji_emotions_outlined, // Icon thể hiện sự vui vẻ
+              size: 80,
+              color: Colors.blue,
             ),
-            Text('Currently you don\'t have any work in this project'),
+            const SizedBox(height: 16),
+            Text(
+              'You\'re free now!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No tasks assigned to you.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
           ],
         ),
       );

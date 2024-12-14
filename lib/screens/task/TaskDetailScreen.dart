@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, unused_element, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
+// ignore_for_file: file_names, unused_element, prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, avoid_print
 
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';

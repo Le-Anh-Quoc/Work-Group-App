@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, prefer_const_constructors, unnecessary_null_comparison
+// ignore_for_file: avoid_print, prefer_const_constructors, unnecessary_null_comparison, depend_on_referenced_packages, duplicate_ignore, non_constant_identifier_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -12,7 +12,7 @@ import 'package:http/http.dart';
 // ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:ruprup/models/user_model.dart';
+// import 'package:ruprup/models/user_model.dart';
 import 'package:http/http.dart' as http;
 class FirebaseAPI {
   static FirebaseAuth  get _auth => FirebaseAuth.instance;

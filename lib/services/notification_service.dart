@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print, duplicate_ignore
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/notification_model.dart';
@@ -39,7 +41,6 @@ class NotificationService {
             int aTime = a.timestamp.millisecondsSinceEpoch;
             int bTime = b.timestamp.millisecondsSinceEpoch;
             return (aTime).compareTo(bTime);
-          ;
         });
 
         return notifications;

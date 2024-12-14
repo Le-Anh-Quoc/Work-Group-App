@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field
+// ignore_for_file: unused_field, file_names
 
 import 'dart:io';
 
@@ -146,10 +146,10 @@ class _EditMeScreenState extends State<EditMeScreen> {
               contentPadding: EdgeInsets.symmetric(vertical: 4),
               filled: true,
               fillColor: Colors.white,
-              enabledBorder: const UnderlineInputBorder(
+              enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey, width: 1),
               ),
-              focusedBorder: const UnderlineInputBorder(
+              focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Colors.blueAccent, width: 2),
               ),
             ),

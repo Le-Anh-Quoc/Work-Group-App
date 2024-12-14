@@ -1,14 +1,16 @@
+// ignore_for_file: avoid_print, duplicate_ignore
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:path/path.dart';
-import 'package:provider/provider.dart';
+// import 'package:flutter/src/widgets/framework.dart';
+// import 'package:path/path.dart';
+// import 'package:provider/provider.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ruprup/models/message_model.dart';
 import 'package:ruprup/models/user_model.dart';
-import 'package:ruprup/providers/user_provider.dart';
+// import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/services/user_notification.dart';
-import 'package:ruprup/services/user_service.dart';
+// import 'package:ruprup/services/user_service.dart';
 //import 'package:ruprup/services/user_notification.dart';
 //import 'package:ruprup/services/user_notification.dart';
 

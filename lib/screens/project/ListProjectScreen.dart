@@ -24,15 +24,14 @@ class _ListProjectScreenState extends State<ListProjectScreen> {
   //List<Map<String, String>> _groups = []; // Danh sách nhóm với id và tên
   final List<Channel> _channels = [
     Channel(
-      channelId: 'All',
-      groupChatId: 'someGroupChatId', // Thay bằng giá trị thích hợp
-      projectId: [], // Thay bằng giá trị thích hợp
-      channelName: 'All group',
-      adminId: 'someAdminId', // Thay bằng giá trị thích hợp
-      memberIds: [], // Thêm danh sách các thành viên
-      createdAt: DateTime.now(),
-      searchKeywords: []
-    ),
+        channelId: 'All',
+        groupChatId: 'someGroupChatId', // Thay bằng giá trị thích hợp
+        projectId: [], // Thay bằng giá trị thích hợp
+        channelName: 'All group',
+        adminId: 'someAdminId', // Thay bằng giá trị thích hợp
+        memberIds: [], // Thêm danh sách các thành viên
+        createdAt: DateTime.now(),
+        searchKeywords: []),
   ];
 
   @override
@@ -145,16 +144,38 @@ class _ListProjectScreenState extends State<ListProjectScreen> {
             ),
             const SizedBox(height: 15),
             projectProvider.projects.isEmpty
-                ? const Center(
-                    child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Currently, you don\'t have any projects.',
-                        style: TextStyle(color: Colors.grey),
+                ? Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.dashboard_outlined,
+                            size: 80,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No projects available!',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Create your first project and start collaborating.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ))
+                    ),
+                  )
                 : Expanded(
                     child: ListView.builder(
                       itemCount: projectProvider.projects.length,
@@ -163,7 +184,7 @@ class _ListProjectScreenState extends State<ListProjectScreen> {
                         return ProjectWidget(project: project);
                       },
                     ),
-                  ),
+                  )
           ]),
         ));
   }

@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, use_build_context_synchronously, sort_child_properties_last, avoid_print, unnecessary_to_list_in_spreads
+// ignore_for_file: file_names, use_build_context_synchronously, sort_child_properties_last, avoid_print, unnecessary_to_list_in_spreads, curly_braces_in_flow_control_structures
 
 import 'dart:io';
 

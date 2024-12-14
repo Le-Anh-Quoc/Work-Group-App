@@ -54,7 +54,7 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
         .map((channel) =>
             channel.channelId) // Trích xuất channelId từ từng đối tượng
         .toList();
-    
+
     channelsCurrentUser = channelIds;
   }
 
@@ -147,10 +147,9 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                     shape: BoxShape.circle,
                   ),
                   todayDecoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.blue, width: 1)
-                  ),
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.blue, width: 1)),
                   todayTextStyle: const TextStyle(color: Colors.blue),
                   selectedTextStyle: const TextStyle(color: Colors.white),
                 ),
@@ -179,10 +178,49 @@ class _EventCalendarScreenState extends State<EventCalendarScreen> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 80,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
-                        child: Text('No meetings found for this date.'));
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.event_busy,
+                            size: 80,
+                            color: Colors.blue,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No meetings found for this date.',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   }
 
                   final meetingsWithChannelNames = snapshot.data!;

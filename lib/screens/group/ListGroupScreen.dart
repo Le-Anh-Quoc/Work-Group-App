@@ -49,62 +49,96 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 36),
-        child: Stack(children: [
-          listChannelPersonal.isEmpty
-              ? const Center(child: Text("No groups found"))
-              : GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, // Số cột là 2
-                    crossAxisSpacing: 16.0, // Khoảng cách giữa các cột
-                    mainAxisSpacing: 16.0, // Khoảng cách giữa các hàng
-                    childAspectRatio:
-                        1.4, // Tỉ lệ chiều rộng/chiều cao của mỗi ô
-                  ),
-                  itemCount: listChannelPersonal.length,
-                  itemBuilder: (context, index) {
-                    final channel = listChannelPersonal[index];
-                    return GroupWidget(channel: channel);
-                  },
-                ),
-          Positioned(
-            bottom: 30, // Khoảng cách từ đáy
-            right: 30, // Khoảng cách từ phải
-            child: Container(
-              width: 55,
-              height: 55,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.blue,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 8.0,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ClipOval(
-                child: Material(
-                  color: Colors.blue,
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AddGroupScreen(),
+        child: Stack(
+          children: [
+            listChannelPersonal.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.groups,
+                          size: 80,
+                          color: Colors.blue,
                         ),
-                      );
+                        const SizedBox(height: 16),
+                        Text(
+                          "No groups found!",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Create a group to start collaborating.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 16.0),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // Số cột là 2
+                      crossAxisSpacing: 16.0, // Khoảng cách giữa các cột
+                      mainAxisSpacing: 16.0, // Khoảng cách giữa các hàng
+                      childAspectRatio:
+                          1.4, // Tỉ lệ chiều rộng/chiều cao của mỗi ô
+                    ),
+                    itemCount: listChannelPersonal.length,
+                    itemBuilder: (context, index) {
+                      final channel = listChannelPersonal[index];
+                      return GroupWidget(channel: channel);
                     },
-                    child: const SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: Icon(Icons.add, size: 30, color: Colors.white),
+                  ),
+            Positioned(
+              bottom: 40, // Khoảng cách từ đáy
+              right: 30, // Khoảng cách từ phải
+              child: Container(
+                width: 55,
+                height: 55,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8.0,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Material(
+                    color: Colors.blue,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const AddGroupScreen(),
+                          ),
+                        );
+                      },
+                      child: const SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: Icon(Icons.add, size: 30, color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }

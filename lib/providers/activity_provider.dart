@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/foundation.dart';
 import 'package:ruprup/models/project/activityProject_model.dart';
 import 'package:ruprup/services/activity_service.dart';
