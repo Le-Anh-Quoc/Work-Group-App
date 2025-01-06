@@ -16,7 +16,7 @@ import 'package:ruprup/services/user_notification.dart';
 
 class ChatService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  FirebaseAuth  get _auth => FirebaseAuth.instance;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
   Stream<List<MessageModel>> getMessages(String chatId) {
     return _db
         .collection('chats')
@@ -61,17 +61,19 @@ class ChatService {
       'timestamp': Timestamp.fromMillisecondsSinceEpoch(message.timestamp),
     }, SetOptions(merge: true));
 
-    DocumentSnapshot userDoc = await _db.collection('users').doc(_auth.currentUser!.uid).get();
-    String name= userDoc['fullname'];
+    DocumentSnapshot userDoc =
+        await _db.collection('users').doc(_auth.currentUser!.uid).get();
+    String name = userDoc['fullname'];
     print('ten nguoi dung hien tai $name');
     List<String> pushTokens = userModels.values
         .map((user) => user.pushToken)
-        .where((token) => token.isNotEmpty) 
+        .where((token) => token.isNotEmpty)
         .toList();
-      print(pushTokens);
+    print(pushTokens);
     if (pushTokens.isNotEmpty) {
       for (String pushToken in pushTokens) {
-        await FirebaseAPI().sendPushNotification(pushToken, message.content,name);
+        await FirebaseAPI()
+            .sendPushNotification(pushToken, message.content, name);
       }
     }
   }
@@ -84,18 +86,19 @@ class ChatService {
         List<dynamic> userIds = snapshot.get('userIds') as List<dynamic>;
         String nameRoom = snapshot.get('nameRoom');
         int createAt = snapshot.get('createAt');
-        Timestamp lassTimeMessage= snapshot.get('timestamp');
+        Timestamp lassTimeMessage = snapshot.get('timestamp');
         return {
           'lastMessage': lastMessage,
           'userIds': userIds,
           'createAt': createAt,
           'nameRoom': nameRoom,
-          'timestamp':lassTimeMessage,
+          'timestamp': lassTimeMessage,
         };
       }
       return {};
     });
   }
+
   Stream<Map<String, dynamic>> getLastTimeChat(String chatId) {
     return _db.collection('chats').doc(chatId).snapshots().map((snapshot) {
       if (snapshot.exists) {
@@ -243,6 +246,22 @@ class ChatService {
       }).toList();
     });
   }
+
+  Future<void> deleteRoomChat(String roomId) async {
+    // Xóa RoomChat
+    await _db.collection('chats').doc(roomId).delete();
+  }
+
+  Future<bool> checkIfRoomHasMessages(String roomId) async {
+    final roomDoc = await _db.collection('chats').doc(roomId).get();
+
+    // Kiểm tra nếu document tồn tại và lastMessage không phải là null hoặc rỗng
+    if (roomDoc.exists && roomDoc.data() != null) {
+      final data = roomDoc.data() as Map<String, dynamic>;
+      return data['lastMessage'] != null &&
+          data['lastMessage'].toString().trim().isNotEmpty;
+    }
+
+    return false; // Trả về false nếu không tồn tại hoặc lastMessage là null
+  }
 }
-
-

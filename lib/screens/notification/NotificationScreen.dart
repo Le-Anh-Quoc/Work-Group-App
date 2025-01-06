@@ -7,7 +7,6 @@ import 'package:ruprup/services/notification_service.dart';
 import 'package:ruprup/widgets/notification/NotificationWidget.dart';
 
 class NotificationScreen extends StatefulWidget {
-  
   final String userId;
   const NotificationScreen({super.key, required this.userId});
 
@@ -36,7 +35,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-     final  NotificationService notificationService= NotificationService();
+    final NotificationService notificationService = NotificationService();
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -49,7 +48,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           backgroundColor: Colors.white,
           title: const Text("Notifications",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.blue)),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.blue)),
           centerTitle: true,
           // actions: [
           //   IconButton(
@@ -57,37 +59,46 @@ class _NotificationScreenState extends State<NotificationScreen> {
           //       icon: const Icon(Icons.delete_outline_outlined, size: 28, color: Colors.blue,))
           // ],
         ),
-        body: SingleChildScrollView(
-          child:
-        
-          // Danh sách bài đăng
-          StreamBuilder<List<NotificationUser>>(
-            stream: notificationService.getAllNotifica(widget.userId),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text("Error: ${snapshot.error}"));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text("No Notifications"));
-              }
+        body: StreamBuilder<List<NotificationUser>>(
+          stream: notificationService.getAllNotifica(widget.userId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.notifications_off_outlined,
+                        size: 60,
+                        color: Colors.blue), // Biểu tượng không có thông báo
+                    SizedBox(height: 10),
+                    Text(
+                      "You have no notifications yet", // Mô tả cho người dùng
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-              final allNotifica = snapshot.data!;
+            final allNotifica = snapshot.data!;
 
-              return ListView.builder(
+            return ListView.builder(
               itemCount: allNotifica.length,
               itemBuilder: (context, index) {
-              final notification = allNotifica[index];
-              return NotificationWidget(
-                body: notification.body, // Nội dung thông báo
-                notificationTypeString: notification.type.value, // Loại thông báo
-              );
-                          },
-              );
-            },
-          ),
+                final notification = allNotifica[index];
+                return NotificationWidget(
+                  body: notification.body, // Nội dung thông báo
+                  notificationTypeString:
+                      notification.type.value, // Loại thông báo
+                );
+              },
+            );
+          },
         ));
   }
-
-
 }

@@ -64,7 +64,7 @@ class GroupWidget extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundColor: getColorFromCreatedAt(channel.createdAt),
+              backgroundColor: getColorFromCreatedAt(DateTime.fromMillisecondsSinceEpoch(channel.createdAt)),
               child: const Icon(
                 Icons.groups,
                 color: Colors.white,

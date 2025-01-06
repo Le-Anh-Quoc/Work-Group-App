@@ -65,6 +65,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
         selectedUsers.add(userId); // Chọn người dùng
       }
     });
+    print(selectedUsers);
   }
 
   void _createGroup() async {
@@ -76,7 +77,7 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
       return;
     }
 
-    if (selectedUsers.length < 2) {
+    if (selectedUsers.length <= 2) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Select at least 2 members")),
       );
@@ -88,34 +89,38 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
     });
 
     RoomChat newRoomChat = RoomChat(
-      idRoom: '',
-      type: 'group',
-      userIds: selectedUsers,
-      nameRoom: _groupNameController.text,
-      imageUrl: _imageUrl,
-      createAt: DateTime.now().millisecondsSinceEpoch,
-    );
+        idRoom: '',
+        type: 'group',
+        userIds: selectedUsers,
+        nameRoom: _groupNameController.text,
+        imageUrl: _imageUrl,
+        createAt: DateTime.now().millisecondsSinceEpoch,
+        timestamp: DateTime.now());
     RoomChat roomChat = await _roomChatService.createRoomChat(newRoomChat);
     //send notificaInApp
-    DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentUserId).get();
-    String names= userDoc['fullname'];
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(currentUserId).get();
+    String names = userDoc['fullname'];
     String title = _groupNameController.text;
     //Gửi cho những người được chọn để tạo group
-    for(String selectedUserss in selectedUsers){
-      NotificationUser notification=NotificationUser(
-      id: '', 
-      useredId: currentUserId, 
-      body: '$names đã tạo một Group $title mới', 
-      type: NotificationType.group, 
-      isRead: false, 
-      timestamp: DateTime.now());
-    if(selectedUserss != currentUserId){
-      await NotificationService().createNotification(selectedUserss, notification);
-    DocumentSnapshot userDoc = await _firestore.collection('users').doc(selectedUserss).get();
-    String pushToken = userDoc['pushToken'];
-    await FirebaseAPI().sendPushNotification(pushToken,'$names đã tạo một Group $title mới', names);
-    }
-    else continue;
+    for (String selectedUserss in selectedUsers) {
+      NotificationUser notification = NotificationUser(
+          id: '',
+          useredId: currentUserId,
+          body: '$names đã tạo một Group $title mới',
+          type: NotificationType.group,
+          isRead: false,
+          timestamp: DateTime.now());
+      if (selectedUserss != currentUserId) {
+        await NotificationService()
+            .createNotification(selectedUserss, notification);
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(selectedUserss).get();
+        String pushToken = userDoc['pushToken'];
+        await FirebaseAPI().sendPushNotification(
+            pushToken, '$names đã tạo một Group $title mới', names);
+      } else
+        continue;
     }
 
     // ScaffoldMessenger.of(context).showSnackBar(
@@ -162,7 +167,8 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.arrow_back_ios, size: 25, color: Colors.blue)),
+              icon: const Icon(Icons.arrow_back_ios,
+                  size: 25, color: Colors.blue)),
           title: Column(
             children: [
               const Center(

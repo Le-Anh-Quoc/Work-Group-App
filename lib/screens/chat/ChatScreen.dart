@@ -8,11 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:ruprup/models/room_model.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/providers/user_provider.dart';
+import 'package:ruprup/screens/MainScreen.dart';
 import 'package:ruprup/services/chat_service.dart';
 import 'package:ruprup/services/image_service.dart';
 import 'package:ruprup/services/user_service.dart';
+import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 import '../../models/message_model.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -47,6 +51,28 @@ class _ChatScreenState extends State<ChatScreen> {
 
     _fetchRecipientDetails();
     _fetchMessages();
+  }
+
+  void outChat() async {
+    print('out ra');
+    // Khi người dùng thoát khỏi ChatScreen, kiểm tra xem có tin nhắn nào không
+    bool hasMessages =
+        await _chatService.checkIfRoomHasMessages(widget.roomChat.idRoom);
+    if (!hasMessages) {
+      // Xóa đoạn chat nếu không có tin nhắn
+      if (widget.roomChat.type == 'direct')
+        await _chatService.deleteRoomChat(widget.roomChat.idRoom);
+    } else {
+      final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+      // Lấy userId khác với currentUserId
+      final otherUserId = widget.roomChat.userIds
+          .firstWhere((id) => id != currentUserId, orElse: () => '');
+
+      if (otherUserId.isNotEmpty) {
+        // Cập nhật friendList của currentUser
+        await _userService.addToFriendList(currentUserId, otherUserId);
+      }
+    }
   }
 
   Future<void> _fetchRecipientDetails() async {
@@ -136,25 +162,80 @@ class _ChatScreenState extends State<ChatScreen> {
 
   String _generateRandomId() => Random().nextInt(100000).toString();
 
+  Color getColorFromCreatedAt(DateTime createdAt) {
+    // Danh sách 7 màu sắc cầu vồng
+    final List<Color> rainbowColors = [
+      Colors.red.shade300,
+      Colors.orange.shade300,
+      Colors.yellow.shade700,
+      Colors.green.shade300,
+      Colors.blue.shade300,
+      Colors.indigo.shade300,
+      Colors.purple.shade300,
+    ];
+
+    // Chuyển `createdAt` thành chỉ số trong khoảng từ 0 đến 6
+    final index = createdAt.millisecondsSinceEpoch % rainbowColors.length;
+    return rainbowColors[index];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentUser =
+        Provider.of<UserProvider>(context, listen: false).currentUser;
+    String nameRoomDirect = widget.roomChat.nameRoom;
+    List<String> names = widget.roomChat.nameRoom.split('_');
+    if (names.length == 2) {
+      String firstName = names[0];
+      String secondName = names[1];
+
+      if (firstName == currentUser!.fullname) {
+        nameRoomDirect = secondName;
+      } else {
+        nameRoomDirect = firstName;
+      }
+    } else {
+      print('Invalid nameRoom format.');
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
         foregroundColor: Colors.black,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            outChat();
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const MainScreen(selectedIndex: 3),
+              ),
+            );
+          },
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.blue),
         ),
         title: Row(
           children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage('${widget.roomChat.imageUrl}'),
-              radius: 20,
+            // CircleAvatar(
+            //   backgroundImage: NetworkImage('${widget.roomChat.imageUrl}'),
+            //   radius: 20,
+            // ),
+            widget.roomChat.type == 'direct' ?
+              PersonalInitialsAvatar(name: nameRoomDirect)
+            :CircleAvatar(
+              radius: 25,
+              backgroundColor: widget.roomChat.imageUrl == null
+                  ? getColorFromCreatedAt(DateTime.fromMillisecondsSinceEpoch(
+                      widget.roomChat.createAt))
+                  : Colors.transparent,
+              backgroundImage: widget.roomChat.imageUrl != null
+                  ? NetworkImage(widget.roomChat.imageUrl!)
+                  : null,
+              child: widget.roomChat.imageUrl == null
+                  ? const Icon(Icons.groups, color: Colors.white, size: 30)
+                  : null,
             ),
             const SizedBox(width: 20),
             Text(
-              widget.roomChat.nameRoom,
+              nameRoomDirect,
               style: const TextStyle(fontSize: 20),
             ),
           ],
@@ -168,16 +249,16 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Setting')),
-              );
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.more_horiz),
+        //     onPressed: () {
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         const SnackBar(content: Text('Setting')),
+        //       );
+        //     },
+        //   ),
+        // ],
       ),
       body: Column(
         children: [

@@ -12,8 +12,7 @@ import 'package:ruprup/widgets/task/TaskWidget.dart';
 class TaskListScreen extends StatefulWidget {
   final String typeTask;
   final Project? project;
-  const TaskListScreen(
-      {super.key, required this.typeTask, this.project});
+  const TaskListScreen({super.key, required this.typeTask, this.project});
 
   @override
   State<TaskListScreen> createState() => _TaskListScreenState();
@@ -270,7 +269,8 @@ class TaskListWidget extends StatelessWidget {
   final List<Task> tasks;
   final Color backgroundColor;
 
-  const TaskListWidget({super.key, required this.tasks, required this.backgroundColor});
+  const TaskListWidget(
+      {super.key, required this.tasks, required this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -278,9 +278,24 @@ class TaskListWidget extends StatelessWidget {
       return Container(
         decoration: BoxDecoration(color: backgroundColor),
         child: const Center(
-          child: Text(
-            'Currently, project don\'t have any tasks.',
-            style: TextStyle(color: Colors.grey),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.task_alt, // Icon thể hiện không có task nào
+                size: 80, // Kích thước lớn để nổi bật
+                color: Colors.grey, // Màu xám trung tính
+              ),
+              SizedBox(height: 16), // Khoảng cách giữa icon và văn bản
+              Text(
+                'Currently, no tasks available.',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500, // Font chữ đậm nhẹ
+                ),
+              ),
+            ],
           ),
         ),
       );

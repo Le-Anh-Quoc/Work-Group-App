@@ -45,9 +45,9 @@ class ProjectProvider with ChangeNotifier {
   }
 
   // Thêm project
-  Future<void> createProject(Project project) async {
+  Future<void> createProject(Project project, String channelId) async {
     try {
-      await _projectService.createProject(project);
+      await _projectService.createProject(project, channelId);
       await fetchProjects(); // Sau khi tạo, load lại danh sách
     } catch (e) {
       print("Error creating project: $e");

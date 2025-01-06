@@ -99,6 +99,7 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             children: [
               TextField(
+                cursorColor: Colors.blue,
                 controller: _searchController,
                 decoration: InputDecoration(
                   filled: true,

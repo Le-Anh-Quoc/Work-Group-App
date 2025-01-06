@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
+import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 
 class  NewMemberWidget extends StatelessWidget {
   final String name;
@@ -18,11 +19,7 @@ class  NewMemberWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.all(8),
-      leading: const CircleAvatar(
-        radius: 22,
-        backgroundImage:
-            NetworkImage('https://picsum.photos/200/300?random=${1}'),
-      ),
+      leading: PersonalInitialsAvatar(name: name),
       title: Text(
         name,
         style: TextStyle(

@@ -144,8 +144,6 @@ class UserService {
         });
         print('Friend request sent.');
         return true; // Thành công
-        
-
       } else {
         print("Friend request already exists.");
         return false; // Đã tồn tại
@@ -338,5 +336,43 @@ class UserService {
     }).toList();
 
     return groups;
+  }
+
+  Future<void> addToFriendList(String userId, String friendId) async {
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    final friendDoc =
+        FirebaseFirestore.instance.collection('users').doc(friendId);
+
+    // Lấy thông tin của user hiện tại
+    final userSnapshot = await userDoc.get();
+    if (!userSnapshot.exists) return; // Dừng lại nếu user không tồn tại
+
+    // Lấy thông tin của friend
+    final friendSnapshot = await friendDoc.get();
+    if (!friendSnapshot.exists) return; // Dừng lại nếu friend không tồn tại
+
+    // Lấy danh sách friendList hiện tại của user
+    final userFriendList =
+        List<String>.from(userSnapshot.data()?['friendList'] ?? []);
+
+    // Lấy danh sách friendList hiện tại của friend
+    final friendFriendList =
+        List<String>.from(friendSnapshot.data()?['friendList'] ?? []);
+
+    // Kiểm tra nếu friendId đã tồn tại trong danh sách của user
+    if (!userFriendList.contains(friendId)) {
+      // Thêm friendId vào danh sách của user
+      await userDoc.update({
+        'friendList': FieldValue.arrayUnion([friendId]),
+      });
+    }
+
+    // Kiểm tra nếu userId đã tồn tại trong danh sách của friend
+    if (!friendFriendList.contains(userId)) {
+      // Thêm userId vào danh sách của friend
+      await friendDoc.update({
+        'friendList': FieldValue.arrayUnion([userId]),
+      });
+    }
   }
 }

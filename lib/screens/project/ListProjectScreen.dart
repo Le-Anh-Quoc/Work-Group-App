@@ -26,11 +26,11 @@ class _ListProjectScreenState extends State<ListProjectScreen> {
     Channel(
         channelId: 'All',
         groupChatId: 'someGroupChatId', // Thay bằng giá trị thích hợp
-        projectId: [], // Thay bằng giá trị thích hợp
+        projectIds: [], // Thay bằng giá trị thích hợp
         channelName: 'All group',
         adminId: 'someAdminId', // Thay bằng giá trị thích hợp
         memberIds: [], // Thêm danh sách các thành viên
-        createdAt: DateTime.now(),
+        createdAt: 8,
         searchKeywords: []),
   ];
 

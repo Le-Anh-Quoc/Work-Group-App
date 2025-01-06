@@ -15,13 +15,13 @@ class ChannelService {
     Channel newChannel = Channel(
         channelId: '', // Sẽ tự sinh ID
         groupChatId: groupChatId, // ID của group liên kết với channel
-        projectId: [],
+        projectIds: [],
         channelName: roomChat.nameRoom, // Sử dụng tên phòng từ roomChat
         adminId: roomChat.userIds[0], // Giả định người đầu tiên là admin
         memberIds: roomChat.userIds
             .map((user) => user)
             .toList(), // Lấy danh sách ID người dùng
-        createdAt: DateTime.now(), // Thời gian tạo
+        createdAt: roomChat.createAt, // Thời gian tạo
         searchKeywords: generateSearchKeywords(roomChat.nameRoom));
 
     // Thêm channel vào Firestore và lấy DocumentReference
@@ -124,5 +124,55 @@ class ChannelService {
     }).toList();
 
     return channels;
+  }
+
+  Future<void> updateChannelMembers(String channelId, List<String> membersToAdd,
+      List<String> membersToRemove) async {
+    final channelRef =
+        FirebaseFirestore.instance.collection('channel').doc(channelId);
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(channelRef);
+      if (!snapshot.exists) {
+        throw Exception("Channel không tồn tại.");
+      }
+
+      List<String> currentMembers =
+          List<String>.from(snapshot['memberIds'] ?? []);
+      currentMembers.addAll(membersToAdd);
+      currentMembers.removeWhere((member) => membersToRemove.contains(member));
+
+      transaction.update(channelRef, {'memberIds': currentMembers});
+    });
+  }
+
+  Future<void> renameChannel(String channelId, String newName) async {
+    try {
+      final channelRef =
+          FirebaseFirestore.instance.collection('channel').doc(channelId);
+
+      // Kiểm tra xem channel có tồn tại không
+      final snapshot = await channelRef.get();
+      if (!snapshot.exists) {
+        throw Exception("Channel với ID $channelId không tồn tại.");
+      }
+
+      // Cập nhật tên mới
+      await channelRef.update({'channelName': newName});
+      print("Đã đổi tên channel thành công.");
+    } catch (e) {
+      print("Lỗi khi đổi tên channel: $e");
+    }
+  }
+
+  Future<int> countChannelsByUserId(String userId) async {
+    // Truy vấn các channel mà userId có trong memberIds
+    QuerySnapshot snapshot = await _firestore
+        .collection('channel')
+        .where('memberIds',
+            arrayContains: userId) // Kiểm tra nếu userId có trong memberIds
+        .get();
+
+    return snapshot.size; // Trả về số lượng channel
   }
 }

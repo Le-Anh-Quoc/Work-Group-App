@@ -57,7 +57,7 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(
-                          Icons.groups,
+                          Icons.groups_outlined,
                           size: 80,
                           color: Colors.blue,
                         ),
@@ -83,15 +83,13 @@ class _ListGroupScreenState extends State<ListGroupScreen> {
                     ),
                   )
                 : GridView.builder(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 16.0),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2, // Số cột là 2
                       crossAxisSpacing: 16.0, // Khoảng cách giữa các cột
                       mainAxisSpacing: 16.0, // Khoảng cách giữa các hàng
                       childAspectRatio:
-                          1.4, // Tỉ lệ chiều rộng/chiều cao của mỗi ô
+                          1.3, // Tỉ lệ chiều rộng/chiều cao của mỗi ô
                     ),
                     itemCount: listChannelPersonal.length,
                     itemBuilder: (context, index) {

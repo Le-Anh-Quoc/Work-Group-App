@@ -32,26 +32,6 @@ class _ListChatScreenState extends State<ListChatScreen>
       appBar: const CustomAppBar(
         isHome: false,
         title: 'Chats',
-        // actions: [
-        //   Container(
-        //     margin: const EdgeInsets.only(right: 10),
-        //     decoration: BoxDecoration(
-        //       shape: BoxShape.circle,
-        //       color: Colors.grey[50],
-        //     ),
-        //     child: IconButton(
-        //       icon: const Icon(Icons.search_rounded,
-        //           color: Colors.black, size: 30),
-        //       onPressed: () {
-        //         Navigator.of(context).push(
-        //           MaterialPageRoute(
-        //             builder: (_) => const SearchScreen(),
-        //           ),
-        //         );
-        //       },
-        //     ),
-        //   )
-        // ],
       ),
       backgroundColor: Colors.white,
       body: StreamBuilder<List<RoomChat>>(
@@ -62,6 +42,7 @@ class _ListChatScreenState extends State<ListChatScreen>
           }
 
           if (snapshot.hasError) {
+            print(snapshot.error);
             return Center(child: Text('Lỗi: ${snapshot.error}'));
           }
 
@@ -69,9 +50,11 @@ class _ListChatScreenState extends State<ListChatScreen>
 
           // Sắp xếp các chat theo thời gian tin nhắn
           chatResults.sort((a, b) {
-            int aTime = a.createAt;
-            int bTime = b.createAt;
-            return (aTime).compareTo(bTime);
+            int aTime = a.timestamp.microsecondsSinceEpoch;
+            print(aTime);
+            int bTime = b.timestamp.microsecondsSinceEpoch;
+            print(bTime);
+            return (bTime).compareTo(aTime);
           });
 
           return chatResults.isEmpty

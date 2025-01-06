@@ -24,14 +24,14 @@ class RoomChatService {
 
     // Tạo đối tượng RoomChat mới với ID đã cập nhật
     RoomChat updatedRoomChat = RoomChat(
-      idRoom: newRoomId,
-      type: roomChat.type,
-      lastMessage: roomChat.lastMessage,
-      userIds: roomChat.userIds,
-      nameRoom: roomChat.nameRoom,
-      imageUrl: roomChat.imageUrl,
-      createAt: roomChat.createAt,
-    );
+        idRoom: newRoomId,
+        type: roomChat.type,
+        lastMessage: roomChat.lastMessage,
+        userIds: roomChat.userIds,
+        nameRoom: roomChat.nameRoom,
+        imageUrl: roomChat.imageUrl,
+        createAt: roomChat.createAt,
+        timestamp: roomChat.timestamp);
 
     // Trả về đối tượng RoomChat vừa tạo
     return updatedRoomChat;
@@ -42,14 +42,14 @@ class RoomChatService {
     if (doc.exists) {
       final data = doc.data()!;
       return RoomChat(
-        idRoom: data['idRoom'],
-        type: data['type'],
-        lastMessage: data['lastMessage'],
-        userIds: List<String>.from(data['users']),
-        nameRoom: data['nameRoom'],
-        imageUrl: data['imageUrl'],
-        createAt: data['createAt'],
-      );
+          idRoom: data['idRoom'],
+          type: data['type'],
+          lastMessage: data['lastMessage'],
+          userIds: List<String>.from(data['users']),
+          nameRoom: data['nameRoom'],
+          imageUrl: data['imageUrl'],
+          createAt: data['createAt'],
+          timestamp: data['timestamp']);
     }
     return null;
   }
@@ -79,6 +79,25 @@ class RoomChatService {
       return snapshot.docs.map((doc) {
         return RoomChat.fromMap(doc.data());
       }).toList();
+    });
+  }
+
+  Future<void> updateChatMembers(String chatId, List<String> membersToAdd,
+      List<String> membersToRemove) async {
+    final chatRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(chatRef);
+      if (!snapshot.exists) {
+        throw Exception("Chat không tồn tại.");
+      }
+
+      List<String> currentMembers =
+          List<String>.from(snapshot['userIds'] ?? []);
+      currentMembers.addAll(membersToAdd);
+      currentMembers.removeWhere((member) => membersToRemove.contains(member));
+
+      transaction.update(chatRef, {'userIds': currentMembers});
     });
   }
 }

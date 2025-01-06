@@ -5,13 +5,11 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class TaskIndivi extends StatelessWidget {
   final Color color;
-  final String percentTask;
   final String typeTask;
   final String numberTask;
 
   const TaskIndivi({
     super.key,
-    required this.percentTask,
     required this.typeTask,
     required this.numberTask,
     required this.color,
@@ -30,6 +28,7 @@ class TaskIndivi extends StatelessWidget {
         color: backgroundColor, // Sử dụng màu nền nhạt
         borderRadius: BorderRadius.circular(15.0), // Bo góc
       ),
+      height: 200,
       width: 160,
       //height: 250, // Chiều rộng của widget
       child: Column(
@@ -38,29 +37,29 @@ class TaskIndivi extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              CircularPercentIndicator(
-                radius: 40.0, // Kích thước vòng tròn
-                lineWidth: 8.0, // Độ dày vòng tròn
-                percent: 0.81, // Phần trăm
-                center: Text(
-                  percentTask,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.0,
-                    color: textColor, // Màu chữ phần trăm
-                  ),
-                ),
-                progressColor: color, // Màu của vòng tròn
-                backgroundColor:
-                    progressBackgroundColor, // Màu nền của vòng tròn
-              ),
+              // CircularPercentIndicator(
+              //   radius: 40.0, // Kích thước vòng tròn
+              //   lineWidth: 8.0, // Độ dày vòng tròn
+              //   percent: 0.81, // Phần trăm
+              //   center: Text(
+              //     percentTask,
+              //     style: TextStyle(
+              //       fontWeight: FontWeight.bold,
+              //       fontSize: 16.0,
+              //       color: textColor, // Màu chữ phần trăm
+              //     ),
+              //   ),
+              //   progressColor: color, // Màu của vòng tròn
+              //   backgroundColor:
+              //       progressBackgroundColor, // Màu nền của vòng tròn
+              // ),
             ],
           ),
           const SizedBox(height: 10.0),
           Text(
             typeTask,
             style: TextStyle(
-              fontSize: 18.0,
+              fontSize: 24.0,
               fontWeight: FontWeight.bold,
               color: textColor, // Màu chữ loại task
             ),

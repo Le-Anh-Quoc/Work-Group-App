@@ -57,8 +57,10 @@ class _GroupScreenState extends State<GroupScreen> {
         tasks: [],
         searchKeywords: generateSearchKeywords(_nameProjectController.text));
 
+
+
     await Provider.of<ProjectProvider>(context, listen: false)
-        .createProject(newProject);
+        .createProject(newProject, channel.channelId);
     //send notificaInApp
     DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentUserId).get();
     String names= userDoc['fullname'];

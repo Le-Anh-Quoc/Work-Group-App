@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:ruprup/models/user_model.dart';
+import 'package:ruprup/screens/individual/MeScreen.dart';
 import 'package:ruprup/services/notification_service.dart';
 import 'package:ruprup/services/user_service.dart';
+import 'package:ruprup/widgets/avatar/InitialsAvatar.dart';
 
 class PeopleWidget extends StatelessWidget {
   final UserModel people;
@@ -15,13 +17,13 @@ class PeopleWidget extends StatelessWidget {
     NotificationService notification = NotificationService();
 
     return GestureDetector(
-      // onTap: () {
-      //   Navigator.of(context).push(
-      //                   MaterialPageRoute(
-      //                     builder: (_) => PersonalScreen(userId: targetUserId),
-      //                   ),
-      //                 );
-      // },
+      onTap: () {
+        Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => PersonalScreen(profileUser: people),
+                        ),
+                      );
+      },
       child: Card(
         color: Colors.white,
         shape:
@@ -34,12 +36,7 @@ class PeopleWidget extends StatelessWidget {
           child: Row(
             children: [
               // Avatar hình tròn với hiệu ứng viền
-              CircleAvatar(
-                radius: 30, // Tăng kích thước avatar
-                backgroundColor: Colors.grey.shade300,
-                backgroundImage: const NetworkImage(
-                    'https://picsum.photos/200/300?random=1'),
-              ),
+              PersonalInitialsAvatar(name: people.fullname, size: 50),
 
               const SizedBox(width: 16.0),
 

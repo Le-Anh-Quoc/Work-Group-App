@@ -28,7 +28,8 @@ class _ActivityProjectScreenState extends State<ActivityProjectScreen> {
   }
 
   void _fetchActivitiesForDate(DateTime date) {
-    final activityProvider = Provider.of<ActivityProvider>(context, listen: false);
+    final activityProvider =
+        Provider.of<ActivityProvider>(context, listen: false);
     activityProvider.fetchActivitiesbyDate(widget.projectId, date);
   }
 
@@ -118,9 +119,25 @@ class _ActivityProjectScreenState extends State<ActivityProjectScreen> {
             if (activityProvider.activityByDate.isEmpty)
               const Expanded(
                 child: Center(
-                  child: Text(
-                    'This day, don\'t have any activity',
-                    style: TextStyle(color: Colors.grey),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.history_toggle_off, // Icon đại diện
+                        size: 80, // Kích thước lớn hơn để thu hút sự chú ý
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 16), // Khoảng cách giữa icon và văn bản
+                      Text(
+                        'No activities for this day!',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                          fontWeight:
+                              FontWeight.w500, // Văn bản đậm hơn một chút
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

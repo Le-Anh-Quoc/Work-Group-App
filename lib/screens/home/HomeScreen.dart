@@ -399,9 +399,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Column(
                   children: [
-                    const Text('Recent projects',
-                        style: TextStyle(
-                            fontSize: 19, fontWeight: FontWeight.bold)),
+                    // const Text('Recent projects',
+                    //     style: TextStyle(
+                    //         fontSize: 19, fontWeight: FontWeight.bold)),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 10),
                       child: Row(

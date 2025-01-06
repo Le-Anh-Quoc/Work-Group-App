@@ -26,7 +26,7 @@ class TaskService {
       'toDo': FieldValue.increment(1), // Tăng giá trị trường toDo lên 1
     });
     // await FirebaseAPI().scheduleNotification(
-    //   title: "Nhắc nhở hạn task", 
+    //   title: "Nhắc nhở hạn task",
     //   body: task.taskName,
     //   eventTime: task.dueDate);
     // Trả về Task mới đã được lưu vào Firestore
@@ -94,8 +94,7 @@ class TaskService {
     // Kiểm tra xem currentUserId có được cung cấp hay không
     if (currentUserId != null) {
       query = query.where('assigneeId',
-          isEqualTo: 
-              currentUserId); // Giả sử trường userId lưu ID người dùng
+          isEqualTo: currentUserId); // Giả sử trường userId lưu ID người dùng
     }
 
     final taskSnapshot = await query.get();
@@ -204,5 +203,66 @@ class TaskService {
       'inReview': inReviewCount,
       'done': doneCount,
     });
+  }
+
+  Future<int> countTasksByUser(String userId) async {
+    // Lấy tất cả các dự án mà người dùng là thành viên
+    QuerySnapshot projectsSnapshot = await _firestore
+        .collection('projects')
+        .where('memberIds',
+            arrayContains: userId) // Dự án mà người dùng là thành viên
+        .get();
+
+    int totalTasks = 0;
+
+    // Duyệt qua tất cả các dự án
+    for (var projectDoc in projectsSnapshot.docs) {
+      String projectId = projectDoc.id;
+
+      // Truy vấn các task của dự án cụ thể và assignee là userId
+      QuerySnapshot taskSnapshot = await _firestore
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .where('assigneeId',
+              isEqualTo: userId) // Kiểm tra nếu userId có trong assigneeIds
+          .get();
+
+      // Cộng dồn số lượng task trong từng dự án
+      totalTasks += taskSnapshot.size;
+    }
+
+    return totalTasks; // Trả về tổng số lượng task
+  }
+
+  Future<int> countTasksByUserAndStatus(String userId, String status) async {
+    // Lấy tất cả các dự án mà người dùng là thành viên
+    QuerySnapshot projectsSnapshot = await _firestore
+        .collection('projects')
+        .where('memberIds',
+            arrayContains: userId) // Dự án mà người dùng là thành viên
+        .get();
+
+    int totalTasks = 0;
+
+    // Duyệt qua tất cả các dự án
+    for (var projectDoc in projectsSnapshot.docs) {
+      String projectId = projectDoc.id;
+
+      // Truy vấn các task của dự án cụ thể và assignee là userId
+      QuerySnapshot taskSnapshot = await _firestore
+          .collection('projects')
+          .doc(projectId)
+          .collection('tasks')
+          .where('assigneeId',
+              isEqualTo: userId) // Kiểm tra nếu userId có trong assigneeIds
+          .where('status', isEqualTo: status) // Kiểm tra tình trạng công việc
+          .get();
+
+      // Cộng dồn số lượng task trong từng dự án
+      totalTasks += taskSnapshot.size;
+    }
+
+    return totalTasks; // Trả về tổng số lượng task theo trạng thái
   }
 }

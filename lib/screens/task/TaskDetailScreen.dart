@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:ruprup/models/comment_model.dart';
 import 'package:ruprup/models/file/file_comment.dart';
 import 'package:ruprup/models/file/file_task.dart';
+import 'package:ruprup/models/project/project_model.dart';
 import 'package:ruprup/models/project/task_model.dart';
 import 'package:ruprup/models/user_model.dart';
 import 'package:ruprup/providers/comment_provider.dart';
@@ -159,7 +160,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ),
         // title: const Text('Task', style: TextStyle(color: Colors.grey)),
         // centerTitle: true,
-        actions: _buildTaskActions(context),
+        actions: _buildTaskActions(context, currentProject!),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -563,8 +564,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           ),
                           builder: (BuildContext context) {
                             return AddCommentWidget(
-                                taskId: widget.task!.taskId,
-                                comment: comment);
+                                taskId: widget.task!.taskId, comment: comment);
                           },
                         );
                       } else if (value == 'delete_cmt') {
@@ -642,11 +642,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget fileCommentList(Comment comment) {
-    final currentProject = Provider.of<ProjectProvider>(context, listen: false).currentProject;
+    final currentProject =
+        Provider.of<ProjectProvider>(context, listen: false).currentProject;
     return Consumer<TaskFileCommentProvider>(
       builder: (context, provider, child) {
         return FutureBuilder<List<FileComment>>(
-          future: provider.fetchFileCommentsByCommentId(currentProject!.projectId, comment.id),
+          future: provider.fetchFileCommentsByCommentId(
+              currentProject!.projectId, comment.id),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -705,29 +707,48 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   // Tách riêng hành động task ra một phương thức riêng
-  List<Widget> _buildTaskActions(BuildContext context) {
+  List<Widget> _buildTaskActions(BuildContext context, Project currentProject) {
     final task = widget.task!;
-    if (!task.assigneeId.contains(actionUserId)) return [];
 
     List<Widget> actions = [];
+    if (!(task.assigneeId.contains(actionUserId) || actionUserId == currentProject.ownerId)) return [];
+    // Kiểm tra tình trạng của task và thêm các nút tương ứng
     if (task.status == TaskStatus.toDo) {
-      actions.add(_buildActionButton(Icons.launch, Colors.blueAccent,
-          () => _updateTaskStatus(context, TaskStatus.inProgress)));
+      actions.add(_buildActionButton(
+        Icons.launch,
+        Colors.blueAccent,
+        () => _updateTaskStatus(context, TaskStatus.inProgress),
+      ));
     } else if (task.status == TaskStatus.inProgress) {
       actions.addAll([
-        _buildActionButton(Icons.replay, Colors.orange,
-            () => _updateTaskStatus(context, TaskStatus.toDo)),
-        _buildActionButton(Icons.visibility, Colors.redAccent,
-            () => _updateTaskStatus(context, TaskStatus.inReview)),
+        _buildActionButton(
+          Icons.replay,
+          Colors.orange,
+          () => _updateTaskStatus(context, TaskStatus.toDo),
+        ),
+        _buildActionButton(
+          Icons.visibility,
+          Colors.redAccent,
+          () => _updateTaskStatus(context, TaskStatus.inReview),
+        ),
       ]);
     } else if (task.status == TaskStatus.inReview) {
       actions.addAll([
-        _buildActionButton(Icons.replay, Colors.orange,
-            () => _updateTaskStatus(context, TaskStatus.inProgress)),
-        _buildActionButton(Icons.done, Colors.green,
-            () => _updateTaskStatus(context, TaskStatus.done)),
+        _buildActionButton(
+          Icons.replay,
+          Colors.orange,
+          () => _updateTaskStatus(context, TaskStatus.inProgress),
+        ),
+        _buildActionButton(
+          Icons.done,
+          Colors.green,
+          () => _updateTaskStatus(context, TaskStatus.done),
+        ),
       ]);
     }
+
+    // Kiểm tra nếu người dùng không phải là assignee thì không hiển thị các hành động
+
     return actions;
   }
 

@@ -7,15 +7,28 @@ class ProjectService {
   final String collection = 'projects'; // Tên collection trong Firestore
 
   // 1. Tạo một dự án mới với ID tự động sinh (Create)
-  Future<void> createProject(Project project) async {
+  Future<void> createProject(Project project, String channelId) async {
     try {
+      // Tạo một project mới và lấy docRef
       DocumentReference docRef =
-          await _firestore.collection(collection).add(project.toMap());
+          await _firestore.collection('projects').add(project.toMap());
+
+      // Lấy projectId vừa tạo
       String newProjectId = docRef.id;
+
+      // Cập nhật projectId vào project vừa tạo
       await docRef.update({'projectId': newProjectId});
-      //return newProjectId;
+
+      // Cập nhật projectId vào collection channel
+      DocumentReference channelDoc =
+          _firestore.collection('channel').doc(channelId);
+      await channelDoc.update({
+        'projectIds': FieldValue.arrayUnion([newProjectId]),
+      });
+
+      print('Project created and updated in channel successfully.');
     } catch (e) {
-      throw Exception("Failed to create project: $e");
+      throw Exception("Failed to create project and update channel: $e");
     }
   }
 
@@ -139,8 +152,8 @@ class ProjectService {
     }
 
     // Sắp xếp dự án theo thời gian hoạt động gần đây nhất
-    projectsWithRecentActivity.sort((a, b) =>
-        (b['recentTimestamp'] as DateTime).compareTo(a['recentTimestamp'] as DateTime));
+    projectsWithRecentActivity.sort((a, b) => (b['recentTimestamp'] as DateTime)
+        .compareTo(a['recentTimestamp'] as DateTime));
 
     // Lấy 3 dự án đầu tiên có hoạt động mới nhất
     return projectsWithRecentActivity
@@ -164,5 +177,72 @@ class ProjectService {
     }).toList();
 
     return users;
+  }
+
+  Future<void> updateMultipleProjectsMembers(List<String> projectIds,
+      List<String> membersToAdd, List<String> membersToRemove) async {
+    if (projectIds.isEmpty) {
+      throw Exception("Danh sách projectIds trống.");
+    }
+
+    print("Bắt đầu cập nhật members cho projects: $projectIds");
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    try {
+      // Lấy thông tin của tất cả projects trước
+      final projectSnapshots = await Future.wait(projectIds.map((projectId) =>
+          FirebaseFirestore.instance
+              .collection('projects')
+              .doc(projectId)
+              .get()));
+
+      for (var snapshot in projectSnapshots) {
+        if (!snapshot.exists) {
+          print("Project ID: ${snapshot.id} không tồn tại.");
+          continue; // Bỏ qua nếu project không tồn tại.
+        }
+
+        final projectRef = snapshot.reference;
+        List<String> currentMembers = [];
+        if (snapshot.data()?.containsKey('memberIds') == true) {
+          currentMembers = List<String>.from(snapshot['memberIds'] ?? []);
+        }
+        print(
+            "Project ID: ${snapshot.id} - Thành viên hiện tại: $currentMembers");
+
+        // Cập nhật danh sách thành viên
+        currentMembers.addAll(membersToAdd);
+        currentMembers
+            .removeWhere((member) => membersToRemove.contains(member));
+        print(
+            "Project ID: ${snapshot.id} - Thành viên sau cập nhật: $currentMembers");
+
+        // Thêm thao tác vào batch
+        batch.update(projectRef, {'memberIds': currentMembers});
+      }
+
+      // Commit batch
+      await batch.commit();
+      print("Cập nhật thành công.");
+    } catch (e) {
+      print("Lỗi khi cập nhật: $e");
+      rethrow;
+    }
+  }
+
+  Future<int> countProjectsByUserId(String userId) async {
+    try {
+      // Lấy danh sách các project từ Firestore
+      QuerySnapshot snapshot = await _firestore.collection('projects')
+          .where('memberIds', arrayContains: userId)  // Kiểm tra userId có trong memberIds không
+          .get();
+
+      // Trả về số lượng project
+      return snapshot.docs.length;
+    } catch (e) {
+      print('Error counting projects: $e');
+      return 0; // Trả về 0 nếu có lỗi
+    }
   }
 }

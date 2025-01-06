@@ -25,6 +25,7 @@
 //   }
 // }
 
+
 class RoomChat {
   final String idRoom;
   final String type;
@@ -33,6 +34,7 @@ class RoomChat {
   final String nameRoom;
   final String? imageUrl;
   final int createAt;
+  final DateTime timestamp;
 
   RoomChat({
     required this.idRoom,
@@ -42,6 +44,7 @@ class RoomChat {
     required this.nameRoom,
     this.imageUrl,
     required this.createAt,
+    required this.timestamp
   });
 
   // Chuyển đổi đối tượng RoomChat thành Map
@@ -54,6 +57,7 @@ class RoomChat {
       'nameRoom': nameRoom,
       'imageUrl': imageUrl,
       'createAt': createAt,
+      'timestamp': timestamp
     };
   }
 
@@ -67,6 +71,7 @@ class RoomChat {
       nameRoom: map['nameRoom'],
       imageUrl: map['imageUrl'],
       createAt: map['createAt'] ?? DateTime.now().millisecondsSinceEpoch,
+      timestamp: map['timestamp'].toDate() ?? DateTime.now().millisecondsSinceEpoch
     );
   }
 }

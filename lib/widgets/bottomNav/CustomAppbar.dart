@@ -1,6 +1,8 @@
 // ignore_for_file: file_names, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ruprup/providers/user_provider.dart';
 import 'package:ruprup/screens/notification/NotificationScreen.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -12,6 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = Provider.of<UserProvider>(context, listen: false).currentUser;
     final defaultNotificationIcon = Container(
       margin: const EdgeInsets.only(right: 10),
       decoration: BoxDecoration(
@@ -23,7 +26,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) =>  NotificationScreen(userId: '4Xuld149DRUZWuO9lRF2NXqaGfj1'),
+              builder: (_) =>  NotificationScreen(userId: currentUser!.userId),
             ),
           );
         },
