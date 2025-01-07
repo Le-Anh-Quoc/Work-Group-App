@@ -24,15 +24,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const VerificationScreen()),
+        );
       try {
+        
+        // Chuyển đến màn hình thông báo email đã được gửi
+        
         await _authService.registerWithEmail(
           _nameController.text,
           _emailController.text,
           _passwordController.text,
-        );
-        // Chuyển đến màn hình thông báo email đã được gửi
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const VerificationScreen()),
         );
       } catch (e) {
         print(e);

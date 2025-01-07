@@ -133,7 +133,7 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
                   CircleAvatar(
                     radius: 26,
                     backgroundColor: widget.roomChat.imageUrl == null
-                        ? getColorFromCreatedAt(createAt)
+                        ? Colors.blue
                         : Colors.transparent,
                     backgroundImage: widget.roomChat.imageUrl != null
                         ? NetworkImage(widget.roomChat.imageUrl!)
@@ -177,7 +177,7 @@ class _ChattingUsersWidgetState extends State<ChattingUsersWidget> {
                               ? 'Sent an image'
                               : (lastMessage == '')
                                   ? 'Let\'s chat'
-                                  : messagePrefix + lastMessage,
+                                  : lastMessage,
                           style:
                               const TextStyle(fontSize: 15, color: Colors.grey),
                           maxLines: 1,

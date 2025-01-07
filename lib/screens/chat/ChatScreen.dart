@@ -279,6 +279,11 @@ class _ChatScreenState extends State<ChatScreen> {
               //         'https://example.com/default-avatar.png'),
               //   );
               // },
+              avatarBuilder: (types.User user) {
+                final userModel = userMap[user.id];
+
+                return PersonalInitialsAvatar(name: userModel!.fullname);
+              },
               nameBuilder: (types.User user) {
                 // Kiểm tra nếu có userModel cho userId hiện tại
                 final userModel = userMap[user.id];

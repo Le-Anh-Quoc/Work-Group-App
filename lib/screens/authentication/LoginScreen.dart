@@ -48,6 +48,10 @@ class _LoginScreenState extends State<LoginScreen> {
           setState(() {
             isLoading = false;
           });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Username and passsowrd incorrect')),
+          );
         }
       });
     } else {
@@ -164,7 +168,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Don't have an account? ", style: TextStyle(color: Colors.grey),),
+                        const Text(
+                          "Don't have an account? ",
+                          style: TextStyle(color: Colors.grey),
+                        ),
                         GestureDetector(
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(

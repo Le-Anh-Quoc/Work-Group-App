@@ -215,7 +215,7 @@ class _GroupScreenState extends State<GroupScreen> {
       // Nếu không phải admin, bạn có thể hiển thị thông báo hoặc không cho phép tạo dự án
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Bạn không có quyền tạo dự án trong nhóm này.')),
+            content: Text('You do not have permission to create projects in this group.')),
       );
     }
   }
